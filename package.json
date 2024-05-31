@@ -5,7 +5,8 @@
   "description": "for hailit",
   "main": "App.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "node App.js"
   },
   "author": "",
   "license": "MIT",
