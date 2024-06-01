@@ -7,7 +7,7 @@ export const getAll = async (tableName) => {
     const data = allItems.rows;
     return data;
   } catch (err) {
-    throw err;
+    return {error: `Error occurred ${err}`}
   }
 };
 
@@ -21,7 +21,7 @@ export const getTripsCustomersJoin = async (tripTable, usersTable, firstName, la
   const trips = allTrips.rows;
   return trips;
 } catch (err) {
-  throw err;
+  return {error: `Error occurred ${err}`}
 }
 }
 
@@ -36,7 +36,7 @@ export const getDispatchersVehicleJoin = async (dispatcherTable, usersTable, veh
    return dispatchers;
   } catch (err) {
    console.log(err)
-   throw err;
+   return {error: `Error occurred ${err}`}
  }
  }
 
@@ -50,7 +50,7 @@ export const getAllDateSort = async (tableName, dateColumn, limit) => {
     
     return data;
   } catch (err) {
-    throw err;
+    return {error: `Error occurred ${err}`}
   }
 }
 //check if a detail exists
@@ -65,7 +65,7 @@ export const checkOneDetail = async (tableName, columnName, condition) => {
     return result;
   } catch (err) {
     
-    throw err;
+    return {error: `Error occurred ${err}`}
   }
 };
 
@@ -95,7 +95,7 @@ export const getOne = async (tableName, columnName, entry) => {
     }
   } catch (err) {
     console.log('error56:', err)
-    throw err;
+    return {error: `Error occurred ${err}`}
   }
 };
 
@@ -113,10 +113,14 @@ export const addOne = async (tableName, columns, values) => {
     await DB.query("BEGIN");
     const result = await DB.query(queryText, valuesArray);
     await DB.query("COMMIT");
+    if (!result.rows) {
+      await DB.query("ROLLBACK");
+      return {error: 'Error occurred adding a value'}
+    }
     return result.rows;
   } catch (err) {
     await DB.query("ROLLBACK");
-    throw err;
+    return {error: `Error occurred ${err}`}
   }
 };
 
@@ -138,7 +142,7 @@ export const updateOne = async (tableName, columns, id, idColumn, ...details) =>
     return updatedData;
   } catch (err) {
     await DB.query("ROLLBACK");
-    throw err;
+    return {error: `Error occurred ${err}`}
   }
 };
 
@@ -191,7 +195,7 @@ export const deleteOne = async (tableName, columnName, id) => {
     return deletion.rowCount ? true : false;
   } catch (err) {
     await DB.query("ROLLBACK");
-    throw err;
+    return {error: `Error occurred ${err}`}
   }
 };
 
@@ -213,7 +217,7 @@ export const increaseByValue = async (
     return increaseValue.rowCount ? true : false;
   } catch (err) {
     DB.query("ROLLBACK");
-    throw err;
+    return {error: `Error occurred ${err}`}
   }
 };
 

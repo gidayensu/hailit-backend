@@ -6,7 +6,7 @@ export const getAll = async (table) => {
     const allItems = await db.select().from(table).execute();
     return allItems;
   } catch (err) {
-    throw err;
+    return {error: `Error occurred ${err}`}
   }
 };
 
@@ -15,7 +15,7 @@ export const checkOneDetail = async (table, column, condition) => {
       const result = await db.select().from(table).where(eq(column, condition)).execute();
       return result;
     } catch (err) {
-      throw err;
+      return {error: `Error occurred ${err}`}
     }
   };
 
@@ -39,7 +39,7 @@ export const checkOneDetail = async (table, column, condition) => {
       }
     } catch (err) {
       console.log('error56:', err);
-      throw err;
+      return {error: `Error occurred ${err}`}
     }
   };
 
@@ -48,7 +48,7 @@ export const checkOneDetail = async (table, column, condition) => {
       const result = await db.insert(table).values({ ...columns }).returning('*').execute();
       return result;
     } catch (err) {
-      throw err;
+      return {error: `Error occurred ${err}`}
     }
   };
 
@@ -63,7 +63,7 @@ export const checkOneDetail = async (table, column, condition) => {
       const updatedData = await db.select().from(table).where(eq(idColumn, id)).execute();
       return updatedData;
     } catch (err) {
-      throw err;
+      return {error: `Error occurred ${err}`}
     }
   };
 
@@ -91,7 +91,7 @@ export const checkOneDetail = async (table, column, condition) => {
       const deletion = await db.delete(table).where(eq(column, id)).execute();
       return deletion > 0;
     } catch (err) {
-      throw err;
+      return {error: `Error occurred ${err}`}
     }
   };
 
@@ -103,7 +103,7 @@ export const checkOneDetail = async (table, column, condition) => {
                             .execute();
       return result > 0;
     } catch (err) {
-      throw err;
+      return {error: `Error occurred ${err}`}
     }
   };
 

@@ -50,7 +50,8 @@ export const getOneTripService = async (trip_id) => {
     }
     const {dispatcher_id, trip_medium} = oneTrip;
     let dispatcherDetails = {}
-      trip_medium == 'motor' ? dispatcherDetails = await getOneRiderService(dispatcher_id) : dispatcherDetails = await getOneDriverService(dispatcher_id);
+      trip_medium == 'Motor' ? dispatcherDetails = await getOneRiderService(dispatcher_id) : dispatcherDetails = await getOneDriverService(dispatcher_id);
+      console.log('this is dispathcerDetails:', dispatcherDetails)
       if (dispatcherDetails.error) {
         console.log('dispatcherDetails.error:', dispatcherDetails.error)
         return {...oneTrip, dispatcher: 'Not assigned'}
@@ -177,7 +178,7 @@ export const addTripService = async (user_id, tripDetails) => {
       dispatcher_id,
       trip_cost: trip_cost,
       payment_status: false,
-      payment_method: "payment on delivery",
+      payment_method: "Cash on Delivery",
     };
 
     const finalTripDetails = {
@@ -194,7 +195,7 @@ export const addTripService = async (user_id, tripDetails) => {
 
     return newTrip;
   } catch (err) {
-    return { error: `Server Error Occurred adding trip: ${err}` };
+    return { error: ` Server Error [service] Occurred adding trip: ${err}` };
   }
 };
 
@@ -202,14 +203,14 @@ export const getDispatcherId = async (trip_medium) => {
   let dispatcher_id = 'ff-12-53';
 
   if (trip_medium === "car" || trip_medium === "truck") {
-    const availableDrivers = await getSpecificDriversFromDB("driver_availability", "available");
+    const availableDrivers = await getSpecificDriversFromDB("driver_availability", "Available");
     if (availableDrivers && availableDrivers.length > 0) {
       dispatcher_id = availableDrivers[0].driver_id;
     }
   }
 
   if (trip_medium === "motor") {
-    const availableRiders = await getSpecificRidersFromDB("rider_availability", "available");
+    const availableRiders = await getSpecificRidersFromDB("rider_availability", "Available");
     if (availableRiders && availableRiders.length > 0) {
       dispatcher_id = availableRiders[0].rider_id;
     }

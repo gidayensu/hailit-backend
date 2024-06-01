@@ -89,6 +89,9 @@ export const addTripToDB = async (tripDetails) => {
       tripFieldsToSelect,
       tripDetailsValues
     );
+    if (newTrip.error) {
+      return {error: newTrip.error}
+    }
     return newTrip[0];
   } catch (err) {
     
