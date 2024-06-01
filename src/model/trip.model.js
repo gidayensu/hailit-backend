@@ -55,7 +55,7 @@ export const getUserTripsFromDB = async (id, idColumn, tripFieldsToSelect, sorti
     return userTrips;
   } catch (err) {
     
-    return {error:"Server Error Occurred while getting user trips"};
+    return {error:`Server Error Occurred in getting user Trips from DB: ${err}`};
   }
 };
 
@@ -76,7 +76,7 @@ export const getSpecificTripDetailsUsingIdFromDB = async (
     }
     return specificTripDetail;
   } catch (err) {
-    return {error:"Server Error Occurred getting specific trip detail"};
+    return {error:`Server Error Occurred in getting specific trip from DB: ${err}`};
   }
 };
 
@@ -92,7 +92,7 @@ export const addTripToDB = async (tripDetails) => {
     return newTrip[0];
   } catch (err) {
     
-    return {error:"Server Error Occurred While Adding Trip"};
+    return {error:`Server Error Occurred in adding trip to DB: ${err}`};
   }
 };
 
@@ -123,7 +123,7 @@ export const updateTripOnDB = async (tripDetails) => {
       return { error: `Error occurred in updating rider details ${err}` };
     }
   } catch (err) {
-    return {error:"Server Error Occurred"};
+    return {error:`Server Error Occurred updating trip details on DB: ${err}`};
   }
 };
 

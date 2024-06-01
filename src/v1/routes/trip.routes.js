@@ -20,7 +20,7 @@ tripRouter.post('/add', addTrip)
 
 tripRouter.put('/user-trip/:trip_id', updateTrip)
 
-tripRouter.put('/rate-trip/:trip_id', supaAuth, tripAuth, rateTrip)
+tripRouter.put('/rate-trip/:trip_id', rateTrip)
 
-tripRouter.delete('/user-trip/:trip_id', supaAuth, isUserRole, deleteTrip)
+tripRouter.delete('/user-trip/:trip_id',  deleteTrip)
 

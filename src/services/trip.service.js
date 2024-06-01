@@ -194,7 +194,7 @@ export const addTripService = async (user_id, tripDetails) => {
 
     return newTrip;
   } catch (err) {
-    return { error: "Server Error Occurred Adding User Trip" };
+    return { error: `Server Error Occurred adding trip: ${err}` };
   }
 };
 
@@ -252,7 +252,7 @@ export const updateTripService = async (tripDetails) => {
       return tripUpdate;
     
   } catch (err) {
-    return {error:"Server Error Occurred Updating Trip"};
+    return {error:`Server Error Occurred updating trip: ${err}`};
   }
 };
 
@@ -285,7 +285,7 @@ export const rateTripService = async (ratingDetails) => {
 
     return { success: "trip updated with rating" };
   } catch (err) {
-    return { error: "Server Error Occurred Adding Rating" };
+    return { error: `Server Error Occurred Adding Rating: ${err}` };
   }
 };
 

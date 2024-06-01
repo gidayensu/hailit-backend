@@ -22,6 +22,7 @@ export const getOneTrip = async (req, res) => {
     
     
     const oneTrip = await getOneTripService(trip_id);
+    console.log(oneTrip)
     if (oneTrip.error) {
       return res.status(400).json({error: oneTrip.error})
     }
@@ -30,7 +31,7 @@ export const getOneTrip = async (req, res) => {
     
     return res
       .status(500)
-      .json({ error: "Server Error Occurred Retrieving Trip Detail" });
+      .json({ error: `Server Error Occurred Retrieving Trip Detail: ${err}` });
   }
 };
 
@@ -46,7 +47,7 @@ export const getUserTrips = async (req, res) => {
   } catch (err) {
     return res
       .status(500)
-      .json({ error: "Server Error Occurred Retrieving User Trips" });
+      .json({ error: `Server Error Occurred Retrieving User Trips: ${err}` });
   }
 };
 
@@ -84,7 +85,7 @@ export const addTrip = async (req, res) => {
     
     return res
       .status(500)
-      .json({ error: "Server Error Occurred Adding User Trip" });
+      .json({ error: `Server Error Occurred Adding User Trip: ${err}` });
   }
 };
 
@@ -102,7 +103,7 @@ export const updateTrip = async (req, res) => {
   } catch (err) {
     return res
       .status(500)
-      .json({ error: "Server Error Occurred Updating User Trip" });
+      .json({ error: `Server Error Occurred Updating User Trip : ${err}` });
   }
 };
 
