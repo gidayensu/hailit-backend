@@ -1,5 +1,6 @@
+import { errorHandler } from "../utils/errorHandler.js";
 import { v4 as uuid } from "uuid";
-import { addOne, checkOneDetail, deleteOne, getDispatchersVehicleJoin, getOne, getSpecificDetails, getSpecificDetailsUsingId, updateOne} from "./dBFunctions.js"
+import { addOne, checkOneDetail, deleteOne, getDispatchersVehicleJoin, getOne, getSpecificDetails, getSpecificDetailsUsingId, updateOne } from "./dBFunctions.js";
 
 const riderTableName = "rider";
 const riderColumnsForAdding = ["rider_id", "vehicle_id", "user_id"];
@@ -18,9 +19,9 @@ const riderVehicleId = "rider.vehicle_id";
 const vehicleId = "vehicle.vehicle_id";
 const riderId = "rider_id";
 const phoneNumber = "users.phone_number";
+
 export const getAllRiders = async (limit, offset) => {
   try {
-
     const allRiders = await getDispatchersVehicleJoin(
       riderTableName,
       usersTable,
@@ -40,16 +41,15 @@ export const getAllRiders = async (limit, offset) => {
       offset
     );
     if (allRiders.error) {
-      return {error: allRiders.error}
+      return errorHandler(allRiders.error, null, 500, "Rider Model");
     }
     return allRiders;
   } catch (err) {
-    console.error(err)
-    return ({error: "Server error occurred getting all riders"})
+    return errorHandler("Server error occurred getting all riders", err, 500, "Rider Model");
   }
-  ;}
+};
 
-  export const getOneRiderFromDB = async (rider_id) => {
+export const getOneRiderFromDB = async (rider_id) => {
   try {
     const riderIdColumn = riderColumnsForAdding[0];
     const rider = await getOne(
@@ -57,16 +57,12 @@ export const getAllRiders = async (limit, offset) => {
       riderIdColumn,
       rider_id
     );
-    if(rider.error) {
-      return { error: "Rider not found" };
+    if (rider.error) {
+      return errorHandler("Rider not found", null, 404, "Rider Model");
     }
-    
-      return rider[0];
-    
-    
-    
+    return rider[0];
   } catch (err) {
-    return { error: `Error occurred. Rider not fetched: ${err}` };
+    return errorHandler("Error occurred. Rider not fetched", err, 500, "Rider Model");
   }
 };
 
@@ -79,7 +75,7 @@ export const getRiderOnConditionFromDB = async (columnName, condition) => {
     );
     return riderDetails;
   } catch (err) {
-    return {error:"No Rider Details Found"};
+    return errorHandler("No Rider Details Found", null, 404, "Rider Model");
   }
 };
 
@@ -92,16 +88,15 @@ export const getSpecificRidersFromDB = async (specificColumn, condition) => {
     );
     return specificRiders;
   } catch (err) {
-    return {error:`Error occurred in retrieving riders: ${err}`};
+    return errorHandler("Error occurred in retrieving riders", err, 500, "Rider Model");
   }
 };
 
 export const addRiderToDB = async (user_id) => {
   try {
-
     const userIsRider = await getSpecificDetailsUsingId(riderTableName, user_id, 'user_id', 'rider_id');
-    if(userIsRider.length >= 1) {
-      return {error: "User is rider"}
+    if (userIsRider.length >= 1) {
+      return errorHandler("User is rider", "User already exists", 400, "Rider Model");
     }
     const rider_id = uuid();
     const riderDetails = [rider_id, defaultVehicleId, user_id];
@@ -110,11 +105,11 @@ export const addRiderToDB = async (user_id) => {
       riderColumnsForAdding,
       riderDetails
     );
-    if (addingMotor) {
+    
       return addingMotor;
-    }
+    
   } catch (err) {
-    return {error: "Error occurred adding rider"}
+    return errorHandler("Error occurred adding rider", err, 500, "Rider Model");
   }
 };
 
@@ -124,8 +119,6 @@ export const updateRiderOnDB = async (riderDetails) => {
   const tableColumns = Object.keys(riderDetails);
   const riderDetailsArray = Object.values(riderDetails);
 
-  
-
   try {
     const riderUpdate = await updateOne(
       riderTableName,
@@ -134,13 +127,15 @@ export const updateRiderOnDB = async (riderDetails) => {
       idColumn,
       ...riderDetailsArray
     );
-    
-    if (riderUpdate.rowCount ===0) {
-      return { error: "Rider details not updated" };
+    if (riderUpdate.error) {
+      return riderUpdate //error message returned
+    }
+    if (riderUpdate.rowCount === 0) {
+      return errorHandler("Rider details not updated", "Rider detail not found", 400, "Rider Model");
     }
     return riderUpdate.rows[0];
   } catch (err) {
-    return { error: `Error occurred in updating rider details ${err}` };
+    return errorHandler("Error occurred in updating rider details", err, 500, "Rider Model");
   }
 };
 
@@ -151,13 +146,10 @@ export const deleteRiderFromDB = async (rider_id) => {
       riderColumnsForAdding[0],
       rider_id
     );
-    if (riderDelete) {
       return riderDelete;
-    } else {
-      return { error: "rider not deleted" };
-    }
+    
+    
   } catch (err) {
-    return {error:"Error Occurred Deleting Rider"};
+    return errorHandler("Error Occurred Deleting Rider", err, 500, "Rider Model");
   }
 };
-

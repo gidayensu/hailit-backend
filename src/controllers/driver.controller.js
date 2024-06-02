@@ -1,19 +1,18 @@
-
 import { deleteDriverService, getAllDriversService, getOneDriverService, updateDriverService} from "../services/driver.service.js";
-
+import { errorHandler } from "../utils/errorHandler.js";
 export const getAllDrivers = async (req, res) => {
   try {
     const allDrivers = await getAllDriversService();
     if (res && res.status) {
       if(allDrivers.error) {
         
-        return res.status(200).json({error: allDrivers.error})
+        return res.status(allDrivers.errorCode).json({error: allDrivers.error, errorMessage: allDrivers.errorMessage, errorLocation: allDrivers.errorLocation})
       }
       res.status(200).json({ drivers: allDrivers });
     }
-  } catch (error) {
+  } catch (err) {
     if (res && res.status) {
-      res.status(500).json({ error: "server error in getting drivers" });
+      return res.status(500).json({ error: "Server Error occurred getting all drivers", errorMessage: err, errorLocation: "Driver Controller" });
     }
   }
 };
@@ -23,24 +22,14 @@ export const getOneDriver = async (req, res) => {
   try {
     const driver = await getOneDriverService(driver_id);
     if (driver.error) {
-      res.status(200).json({ error: driver.error });
+      return res.status(driver.errorCode).json({error: driver.error, errorMessage: driver.errorMessage, errorLocation: driver.errorLocation});
     } 
       res.status(400).json({ driver });
     
   } catch (err) {
-    return { error: `Error occurred getting driver: ${err}` };
+    return res.status(500).json({ error: "Error occurred getting driver", errorMessage: err, errorLocation: "Driver Controller" });
   }
 };
-//DRIVER NOT ADDED BECAUSE RIDERS WILL BE ADDED THROUGH THE USER ROUTE
-// const addDriver = async (req, res) => {
-//   const { user_id, vehicle_id } = req.body;
-//   const driverAdd = await addDriverService(user_id, vehicle_id);
-//   if (driverAdd) {
-//     res.status(200).json({ success: "driver added" });
-//   } else {
-//     res.status(400).json({ error: "driver not added" });
-//   }
-// };
 
 export const updateDriver = async (req, res) => {
   const { driver_id } = req.params;
@@ -68,10 +57,16 @@ export const updateDriver = async (req, res) => {
 
 export const deleteDriver = async (req, res) => {
   const { driver_id } = req.params;
+  try {
   const driverDelete = await deleteDriverService(driver_id);
-  if (driverDelete) {
-    res.status(200).json({ success: "driver deleted" });
-  } else {
-    res.status(400).json({ error: "driver not deleted" });
+  if (driverDelete.error) {
+
+  return  res.status(driverDelete.errorCode).json({ error: driverDelete.error, errorMessage: driverDelete.errorMessage, errorLocation: driverDelete.errorLocation });
   }
+  
+    res.status(200).json({ success: "driver deleted" });
+  } catch (err) {
+    res.status(500).json({error: "Error Occurred", errorMessage: err, errorLocation: "Driver Controller"})
+  }
+  
 };

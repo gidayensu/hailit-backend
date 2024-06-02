@@ -7,22 +7,20 @@ import { allowedPropertiesOnly } from "../utils//util.js";
 export const getAllVehiclesService = async () => {
   try {
     const allVehicles = await getAllVehiclesFromDB();
-    
     return allVehicles;
   } catch (err) {
-    return { error:  "server error" };
+    return errorHandler("Server error occurred getting all vehicles", err, 500, "Vehicle Service");
   }
 };
 
 export const getOneVehicleService = async (vehicle_id) => {
-  const getVehicle = await getOneVehicleFromDB(vehicle_id);
+  try {
 
-  if (getVehicle.vehicle_name) {
-    return {
-      ...getVehicle
-    };
-  } else {
-    return { error: "Not Found" };
+    const getVehicle = await getOneVehicleFromDB(vehicle_id);
+    return getVehicle;
+
+  } catch (err) {
+    return errorHandler("Server error occurred", err, 500, "Vehicle Service");
   }
 };
 
@@ -35,21 +33,16 @@ export const addVehicleService = async (vehicleDetails) => {
   };
 
   const validVehicleDetails = allowedPropertiesOnly(completeVehicleDetails, allowedVehicleProperties)
-console.log('valid vehicle:', validVehicleDetails)
+
   try {
     const addVehicleResult = await addVehicleToDB(
       validVehicleDetails
     );
-
-    if (addVehicleResult.error) {
-      return {error: addVehicleResult.error}
-    }
-    
       return addVehicleResult;
     
   } catch (err) {
     
-    return { error: "Error occurred. Vehicle not added" };
+    return errorHandler("Error occurred. Vehicle not added", err, 500, "Vehicle Service");
   }
 };
 
@@ -65,20 +58,17 @@ export const updateVehicleService = async (vehicle_id, vehicleUpdateDetails) => 
 
     return updateVehicle;
   } catch (err) {
-    return { error: "Server Error" };
+    return errorHandler("Server Error. Vehicle not updated", err, 500, "Vehicle Service");
   }
 };
 
 export const deleteVehicleService = async (vehicle_id) => {
   try {
     const deleteVehicle = await deleteVehicleFromDB(vehicle_id);
-    if (deleteVehicle) {
-      return { success: "vehicle deleted" };
-    } else {
-      return { error: "Vehicle does not exist. No vehicle deleted" };
-    }
+    return deleteVehicle
+    
   } catch (err) {
-    return { error: "Vehicle not deleted. Server Error" };
+    return errorHandler("Vehicle not deleted. Server Error", err, 500, "Vehicle Service");
   }
 };
 

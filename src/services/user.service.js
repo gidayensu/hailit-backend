@@ -1,3 +1,4 @@
+import { errorHandler } from "../utils/errorHandler.js";
 import {addUserToDB, deleteUserFromDB, getAllUsersFromDB, getOneUserFromDB, updateUserOnDB, getUserIdUsingEmail } from "../model/user.model.js";
 import {addDriverToDB, deleteDriverFromDB, getDriverDetailOnCondition } from "../model/driver.model.js";
 import {addRiderToDB, deleteRiderFromDB, getRiderOnConditionFromDB} from "../model/rider.model.js";
@@ -18,7 +19,7 @@ export const getAllUsersService = async () => {
     const users = await getAllUsersFromDB();
     return users;
   } catch (err) {
-    return {error:"Error occurred in getting all users"};
+    return errorHandler("Error occurred getting all users", err, 500, "User service");
   }
 };
 
@@ -33,7 +34,8 @@ export const getOneUserService = async (userId) => {
     return user;
   } catch (err) {
     
-    return {error:"Error occurred in getting user"};
+    return errorHandler("Server error occurred in getting user", err, 500, "User Service");
+
   }
 };
 
@@ -84,7 +86,7 @@ export const getUserIdUsingEmailService = async (userEmail) => {
     return user;
   } catch (err) {
     
-    return {error:"Error occurred in getting user"};
+    return errorHandler("Error occurred in getting user", err, 500, "User Service");
   }
 };
 
@@ -100,7 +102,7 @@ export const addUserService = async (userDetails) => {
 
     const addedUser = await addUserToDB(validUserDetailsWithId);
     if (addedUser.error) {
-      return { error: addedUser.error };
+      return addedUser; //Error message will be returned
     }
 
     const userRole = validUserDetailsWithId.user_role;
@@ -114,7 +116,8 @@ export const addUserService = async (userDetails) => {
 
     return addedUser;
   } catch (err) {
-    return { error: "Error occurred in adding user" };
+    
+return errorHandler("Error occurred in adding user", err, 500, "User Service");
   }
 };
 
@@ -122,12 +125,12 @@ const addRiderIfApplicable = async (user_id, addedUser) => {
   try {
     const addRider = await addRiderToDB(user_id);
     if (addRider.error) {
-      return { error: 'Error adding rider' };
+      return addRider //Error message will be returned
     }
     const addedRider = addRider[0];
     return { ...addedUser, rider: addedRider };
   } catch (err) {
-    return { error: 'Error adding rider' };
+    return errorHandler("Error adding rider", err, 500, "User Service");
   }
 };
 
@@ -135,12 +138,13 @@ const addDriverIfApplicable = async (user_id, addedUser) => {
   try {
     const addDriver = addDriverToDB(user_id);
     if (addDriver.error) {
-      return { error: 'Error adding driver' };
+      return addDriver //error message will be returned
     }
     const addedDriver = addDriver[0];
     return { ...addedUser, driver: addedDriver };
   } catch (err) {
-    return { error: 'Error adding driver' };
+    console.log(err)
+    return errorHandler("Error. User not updated", err, 500, "User Service");
   }
 };
 
@@ -159,7 +163,8 @@ export const updateUserService = async (userId, userDetails) => {
 
     return updatedDetails;
   } catch (err) {
-    return { error: "Error. User not updated" };
+    console.log(err)
+    return errorHandler("Error User not updated", err, 500, "Update User Service");
   }
 };
 
@@ -185,7 +190,8 @@ export const updateUserService = async (userId, userDetails) => {
 
     return updatedDetails;
   } catch (err) {
-    return { error: "Error updating rider role" };
+    return errorHandler("Error updating rider role", err, 500, "User Service");
+
   }
 };
 
@@ -211,7 +217,7 @@ const updateDriverRole = async (userId, updatedDetails) => {
 
     return updatedDetails;
   } catch (err) {
-    return { error: "Error updating driver role" };
+    return errorHandler("Error updating driver role", err, 500, "User Service");
   }
 };
 
@@ -228,6 +234,7 @@ export const deleteUserService = async (userId) => {
 
     //user is driver, delete driver
     const isDriver =  await getDriverDetailOnCondition('user_id', userId);
+    
         if (!isDriver.error) {
           const { driver_id } = isDriver[0]
           await deleteDriverFromDB(driver_id)
@@ -235,6 +242,6 @@ export const deleteUserService = async (userId) => {
       
     return await deleteUserFromDB(userId);
   } catch (err) {  
-    return ({error: 'Error occurred deleting user'})
+    return errorHandler("Error occurred deleting user", err, 500, "User Service");
   }
 };

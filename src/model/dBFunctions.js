@@ -1,5 +1,5 @@
-import { DB } from './connectDb.js'
-
+import { DB } from './connectDb.js';
+import { errorHandler } from '../utils/errorHandler.js';
 
 export const getAll = async (tableName) => {
   try {
@@ -7,69 +7,64 @@ export const getAll = async (tableName) => {
     const data = allItems.rows;
     return data;
   } catch (err) {
-    return {error: `Error occurred ${err}`}
+    return errorHandler("Error occurred", err, 500, "Driver Model");
   }
 };
 
 export const getTripsCustomersJoin = async (tripTable, usersTable, firstName, lastName, userIdUser, userIdTrip, tripId, limit, offset=0, dateColumn)=> {
- try {
-  let allTrips = await DB.query (`select ${tripTable}.*, ${firstName}, ${lastName} from ${tripTable} full outer join ${usersTable} on ${userIdTrip} = ${userIdUser} WHERE ${tripId} IS NOT NULL ORDER BY ${dateColumn} DESC `)
-  if (limit) {
-    allTrips = await DB.query (`select ${tripTable}.*, ${firstName}, ${lastName} from ${tripTable} full outer join ${usersTable} on ${userIdTrip} = ${userIdUser} WHERE ${tripId} IS NOT NULL ORDER BY ${dateColumn} DESC limit ${limit} offset ${offset};`)
+  try {
+    let allTrips = await DB.query (`select ${tripTable}.*, ${firstName}, ${lastName} from ${tripTable} full outer join ${usersTable} on ${userIdTrip} = ${userIdUser} WHERE ${tripId} IS NOT NULL ORDER BY ${dateColumn} DESC `);
+    if (limit) {
+      allTrips = await DB.query (`select ${tripTable}.*, ${firstName}, ${lastName} from ${tripTable} full outer join ${usersTable} on ${userIdTrip} = ${userIdUser} WHERE ${tripId} IS NOT NULL ORDER BY ${dateColumn} DESC limit ${limit} offset ${offset};`);
+    }
+    
+    const trips = allTrips.rows;
+    return trips;
+  } catch (err) {
+    return errorHandler("Error occurred", err, 500, "Driver Model");
   }
-  
-  const trips = allTrips.rows;
-  return trips;
-} catch (err) {
-  return {error: `Error occurred ${err}`}
-}
-}
+};
 
 export const getDispatchersVehicleJoin = async (dispatcherTable, usersTable, vehicleTable, firstName, lastName, phoneNumber, email, vehicleName, vehiclePlate, userIdDispatcher, userIdUsers, dispatcherVehicleId, vehicleId, dispatcherId, limit, offset=0)=> {
   try {
-   let allDispatchers = await DB.query (`select ${dispatcherTable}.*, ${firstName}, ${lastName}, ${phoneNumber}, ${email}, ${vehicleName}, ${vehiclePlate} from ${dispatcherTable} full outer join ${usersTable} on ${userIdDispatcher} = ${userIdUsers} full outer join ${vehicleTable} on ${dispatcherVehicleId} = ${vehicleId} where ${dispatcherId} is not null`)
-   if (limit) {
-    allDispatchers = await DB.query (`select ${dispatcherTable}.*, ${firstName}, ${lastName}, ${phoneNumber}, ${email}, ${vehicleName}, ${vehiclePlate} from ${dispatcherTable} full outer join ${usersTable} on ${userIdDispatcher} = ${userIdUsers} full outer join ${vehicleTable} on ${dispatcherVehicleId} = ${vehicleId} where ${dispatcherId} is not null limit ${limit} offset ${offset};`)
-   }
-   
-   const dispatchers = allDispatchers.rows;
-   return dispatchers;
+    let allDispatchers = await DB.query (`select ${dispatcherTable}.*, ${firstName}, ${lastName}, ${phoneNumber}, ${email}, ${vehicleName}, ${vehiclePlate} from ${dispatcherTable} full outer join ${usersTable} on ${userIdDispatcher} = ${userIdUsers} full outer join ${vehicleTable} on ${dispatcherVehicleId} = ${vehicleId} where ${dispatcherId} is not null`);
+    if (limit) {
+      allDispatchers = await DB.query (`select ${dispatcherTable}.*, ${firstName}, ${lastName}, ${phoneNumber}, ${email}, ${vehicleName}, ${vehiclePlate} from ${dispatcherTable} full outer join ${usersTable} on ${userIdDispatcher} = ${userIdUsers} full outer join ${vehicleTable} on ${dispatcherVehicleId} = ${vehicleId} where ${dispatcherId} is not null limit ${limit} offset ${offset};`);
+    }
+    
+    const dispatchers = allDispatchers.rows;
+    return dispatchers;
   } catch (err) {
-   console.log(err)
-   return {error: `Error occurred ${err}`}
- }
- }
+    console.log(err);
+    return errorHandler("Error occurred", err, 500, "Driver Model");
+  }
+};
 
 export const getAllDateSort = async (tableName, dateColumn, limit) => {
   try {
     let allItems = await DB.query(`SELECT * FROM ${tableName} ORDER BY ${dateColumn} DESC`);
     if (limit) {
-      allItems = await DB.query(`SELECT * FROM ${tableName} ORDER BY ${dateColumn} DESC LIMIT ${limit}`)
+      allItems = await DB.query(`SELECT * FROM ${tableName} ORDER BY ${dateColumn} DESC LIMIT ${limit}`);
     }
     const data = allItems.rows;
     
     return data;
   } catch (err) {
-    return {error: `Error occurred ${err}`}
+    return errorHandler("Error occurred", err, 500, "Driver Model");
   }
-}
-//check if a detail exists
+};
+
 export const checkOneDetail = async (tableName, columnName, condition) => {
   try {
-    
     const queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1`;
     const value = [condition];
     const result = await DB.query(queryText, value);
     
-    
     return result;
   } catch (err) {
-    
-    return {error: `Error occurred ${err}`}
+    return errorHandler("Error occurred", err, 500, "Driver Model");
   }
 };
-
-//check for only one detail and return boolean
 
 export const detailExists = async (tableName, columnName, detail) => {
   try {
@@ -80,22 +75,17 @@ export const detailExists = async (tableName, columnName, detail) => {
   }
 };
 
-//get one item from the table. //consider using a better approach to limit repetition
 export const getOne = async (tableName, columnName, entry) => {
-  
   try {
     const result = await checkOneDetail(tableName, columnName, entry);
 
     if (result.rowCount > 0) {
-      
       return result.rows;
     } else {
-      
-      return { error: "detail does not exist" };
+      return errorHandler("detail does not exist", null, 404, "Driver Model");
     }
   } catch (err) {
-    console.log('error56:', err)
-    return {error: `Error occurred ${err}`}
+    return errorHandler("Error occurred", err, 500, "Driver Model");
   }
 };
 
@@ -106,7 +96,6 @@ export const addOne = async (tableName, columns, values) => {
     valuesArray = [values]
   }
   
-  
   const placeholders = valuesArray.map((_, index) => "$" + (index + 1)).join(", ");
   const queryText = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders}) RETURNING *`;
   try {
@@ -115,12 +104,12 @@ export const addOne = async (tableName, columns, values) => {
     await DB.query("COMMIT");
     if (!result.rows) {
       await DB.query("ROLLBACK");
-      return {error: 'Error occurred adding a value'}
+      return errorHandler('Error occurred adding detail', null, 500, 'Driver Model');
     }
     return result.rows;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return {error: `Error occurred ${err}`}
+    return errorHandler(`Server Error occurred`, err, 500, 'Driver Model');
   }
 };
 
@@ -142,7 +131,7 @@ export const updateOne = async (tableName, columns, id, idColumn, ...details) =>
     return updatedData;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return {error: `Error occurred ${err}`}
+    return errorHandler(`Error occurred`, err, 500, 'Driver Model');
   }
 };
 
@@ -156,7 +145,7 @@ export const getSpecificDetails = async (tableName, specificColumn, condition) =
     return rows;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return {error: "Server Error occurred, data not retrieved"};
+    return errorHandler("Server Error occurred, data not retrieved", err, 500, 'Driver Model');
   }
 };
 
@@ -174,6 +163,9 @@ export const getSpecificDetailsUsingId = async (tableName, id, idColumn, columns
     
     const value = [id];
     const { rows } = await DB.query(queryText, value);
+    if (!rows) {
+      return errorHandler("Detail not found", null, 404, 'Driver Model');
+    }
     await DB.query("COMMIT");
     
     return rows;
@@ -181,7 +173,7 @@ export const getSpecificDetailsUsingId = async (tableName, id, idColumn, columns
   } catch (err) {
     
     await DB.query("ROLLBACK");
-    return {error:"Server Error occurred, data not retrieved"};
+    return errorHandler("Server Error occurred, data not retrieved", err, 500, 'Driver Model');
   }
 };
 
@@ -195,7 +187,7 @@ export const deleteOne = async (tableName, columnName, id) => {
     return deletion.rowCount ? true : false;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return {error: `Error occurred ${err}`}
+    return errorHandler(`Error occurred`, err, 500, 'Driver Model');
   }
 };
 
@@ -217,9 +209,6 @@ export const increaseByValue = async (
     return increaseValue.rowCount ? true : false;
   } catch (err) {
     DB.query("ROLLBACK");
-    return {error: `Error occurred ${err}`}
+    return errorHandler(`Error occurred`, err, 500, 'Driver Model');
   }
 };
-
-
-

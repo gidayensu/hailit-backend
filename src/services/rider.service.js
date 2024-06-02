@@ -3,6 +3,7 @@ import { getOneVehicleFromDB } from "../model/vehicle.model.js";
 import { getSpecificUserDetailsUsingId } from "../model/user.model.js";
 
 import { allowedPropertiesOnly } from "../utils/util.js";
+import { errorHandler } from "../utils/errorHandler.js";
 
 
 
@@ -11,7 +12,7 @@ export const getAllRidersService = async () => {
     const riders = await getAllRiders();
     return riders;
   } catch (err) {
-    return {error: "Error occurred getting all riders"}
+    return errorHandler("Error occurred getting all riders", err, 500, "Rider Service");
   }
 };
 
@@ -40,17 +41,19 @@ export const getOneRiderService = async (rider_id) => {
       return {...riderDetails, vehicle: vehicleDetails};
     
   } catch (err) {
-    return { error: `Error occurred getting rider: ${err}` };
+    return errorHandler("Error occurred getting rider", err, 500, "Rider Service");
   }
 };
 
 export const addRiderService = async (user_id, vehicle_id) => {
-  const riderAdd = await addRiderToDB(user_id, vehicle_id);
-  if (riderAdd) {
+  try {
+
+    const riderAdd = await addRiderToDB(user_id, vehicle_id);
     return riderAdd;
-  } else {
-    return { error: "rider not added" };
+  } catch (err) {
+    return errorHandler("Server error occurred", err, 500, "Rider Service")
   }
+
 };
 
 export const updateRiderService = async (riderDetails) => {
@@ -63,27 +66,20 @@ export const updateRiderService = async (riderDetails) => {
     );
     const riderUpdate = await updateRiderOnDB(validRiderDetails);
     
-    if (riderUpdate) {
-      return riderUpdate;
-    } else {
-      
-      return { error: "rider details not updated" };
-    }
+    return riderUpdate;
+    
   } catch (err) {
-    return { error: `Error occurred updating rider details: ${err}` };
+    return errorHandler("Error occurred updating rider details", err, 500, "Rider Service");
   }
 };
 
 export const deleteRiderService = async (rider_id) => {
   try {
     const riderDelete = await deleteRiderFromDB(rider_id);
-    if (riderDelete) {
-      return riderDelete;
-    } else {
-      return { error: "rider not deleted" };
-    }
+    return riderDelete;
+    
   } catch (err) {
-    return { error: "Error occurred deleting rider" };
+    return errorHandler("Error occurred deleting rider", err, 500, "Rider Service");
   }
 };
 

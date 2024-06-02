@@ -1,4 +1,4 @@
-
+import { errorHandler } from '../utils/errorHandler.js';
 import {addTripToDB, deleteTripFromDB, getAllTripsFromDB, getOneTripFromDB, getUserTripsFromDB, ratingCouIntIncrease, updateTripOnDB } from '../model/trip.model.js';
 import crypto from 'crypto'
 import { getOneRiderService } from "./rider.service.js";
@@ -15,7 +15,7 @@ config({ path: '../../../.env' });
 export const tripFieldsToSelect = [
   "trip_id, dispatcher_id, trip_medium, trip_status, package_type, pickup_location, drop_off_location, additional_information, trip_request_date, trip_cost, payment_status, payment_method "
 ];
-// const allowedTripStatus = ['new', 'in progress', 'completed', 'cancelled'];
+// const allowedTripStatus = ['booked', 'in progress', 'completed', 'cancelled'];
 export const allowedAddTripProperties = [
   "trip_medium",
   "package_type",
@@ -30,12 +30,12 @@ export const getAllTripsService = async (limit) => {
   try {
     const allTrips = await getAllTripsFromDB(limit);
     if(allTrips.error) {
-      return {error: "No trips found"}
+      return {error: allTrips.error}
     }
     return allTrips;
   } catch (err) {
     
-    return {error:"Error Occurred  in getting Trips Detail"};
+    return errorHandler("Error Occurred in getting Trips Detail", err, 500, "Trip Service");
   }
 };
 
@@ -51,15 +51,15 @@ export const getOneTripService = async (trip_id) => {
     const {dispatcher_id, trip_medium} = oneTrip;
     let dispatcherDetails = {}
       trip_medium == 'Motor' ? dispatcherDetails = await getOneRiderService(dispatcher_id) : dispatcherDetails = await getOneDriverService(dispatcher_id);
-      console.log('this is dispathcerDetails:', dispatcherDetails)
+      
       if (dispatcherDetails.error) {
-        console.log('dispatcherDetails.error:', dispatcherDetails.error)
+        
         return {...oneTrip, dispatcher: 'Not assigned'}
       }
     
     return {...oneTrip, dispatcher: dispatcherDetails};
   } catch (err) {
-    return {error:"Error Occurred in getting Trip Detail"};
+    return errorHandler("Error Occurred in getting One Trip Detail", err, 500, "Trip Service");
   }
 };
 
@@ -91,8 +91,8 @@ export const getUserTripsService = async (user_id) => {
       
     }
   } catch (err) {
-    console.log(err)
-    return {error: "Error occurred getting user trips details"};
+    
+    return errorHandler("Error occurred getting user trips details", err, 500, "Trip Service");
   }
 };
  //CUSTOMER TRIPS (HELPER FUNCTION)
@@ -112,7 +112,7 @@ export const getUserTripsService = async (user_id) => {
     }
     return trips;
   } catch (err) {
-    return {error: `Error occurred getting customer trips: ${err}`}
+    return errorHandler(`Error occurred getting customer trips`, err, 500, "Trip Service");
   }
  }
  //DISPATCHER TRIPS (HELPER FUNCTION)
@@ -155,12 +155,11 @@ export const getUserTripsService = async (user_id) => {
       idColumn,
       tripFieldsToSelect
     );
-    if(dispatcherTrips.error) {
-      return {error: dispatcherTrips.error}
-    }
+    
     return dispatcherTrips;
   } catch (err) {
-    return {error: `Error occurred getting dispatcher trips: ${err}`}
+    
+    return errorHandler(`Error occurred getting dispatcher trips`, err, 500, "Trip Service");
   }
 }
 export const addTripService = async (user_id, tripDetails) => {
@@ -173,7 +172,7 @@ export const addTripService = async (user_id, tripDetails) => {
     const dispatcher_id = await getDispatcherId(tripDetails.trip_medium);
 
     const tripStatusDetails = {
-      trip_status: "New",
+      trip_status: "Booked",
       trip_request_date: "now()",
       dispatcher_id,
       trip_cost: trip_cost,
@@ -189,13 +188,11 @@ export const addTripService = async (user_id, tripDetails) => {
     };
 
     const newTrip = await addTripToDB(finalTripDetails);
-    if (newTrip.error) {
-      return { error: newTrip.error };
-    }
+    
 
     return newTrip;
   } catch (err) {
-    return { error: ` Server Error [service] Occurred adding trip: ${err}` };
+    return errorHandler(`Server Error [service] Occurred adding trip`, err, 500, "Trip Service");
   }
 };
 
@@ -247,13 +244,11 @@ export const updateTripService = async (tripDetails) => {
     );
 
     const tripUpdate = await updateTripOnDB(validTripDetails);
-    if(tripUpdate.error) {
-      return {error: tripUpdate.error}
-    }
+    
       return tripUpdate;
     
   } catch (err) {
-    return {error:`Server Error Occurred updating trip: ${err}`};
+    return errorHandler(`Server Error Occurred updating trip`, err, 500, "Trip Service");
   }
 };
 
@@ -266,7 +261,7 @@ export const rateTripService = async (ratingDetails) => {
     const { trip_id, dispatcher_id } = validTripDetails;
     const updateTrip = await updateTripOnDB(validTripDetails);
     if (updateTrip.error) {
-      return { error: updateTrip.error };
+      return updateTrip //Error message
     }
 
     const tripMedium = await tripModel.getSpecificDetailsUsingId(trip_id, "trip_id", "trip_medium");
@@ -276,17 +271,17 @@ export const rateTripService = async (ratingDetails) => {
 
     const ratingUpdate = await updateDispatcherRating(trip_medium, dispatcher_id, averageDispatcherRating);
     if (ratingUpdate.error) {
-      return { error: ratingUpdate.error };
+      return ratingUpdate //error message included
     }
 
     const ratingCountUpdate = await increaseRatingCount(trip_medium, dispatcher_id);
     if (ratingCountUpdate.error) {
-      return { error: ratingCountUpdate.error };
+      return ratingCountUpdate //error message included
     }
 
     return { success: "trip updated with rating" };
   } catch (err) {
-    return { error: `Server Error Occurred Adding Rating: ${err}` };
+    return errorHandler(`Server Error Occurred Adding Rating: ${err}`, err, 500, "Trip Service");
   }
 };
 
@@ -295,12 +290,12 @@ export const updateDispatcherRating = async (trip_medium, dispatcher_id, average
   if (trip_medium === "motor") {
     const riderUpdate = await updateRiderOnDB({ cumulative_rider_rating: averageDispatcherRating, rider_id: dispatcher_id });
     if (riderUpdate.error) {
-      return { error: riderUpdate.error };
+      return riderUpdate //Error message returned
     }
   } else if (trip_medium === "car" || trip_medium === "truck") {
     const driverUpdate = await updateDriverOnDB({ cumulative_driver_rating: averageDispatcherRating, driver_id: dispatcher_id });
     if (driverUpdate.error) {
-      return { error: driverUpdate.error };
+      return driverUpdate //Error message returned
     }
   }
   return { success: true };
@@ -318,12 +313,12 @@ export const increaseRatingCount = async (trip_medium, dispatcher_id) => {
     idColumn = 'driver_id';
     ratingCountColumn = 'driver_rating_count';
   } else {
-    return { error: "Invalid trip medium" };
+    return errorHandler("Error occurred", "Invalid trip medium", 400, "service");
   }
 
   const countIncrease = await ratingCouIntIncrease(tableName, dispatcher_id, idColumn, ratingCountColumn);
   if (countIncrease.error) {
-    return { error: countIncrease.error };
+    return countIncrease //error message returned
   }
   return { success: true };
 };
@@ -331,12 +326,9 @@ export const increaseRatingCount = async (trip_medium, dispatcher_id) => {
 export const deleteTripService = async (trip_id) => {
   try {
     const tripDelete = await deleteTripFromDB(trip_id);
-    if (tripDelete) {
-      return tripDelete;
-    } else {
-      return { error: "trip not deleted" };
-    }
+    
+    return tripDelete;
   } catch (err) {
-    return { error: "Error occurred deleting trip" };
+    return errorHandler("Error occurred deleting trip", err, 500, "Trip Service");
   }
 };

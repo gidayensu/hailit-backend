@@ -1,3 +1,4 @@
+import { errorHandler } from "../utils/errorHandler.js";
 import { v4 as uuid } from "uuid";
 import {
   addOne,
@@ -28,6 +29,7 @@ const driverVehicleId = "driver.vehicle_id";
 const vehicleId = "vehicle.vehicle_id";
 const driverId = "driver_id";
 const phoneNumber = "users.phone_number";
+
 export const getAllDriversFromDB = async (limit, offset) => {
   try {
     const allDrivers = await getDispatchersVehicleJoin(
@@ -48,13 +50,12 @@ export const getAllDriversFromDB = async (limit, offset) => {
       limit,
       offset
     );
-    if (allDrivers.error) {
-      return { error: "No driver found" };
-    }
+    
     return allDrivers;
   } catch (err) {
-    console.log(err)
-    return { error: "server error occurred getting drivers" };
+    
+    return errorHandler("server error occurred getting drivers", err, 500, "Driver Model");
+
   }
 };
 
@@ -62,13 +63,14 @@ export const getOneDriverFromDB = async (driver_id) => {
   try {
     const driverIdColumn = driverTableColumns[0];
     const driver = await getOne(driverTableName, driverIdColumn, driver_id);
-    if (!driver) {
-      return { error: "Driver not found" };
+    if (driver.error) {
+      return driver; //error message returned
     }
 
     return driver[0];
   } catch (err) {
-    return { error: "Error occurred. Driver not fetched" };
+    return errorHandler("Error occurred. Driver not fetched", err, 500, "Driver Model");
+
   }
 };
 
@@ -81,12 +83,14 @@ export const getDriverDetailOnCondition = async (columnName, condition) => {
     );
 
     if (driverDetails.rowCount === 0) {
-      return { error: "driver detail not found" };
+      return errorHandler("Error occurred", "driver detail not found", 404, "Driver Model");
+
     }
 
     return driverDetails.rows;
   } catch (err) {
-    return { error: "Error occurred finding driver details" };
+    return errorHandler("Error occurred finding driver details", err, 500, "Driver Model");
+
   }
 };
 export const getSpecificDriversFromDB = async (specificColumn, condition) => {
@@ -98,7 +102,8 @@ export const getSpecificDriversFromDB = async (specificColumn, condition) => {
     );
     return specificDrivers;
   } catch (err) {
-    return { error: `Error occurred in retrieving drivers: ${err}` };
+    return errorHandler("Error occurred in retrieving drivers", err, 500, "Driver Model");
+
   }
 };
 
@@ -110,7 +115,8 @@ export const addDriverToDB = async (user_id, vehicle_id) => {
     "driver_id"
   );
   if (userIsDriver.length >= 1) {
-    return { error: "User is driver" };
+    return errorHandler("User is driver", "User already exists as driver", 400, "Driver Model");
+
   }
 
   const driver_id = uuid();
@@ -125,11 +131,12 @@ export const addDriverToDB = async (user_id, vehicle_id) => {
       driverTableColumns,
       driverDetails
     );
-    if (addedDriver) {
-      return addedDriver;
-    }
+    
+  return addedDriver;
+  
   } catch (err) {
-    return { error: "error" };
+    return errorHandler("Error occurred adding driver", err, 500, "Driver Model");
+
   }
 };
 
@@ -148,24 +155,32 @@ export const updateDriverOnDB = async (driverDetails) => {
       ...driverDetailsArray
     );
 
+    if (driverUpdate.error) {
+      return driverUpdate; //Error message returned
+    }
     if (driverUpdate.rowCount === 0) {
-      return { error: "Driver details not updated" };
+      return errorHandler("Driver details not updated", "Driver detail not found", 400, "Driver Model");
+
     }
     return driverUpdate.rows[0];
   } catch (err) {
-    return { error: `Error occurred in updating driver details ${err}` };
+    
+    return errorHandler("Error occurred in updating driver details", err, 500, "Driver Model");
   }
 };
 
 export const deleteDriverFromDB = async (driver_id) => {
-  const driverDelete = await deleteOne(
-    driverTableName,
-    driverTableColumns[0],
-    driver_id
-  );
-  if (driverDelete) {
-    return driverDelete;
-  } else {
-    return { error: "driver not deleted" };
+  try {
+
+    const driverDelete = await deleteOne(
+      driverTableName,
+      driverTableColumns[0],
+      driver_id
+    );
+    
+      return driverDelete;
+    
+  } catch (err) {
+    return errorHandler("Server Error occurred deleting driver", err, 500, "Driver Model")
   }
 };

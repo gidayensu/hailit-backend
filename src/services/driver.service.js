@@ -1,3 +1,4 @@
+import { errorHandler } from "../utils/errorHandler.js";
 import {addDriverToDB, deleteDriverFromDB, getAllDriversFromDB, getOneDriverFromDB, updateDriverOnDB} from "../model/driver.model.js";
 import { getOneVehicleFromDB } from "../model/vehicle.model.js";
 import {getSpecificUserDetailsUsingId} from "../model/user.model.js";
@@ -14,7 +15,7 @@ export const getAllDriversService = async () => {
     }
     return drivers;
   } catch (err) {
-    return {error: "server error occurred getting drivers"}
+    return errorHandler("server error occurred getting drivers", err, 500, "service");
   }
 };
 
@@ -44,17 +45,16 @@ export  const getOneDriverService = async (driver_id) => {
     }
       return {...driverDetails, vehicle: vehicleDetails};
   } catch (err) {
-    return { error: `Error occurred getting driver: ${err}` };
+    return errorHandler("Error occurred getting one driver", err, 500, "service");
   }
 };
 
 export const addDriverService = async (user_id, vehicle_id) => {
   const driverAdd = await addDriverToDB(user_id, vehicle_id);
-  if (driverAdd) {
-    return driverAdd;
-  } else {
-    return { error: "driver not added" };
+  if (driverAdd.error) {
+    return driverAdd.error;
   }
+  return driverAdd
 };
 
 export const updateDriverService = async (driverDetails) => {
@@ -71,19 +71,25 @@ export const updateDriverService = async (driverDetails) => {
     );
     const driverUpdate = await updateDriverOnDB(validDriverDetails);
     if (driverUpdate.error) {
-      return { error: "driver details not updated" };
+      return { error: driverUpdate.error };
     } 
     return driverUpdate;
   } catch (err) {
-    return { error: `Error occurred updating driver details: ${err}` };
+    return errorHandler("Error occurred updating driver details", err, 500, "service");
   }
 };
 
 export const deleteDriverService = async (driver_id) => {
-  const driverDelete = await deleteDriverFromDB(driver_id);
-  if (driverDelete) {
+  try {
+
+    const driverDelete = await deleteDriverFromDB(driver_id);
+    if (driverDelete.error) {
+      return driverDelete.error;
+    } 
     return driverDelete;
-  } else {
-    return { error: "driver not deleted" };
+  } catch (err) {
+    return errorHandler('Server Error occurred deleting driver', err, 500, "Driver Service" )
   }
 };
+
+

@@ -6,11 +6,11 @@ export const getAllTrips = async (req, res) => {
     const allTrips = await getAllTripsService(limit);
     
     if(allTrips.error) {
-      return res.status(400).json({error: allTrips.error})
+      return res.status(allTrips.errorCode).json({error: allTrips.error, errorMessage: allTrips.errorMessage, errorLocation: allTrips.errorLocation})
     }
     res.status(200).json({ trips: allTrips });
   } catch (err) {
-    return res.status(500).json({ error: "Server error" });
+    return res.status(500).json({ error: "Server Error occurred", errorMessage: err, errorLocation: "Trip Controller" });
   }
 };
 
@@ -22,16 +22,16 @@ export const getOneTrip = async (req, res) => {
     
     
     const oneTrip = await getOneTripService(trip_id);
-    console.log(oneTrip)
+    
     if (oneTrip.error) {
-      return res.status(400).json({error: oneTrip.error})
+      return res.status(400).json({error: oneTrip.error, errorMessage: oneTrip.errorMessage, errorLocation: oneTrip.errorLocation})
     }
     res.status(200).json({ trip: oneTrip });
   } catch (err) {
     
     return res
       .status(500)
-      .json({ error: `Server Error Occurred Retrieving Trip Detail: ${err}` });
+      .json({ error: "Server Error occurred", errorMessage: err, errorLocation: "Trip Controller" });
   }
 };
 
@@ -41,13 +41,13 @@ export const getUserTrips = async (req, res) => {
     
     const userTrips = await getUserTripsService(user_id);
     if (userTrips.error) {
-      return res.status(400).json({error: userTrips.error})
+      return res.status(400).json({error: userTrips.error, errorMessage: userTrips.errorMessage, errorLocation: userTrips.errorLocation})
     }
     res.status(200).json({ trips: userTrips });
   } catch (err) {
     return res
       .status(500)
-      .json({ error: `Server Error Occurred Retrieving User Trips: ${err}` });
+      .json({ error: "Server Error occurred", errorMessage: err, errorLocation: "Trip Controller" });
   }
 };
 
@@ -78,14 +78,14 @@ export const addTrip = async (req, res) => {
     
     const tripAdded = await addTripService(user_id, tripDetails);
     if (tripAdded.error) {
-      return res.status(400).json({error: tripAdded.error} );
+      return res.status(400).json({error: tripAdded.error, errorMessage: tripAdded.errorMessage, errorLocation: tripAdded.errorLocation} );
     }
     res.status(200).json({trip: tripAdded})
   } catch (err) {
     
     return res
       .status(500)
-      .json({ error: `Server Error Occurred Adding User Trip: ${err}` });
+      .json({ error: "Server Error occurred", errorMessage: err, errorLocation: "Trip Controller" });
   }
 };
 
@@ -93,9 +93,10 @@ export const updateTrip = async (req, res) => {
   try {
     const { trip_id } = req.params;
     const tripDetails = { trip_id, ...req.body };
+    console.log('this is trip details:', tripDetails)
     const tripUpdate = await updateTripService(tripDetails);
     if(tripUpdate.error) {
-      return res.status(403).json({error: tripUpdate.error})
+      return res.status(403).json({error: tripUpdate.error, errorMessage: tripUpdate.errorMessage, errorLocation: tripUpdate.errorLocation})
     }
     
       res.status(200).json({trip: tripUpdate} );
@@ -103,7 +104,7 @@ export const updateTrip = async (req, res) => {
   } catch (err) {
     return res
       .status(500)
-      .json({ error: `Server Error Occurred Updating User Trip : ${err}` });
+      .json({ error: "Server Error occurred", errorMessage: err, errorLocation: "Trip Controller" });
   }
 };
 
@@ -123,7 +124,7 @@ export const rateTrip = async (req, res) => {
 
     const tripRating = await rateTripService(detailsWithId);
     if(tripRating.error) {
-      return res.status(400).json({error: tripRating.error})
+      return res.status(400).json({error: tripRating.error, errorMessage: tripRating.errorMessage, errorLocation: tripRating.errorLocation})
     }
     
       res.status(200).json(tripRating);
@@ -131,7 +132,7 @@ export const rateTrip = async (req, res) => {
     
     
   } catch (err) {
-    return { error: `Server error, ${err}` };
+    return res.status(500).json({ error: "Server Error occurred", errorMessage: err, errorLocation: "Trip Controller" });
   }
 };
 
@@ -145,6 +146,6 @@ export const deleteTrip = async (req, res) => {
       res.status(400).json({ error: "trip not deleted" });
     }
   } catch (err) {
-    return {error:"Error Occurred; Rider Not Deleted"};
+    return res.status(500).json({error:"Error Occurred; Rider Not Deleted", errorMessage: err, errorLocation: "Trip Controller"});
   }
 };

@@ -1,46 +1,72 @@
-
-import { addOne, deleteOne, getAll, getTripsCustomersJoin, getAllDateSort, getOne, getSpecificDetailsUsingId, increaseByValue, updateOne} from "./dBFunctions.js"
+import {
+  addOne,
+  deleteOne,
+  getTripsCustomersJoin,
+  getAllDateSort,
+  getOne,
+  getSpecificDetailsUsingId,
+  increaseByValue,
+  updateOne,
+} from "./dBFunctions.js";
 
 const tripTableName = "trips";
-const tripId = "trips.trip_id"
-const tripRequestDateColumn = "trips.trip_request_date"
-const usersTable = 'users';
-const firstName = 'users.first_name';
-const lastName = 'users.last_name';
-const userIdUser = 'users.user_id';
-const userIdTrip = 'trips.customer_id'
+const tripId = "trips.trip_id";
+const tripRequestDateColumn = "trips.trip_request_date";
+const usersTable = "users";
+const firstName = "users.first_name";
+const lastName = "users.last_name";
+const userIdUser = "users.user_id";
+const userIdTrip = "trips.customer_id";
 
 export const getAllTripsFromDB = async (limit, offset) => {
   try {
-    const allTrips = await getTripsCustomersJoin(tripTableName, usersTable, firstName, lastName, userIdUser, userIdTrip, tripId, limit, offset, tripRequestDateColumn   );
-    if(!allTrips) {
-      return {error: "No trip found"}
-    }
-
+    const allTrips = await getTripsCustomersJoin(
+      tripTableName,
+      usersTable,
+      firstName,
+      lastName,
+      userIdUser,
+      userIdTrip,
+      tripId,
+      limit,
+      offset,
+      tripRequestDateColumn
+    );
     return allTrips;
   } catch (err) {
-    return {error:`Server Error Occurred in getting all trips from database at the model level: ${err}`};
+    return errorHandler(
+      "Server Error Occurred in getting all trips from database at the model level",
+      err,
+      500,
+      "Trip Model"
+    );
   }
 };
+
 export const getOneTripFromDB = async (trip_id, tripIdColumn) => {
-  console.log('this really really runs')
   try {
-    const oneTrip = await getOne(
-      tripTableName,
-      tripIdColumn,
-      trip_id
-    );
-    console.log('OneTrip', oneTrip)
-    if(oneTrip.error) {
-      return {error: oneTrip.error}
+    const oneTrip = await getOne(tripTableName, tripIdColumn, trip_id);
+
+    if (oneTrip.error) {
+      return oneTrip //Error message returned
     }
     return oneTrip[0];
   } catch (err) {
-    return {error: `Server Error Occurred in getting data from Database: ${err}`};
+    return errorHandler(
+      "Server Error Occurred in getting data from Database",
+      err,
+      500,
+      "Trip Model"
+    );
   }
 };
 
-export const getUserTripsFromDB = async (id, idColumn, tripFieldsToSelect, sortingColumn) => {
+export const getUserTripsFromDB = async (
+  id,
+  idColumn,
+  tripFieldsToSelect,
+  sortingColumn
+) => {
   try {
     const userTrips = await getSpecificDetailsUsingId(
       tripTableName,
@@ -49,13 +75,18 @@ export const getUserTripsFromDB = async (id, idColumn, tripFieldsToSelect, sorti
       tripFieldsToSelect,
       sortingColumn
     );
-    if (userTrips.error || userTrips.length === 0) {
-      return {error: "No user Trip found"}
+    
+    if ( userTrips.length === 0) {
+      return errorHandler("No user Trip found", null, null, "Trip Model");
     }
     return userTrips;
   } catch (err) {
-    
-    return {error:`Server Error Occurred in getting user Trips from DB: ${err}`};
+    return errorHandler(
+      "Server Error Occurred in getting user Trips from DB",
+      err,
+      500,
+      "Trip Model"
+    );
   }
 };
 
@@ -71,12 +102,15 @@ export const getSpecificTripDetailsUsingIdFromDB = async (
       idColumn,
       returningColumn
     );
-    if(specificTripDetail.error) {
-      return {error: "Error occurred retrieving specific details"}
-    }
+    
     return specificTripDetail;
   } catch (err) {
-    return {error:`Server Error Occurred in getting specific trip from DB: ${err}`};
+    return errorHandler(
+      "Server Error Occurred in getting specific trip from DB",
+      err,
+      500,
+      "Trip Model"
+    );
   }
 };
 
@@ -90,12 +124,16 @@ export const addTripToDB = async (tripDetails) => {
       tripDetailsValues
     );
     if (newTrip.error) {
-      return {error: newTrip.error}
+      return newTrip //Error message returned
     }
     return newTrip[0];
   } catch (err) {
-    
-    return {error:`Server Error Occurred in adding trip to DB: ${err}`};
+    return errorHandler(
+      "Server Error Occurred in adding trip to DB",
+      err,
+      500,
+      "Trip Model"
+    );
   }
 };
 
@@ -115,18 +153,23 @@ export const updateTripOnDB = async (tripDetails) => {
         ...tripDetailsArray
       );
       const updatedTrip = tripUpdate.rows[0];
-      
-      if(updatedTrip.error) {
-        return { error: "Rider details not updated" };
-      }
-      
-        return updatedTrip;
-      
+
+      return updatedTrip;
     } catch (err) {
-      return { error: `Error occurred in updating rider details ${err}` };
+      return errorHandler(
+        "Error occurred in updating rider details",
+        err,
+        500,
+        "Trip Model"
+      );
     }
   } catch (err) {
-    return {error:`Server Error Occurred updating trip details on DB: ${err}`};
+    return errorHandler(
+      "Server Error Occurred updating trip details on DB",
+      err,
+      500,
+      "Trip Model"
+    );
   }
 };
 
@@ -137,31 +180,33 @@ export const deleteTripFromDB = async (trip_id) => {
       tripFieldsToSelectForAdding[0],
       trip_id
     );
-    if (tripDelete) {
-      return tripDelete;
-    } else {
-      return { error: "trip not deleted" };
-    }
+    return tripDelete;
+    
   } catch (err) {
-    return {error:"Error Occurred Deleting Rider"};
+    return errorHandler(
+      "Error Occurred Deleting Rider",
+      err,
+      500,
+      "Trip Model"
+    );
   }
 };
 
-export const ratingCouIntIncrease = async (tableName, dispatcher_id,  idColumn, columnToBeIncreased) => {
-  
-  
+export const ratingCouIntIncrease = async (
+  tableName,
+  dispatcher_id,
+  idColumn,
+  columnToBeIncreased
+) => {
   const increaseDispatcherRateCount = await increaseByValue(
     tableName,
     dispatcher_id,
     idColumn,
     columnToBeIncreased
   );
-  if(increaseDispatcherRateCount.error) {
-    return {error: "Error occurred increasing driver rating count"}
-  }
-    
-    return increaseDispatcherRateCount;
   
+
+  return increaseDispatcherRateCount;
 };
 
 export const associatedWithTrip = async (trip_id, roleIdColumn) => {
@@ -174,18 +219,15 @@ export const associatedWithTrip = async (trip_id, roleIdColumn) => {
       roleIdColumn
     );
 
-    if (!tripData) {
-      return false;
-    }
-
+    
     return tripData;
-    // if(tripData[0].user_id === user_id) {
-    //   return true;
-    // } else {
-    //   return false;
-    // }
+    
   } catch (err) {
-    return {error:"Error occurred while confirming user's relation to trip"};
+    return errorHandler(
+      "Error occurred while confirming user's relation to trip",
+      err,
+      500,
+      "Trip Model"
+    );
   }
 };
-

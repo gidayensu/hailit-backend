@@ -15,9 +15,9 @@ userRouter.get('/', getAllUsers)
 
 userRouter.get('/:userId', getOneUser)
 
-userRouter.post('/register', supaAuth, addingAdminAuth, addUser)
+userRouter.post('/register', addUser)
 
-userRouter.put('/:userId', userRoleValidation, supaAuth, isUserRole, updateUser)
+userRouter.put('/:userId',  updateUser)
 
 userRouter.delete('/:userId', supaAuth, isUserRole, deleteUser)
 
