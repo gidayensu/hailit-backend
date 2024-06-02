@@ -74,7 +74,8 @@ export const addTrip = async (req, res) => {
       }
     }
     const tripDetails = req.body;
-    const  user_id  = req.user?.user_id || '92e6ff67-a1d0-4f56-830c-60d23a63913d';
+    const  user_id  = req.user?.sub || '92e6ff67-a1d0-4f56-830c-60d23a63913d';
+    console.log('user_id:', user_id)
     
     const tripAdded = await addTripService(user_id, tripDetails);
     if (tripAdded.error) {

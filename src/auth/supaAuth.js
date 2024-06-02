@@ -1,8 +1,10 @@
 import jwt from 'jsonwebtoken';
 
 export const supaAuth =  (req, res, next) => {
-    const supaSecret = process.env.SUPABASE_JWT_SECRET;
+
     
+    const supaSecret = process.env.SUPABASE_JWT_SECRET;
+    const path = req.path;
     try {
         const authHeader = req.headers.authorization;
         
@@ -16,11 +18,12 @@ export const supaAuth =  (req, res, next) => {
             token = authHeader.split(' ')[1];
             
         }
+        const user = jwt.verify(token, supaSecret);
+        
         if (token === '' || !token) {
             return res.status(401).json({ error: "Unauthorized - no token" });
         }
 
-        const user = jwt.verify(token, supaSecret);
         
         if (!user) {
             return res.status(401).json({ error: "Unauthorized - token cannot be verified" });

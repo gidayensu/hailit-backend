@@ -26,7 +26,7 @@ export const getAllUsers = async (req, res) => {
 export const getOneUser = async (req, res) => {
   try {
     const { userId } = req.params;
-
+    
     if (res && res.status) {
       const oneUser = await getOneUserService(userId);
       if(oneUser.error) {

@@ -11,13 +11,13 @@ import {addingAdminAuth} from '../../auth/user-auth/addingAdminAuth.js';
 export const userRouter = express.Router();
 
 
-userRouter.get('/', getAllUsers)
+userRouter.get('/', supaAuth, getAllUsers)
 
-userRouter.get('/:userId', getOneUser)
+userRouter.get('/:userId', supaAuth, getOneUser)
 
 userRouter.post('/register', addUser)
 
-userRouter.put('/:userId',  updateUser)
+userRouter.put('/:userId', supaAuth,  updateUser)
 
 userRouter.delete('/:userId', supaAuth, isUserRole, deleteUser)
 
