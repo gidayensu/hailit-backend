@@ -1,14 +1,11 @@
 import { errorHandler } from "../utils/errorHandler.js";
 import {
   addOne,
-  checkOneDetail,
   deleteOne,
   detailExists,
   getAll,
   getOne,
-  getSpecificDetails,
   getSpecificDetailsUsingId,
-  increaseByValue,
   updateOne,
 } from "./dBFunctions.js";
 
@@ -123,6 +120,7 @@ export const addUserToDB = async (userDetails) => {
 };
 
 export const updateUserOnDB = async (userId, userDetails) => {
+  
   try {
     const { email = "", phone_number = "" } = userDetails;
     const validColumnsForUpdate = Object.keys(userDetails);
@@ -130,7 +128,7 @@ export const updateUserOnDB = async (userId, userDetails) => {
     const idColumn = userColumnsForAdding[0];
 
     const idValidation = await detailExists(userTableName, idColumn, userId);
-
+    
     if (idValidation) {
       const userData = await getOne(userTableName, idColumn, userId);
 
@@ -179,6 +177,7 @@ export const updateUserOnDB = async (userId, userDetails) => {
         ...userDetailsArray
       );
       const updatedDetails = update.rows[0];
+      
       return updatedDetails;
     } else {
       return errorHandler("User Does Not Exist", null, 404, "User Model");

@@ -33,7 +33,7 @@ export const tripAuth = async (req, res, next)=> {
     }
     
 } catch (err) {
-    console.log(err)
+    
     return { error: `Trip Access Authorization error, ${err}` };
 }
 

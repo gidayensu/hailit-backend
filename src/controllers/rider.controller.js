@@ -11,7 +11,7 @@ export const getAllRiders = async (req, res) => {
     }
   } catch (error) {
     if (res && res.status) {
-      res.status(500).json({ error: "Server error occurred getting all riders", errorMessage: error, errorLocation: "Rider Controller" });
+      res.status(500).json({ error: "Server error occurred getting all riders", errorMessage: err, errorLocation: "Rider Controller" });
     }
   }
 };

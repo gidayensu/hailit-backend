@@ -143,7 +143,7 @@ const addDriverIfApplicable = async (user_id, addedUser) => {
     const addedDriver = addDriver[0];
     return { ...addedUser, driver: addedDriver };
   } catch (err) {
-    console.log(err)
+    
     return errorHandler("Error. User not updated", err, 500, "User Service");
   }
 };
@@ -152,7 +152,7 @@ export const updateUserService = async (userId, userDetails) => {
   try {
     const validUserDetails = allowedPropertiesOnly(userDetails, allowedProperties);
     const updatedDetails = await updateUserOnDB(userId, validUserDetails);
-
+    
     if (validUserDetails.user_role) {
       if (validUserDetails.user_role === "rider") {
         return await updateRiderRole(userId, updatedDetails);
@@ -163,7 +163,7 @@ export const updateUserService = async (userId, userDetails) => {
 
     return updatedDetails;
   } catch (err) {
-    console.log(err)
+    
     return errorHandler("Error User not updated", err, 500, "Update User Service");
   }
 };
@@ -177,12 +177,15 @@ export const updateUserService = async (userId, userDetails) => {
     }
 
     const riderExists = await getRiderOnConditionFromDB('user_id', userId);
-    if (riderExists.rows.length >= 1) {
+    if (riderExists.rowCount >= 1) {
       const riderDetails = riderExists.rows[0];
       return { ...updatedDetails, rider: riderDetails };
     }
 
+    
+
     const addRider = await addRiderToDB(userId);
+    
     const addedRiderDetails = addRider[0];
     if (addedRiderDetails.rider_id) {
       return { ...updatedDetails, rider: addedRiderDetails };

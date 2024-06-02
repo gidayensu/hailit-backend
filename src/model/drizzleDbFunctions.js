@@ -38,7 +38,7 @@ export const checkOneDetail = async (table, column, condition) => {
         return { error: "detail does not exist" };
       }
     } catch (err) {
-      console.log('error56:', err);
+      
       return {error: `Error occurred ${err}`}
     }
   };

@@ -60,7 +60,7 @@ export const getUserIdUsingEmail = async (req, res) => {
 export const addUser = async (req, res) => {
   try {
     const { user_id, email } = req.body;
-    console.log('req.body:', req.body)
+    
 
     if (!user_id || !email) {
       return res.status(400).json({ error: "all fields are required", errorMessage: "Missing user_id or user_email", errorLocation: "User Controller" });

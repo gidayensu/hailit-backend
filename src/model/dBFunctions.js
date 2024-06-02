@@ -7,7 +7,7 @@ export const getAll = async (tableName) => {
     const data = allItems.rows;
     return data;
   } catch (err) {
-    return errorHandler("Error occurred", err, 500, "Driver Model");
+    return errorHandler("Error occurred", err, 500, "Database Functions");
   }
 };
 
@@ -21,7 +21,7 @@ export const getTripsCustomersJoin = async (tripTable, usersTable, firstName, la
     const trips = allTrips.rows;
     return trips;
   } catch (err) {
-    return errorHandler("Error occurred", err, 500, "Driver Model");
+    return errorHandler("Error occurred", err, 500, "Database Functions");
   }
 };
 
@@ -35,8 +35,8 @@ export const getDispatchersVehicleJoin = async (dispatcherTable, usersTable, veh
     const dispatchers = allDispatchers.rows;
     return dispatchers;
   } catch (err) {
-    console.log(err);
-    return errorHandler("Error occurred", err, 500, "Driver Model");
+    
+    return errorHandler("Error occurred", err, 500, "Database Functions");
   }
 };
 
@@ -50,7 +50,7 @@ export const getAllDateSort = async (tableName, dateColumn, limit) => {
     
     return data;
   } catch (err) {
-    return errorHandler("Error occurred", err, 500, "Driver Model");
+    return errorHandler("Error occurred", err, 500, "Database Functions");
   }
 };
 
@@ -62,7 +62,7 @@ export const checkOneDetail = async (tableName, columnName, condition) => {
     
     return result;
   } catch (err) {
-    return errorHandler("Error occurred", err, 500, "Driver Model");
+    return errorHandler("Error occurred", err, 500, "Database Functions");
   }
 };
 
@@ -82,10 +82,10 @@ export const getOne = async (tableName, columnName, entry) => {
     if (result.rowCount > 0) {
       return result.rows;
     } else {
-      return errorHandler("detail does not exist", null, 404, "Driver Model");
+      return errorHandler("detail does not exist", null, 404, "Database Functions");
     }
   } catch (err) {
-    return errorHandler("Error occurred", err, 500, "Driver Model");
+    return errorHandler("Error occurred", err, 500, "Database Functions");
   }
 };
 
@@ -104,12 +104,12 @@ export const addOne = async (tableName, columns, values) => {
     await DB.query("COMMIT");
     if (!result.rows) {
       await DB.query("ROLLBACK");
-      return errorHandler('Error occurred adding detail', null, 500, 'Driver Model');
+      return errorHandler('Error occurred adding detail', null, 500, 'Database Functions');
     }
     return result.rows;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return errorHandler(`Server Error occurred`, err, 500, 'Driver Model');
+    return errorHandler(`Server Error occurred`, err, 500, 'Database Functions');
   }
 };
 
@@ -124,14 +124,15 @@ export const updateOne = async (tableName, columns, id, idColumn, ...details) =>
 
        await DB.query(queryText, values);
     }
-    await DB.query("COMMIT");
     const updatedDataQuery = `SELECT * FROM ${tableName} WHERE ${idColumn} =$1`
     const updatedValue = [id];
     const updatedData = await DB.query(updatedDataQuery, updatedValue);
+    
+    await DB.query("COMMIT");
     return updatedData;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return errorHandler(`Error occurred`, err, 500, 'Driver Model');
+    return errorHandler(`Error occurred`, err, 500, 'Database Functions');
   }
 };
 
@@ -145,7 +146,7 @@ export const getSpecificDetails = async (tableName, specificColumn, condition) =
     return rows;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return errorHandler("Server Error occurred, data not retrieved", err, 500, 'Driver Model');
+    return errorHandler("Server Error occurred, data not retrieved", err, 500, 'Database Functions');
   }
 };
 
@@ -164,7 +165,7 @@ export const getSpecificDetailsUsingId = async (tableName, id, idColumn, columns
     const value = [id];
     const { rows } = await DB.query(queryText, value);
     if (!rows) {
-      return errorHandler("Detail not found", null, 404, 'Driver Model');
+      return errorHandler("Detail not found", null, 404, 'Database Functions');
     }
     await DB.query("COMMIT");
     
@@ -173,7 +174,7 @@ export const getSpecificDetailsUsingId = async (tableName, id, idColumn, columns
   } catch (err) {
     
     await DB.query("ROLLBACK");
-    return errorHandler("Server Error occurred, data not retrieved", err, 500, 'Driver Model');
+    return errorHandler("Server Error occurred, data not retrieved", err, 500, 'Database Functions');
   }
 };
 
@@ -187,7 +188,7 @@ export const deleteOne = async (tableName, columnName, id) => {
     return deletion.rowCount ? true : false;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return errorHandler(`Error occurred`, err, 500, 'Driver Model');
+    return errorHandler(`Error occurred`, err, 500, 'Database Functions');
   }
 };
 
@@ -209,6 +210,6 @@ export const increaseByValue = async (
     return increaseValue.rowCount ? true : false;
   } catch (err) {
     DB.query("ROLLBACK");
-    return errorHandler(`Error occurred`, err, 500, 'Driver Model');
+    return errorHandler(`Error occurred`, err, 500, 'Database Functions');
   }
 };

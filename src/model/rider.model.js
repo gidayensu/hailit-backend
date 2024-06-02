@@ -95,6 +95,7 @@ export const getSpecificRidersFromDB = async (specificColumn, condition) => {
 export const addRiderToDB = async (user_id) => {
   try {
     const userIsRider = await getSpecificDetailsUsingId(riderTableName, user_id, 'user_id', 'rider_id');
+    
     if (userIsRider.length >= 1) {
       return errorHandler("User is rider", "User already exists", 400, "Rider Model");
     }

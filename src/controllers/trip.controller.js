@@ -93,7 +93,7 @@ export const updateTrip = async (req, res) => {
   try {
     const { trip_id } = req.params;
     const tripDetails = { trip_id, ...req.body };
-    console.log('this is trip details:', tripDetails)
+    
     const tripUpdate = await updateTripService(tripDetails);
     if(tripUpdate.error) {
       return res.status(403).json({error: tripUpdate.error, errorMessage: tripUpdate.errorMessage, errorLocation: tripUpdate.errorLocation})
