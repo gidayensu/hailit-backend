@@ -11,9 +11,9 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const emailValidator = (email) => (!EMAIL_REGEX.test(email) ? false : true);
 
-export const phoneValidator = (phone)=> {
+export const phoneValidator = (phone_number)=> {
 
-const phone = parsePhoneNumberFromString(arg, {
+const phone = parsePhoneNumberFromString(phone_number, {
   
     defaultCountry: 'GH',
     
