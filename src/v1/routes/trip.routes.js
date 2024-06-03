@@ -14,13 +14,13 @@ tripRouter.get('/', getAllTrips);
 
 tripRouter.get('/user-trip/:trip_id',  getOneTrip);
 
-tripRouter.get('/user-trips/:user_id', getUserTrips)
+tripRouter.get('/user-trips/:user_id', supaAuth, getUserTrips)
 
 tripRouter.post('/add-trip/', tripSupaAuth, addTrip)
 
-tripRouter.put('/user-trip/:trip_id', updateTrip)
+tripRouter.put('/user-trip/:trip_id', supaAuth, updateTrip)
 
-tripRouter.put('/rate-trip/:trip_id', rateTrip)
+tripRouter.put('/rate-trip/:trip_id', supaAuth, rateTrip)
 
-tripRouter.delete('/user-trip/:trip_id',  deleteTrip)
+tripRouter.delete('/user-trip/:trip_id', supaAuth, deleteTrip)
 

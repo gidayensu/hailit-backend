@@ -1,4 +1,4 @@
-
+import parsePhoneNumberFromString from 'libphonenumber-js';
 import { isUserRole } from "../model/user.model.js";
 import { associatedWithTrip } from "../model/trip.model.js";
 import { getOneRiderFromDB } from "../model/rider.model.js";
@@ -7,11 +7,26 @@ import {  getOneDriverFromDB } from "../model/driver.model.js";
 
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^\d{10}$/;
+
 
 export const emailValidator = (email) => (!EMAIL_REGEX.test(email) ? false : true);
 
-export const phoneValidator = (phone) => (!PHONE_REGEX.test(phone) ? false : true);
+export const phoneValidator = (phone)=> {
+
+const phone = parsePhoneNumberFromString(arg, {
+  
+    defaultCountry: 'GH',
+    
+    extract: false,
+  });
+  
+  // VALID PHONE NUMBER
+  if (phone && phone.isValid()) {
+    return true
+  }
+  
+  return false;
+}
 
 export const excludeNonMatchingElements = (firstArray, secondArray) => {
   return secondArray.filter((element) => firstArray.includes(element));
