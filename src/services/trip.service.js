@@ -12,8 +12,10 @@ import {config} from 'dotenv';
 
 config({ path: '../../../.env' });
 
+const DEFAULT_DISPATCHER_ID = 'ff-12-53';
+
 export const tripFieldsToSelect = [
-  "trip_id, dispatcher_id, trip_medium, trip_status, package_type, pickup_location, drop_off_location, additional_information, trip_request_date, trip_cost, payment_status, payment_method "
+  "trip_id, dispatcher_id, trip_medium, trip_status, package_value, recipient_number, sender_number, package_type, pickup_location, drop_off_location, additional_information, trip_request_date, trip_cost, payment_status, payment_method "
 ];
 // const allowedTripStatus = ['booked', 'in progress', 'completed', 'cancelled'];
 export const allowedAddTripProperties = [
@@ -22,6 +24,7 @@ export const allowedAddTripProperties = [
   "pickup_location",
   "drop_off_location",
   "additional_information",
+  "package_value", "recipient_number", "sender_number",
 ];
 
 const tripRequestDateColumn = "trip_request_date";
@@ -197,7 +200,7 @@ export const addTripService = async (user_id, tripDetails) => {
 };
 
 export const getDispatcherId = async (trip_medium) => {
-  let dispatcher_id = 'ff-12-53';
+  let dispatcher_id = DEFAULT_DISPATCHER_ID;
 
   if (trip_medium === "car" || trip_medium === "truck") {
     const availableDrivers = await getSpecificDriversFromDB("driver_availability", "Available");
@@ -233,8 +236,8 @@ export const updateTripService = async (tripDetails) => {
     "payment_method",
     "dispatcher_id",
     "recipient_number",
-    "sender_number"
-    
+    "sender_number",
+    "trip_stage"
   ];
 
   try {
@@ -244,7 +247,7 @@ export const updateTripService = async (tripDetails) => {
     );
 
     const tripUpdate = await updateTripOnDB(validTripDetails);
-    
+    console.log(validTripDetails)
       return tripUpdate;
     
   } catch (err) {
