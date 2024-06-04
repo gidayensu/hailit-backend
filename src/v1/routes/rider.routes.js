@@ -11,13 +11,13 @@ export const riderRouter = express.Router();
 
 
 
-riderRouter.get('/',  getAllRiders)
+riderRouter.get('/', supaAuth, isUserRole, getAllRiders)
 
-riderRouter.get('/:rider_id', getOneRider)
+riderRouter.get('/:rider_id', supaAuth, isUserRole, getOneRider)
 
 // riderRouter.post('/', addRider)
 
-riderRouter.put('/:rider_id', isAdminOrRider, updateRider)
+riderRouter.put('/:rider_id', supaAuth, isUserRole, updateRider)
 
-riderRouter.delete('/:rider_id', isUserRole, deleteRider);
+riderRouter.delete('/:rider_id', supaAuth, isUserRole, deleteRider);
 

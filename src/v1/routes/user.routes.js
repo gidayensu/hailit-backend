@@ -13,11 +13,11 @@ export const userRouter = express.Router();
 
 userRouter.get('/', supaAuth, getAllUsers)
 
-userRouter.get('/:userId', supaAuth, getOneUser)
+userRouter.get('/:userId', supaAuth, isUserRole, getOneUser)
 
 userRouter.post('/register', addUser)
 
-userRouter.put('/:userId', supaAuth,  updateUser)
+userRouter.put('/:userId', supaAuth, isUserRole, updateUser)
 
 userRouter.delete('/:userId', supaAuth, isUserRole, deleteUser)
 
