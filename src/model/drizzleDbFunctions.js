@@ -10,7 +10,7 @@ export const getAll = async (table) => {
   }
 };
 
-export const checkOneDetail = async (table, column, condition) => {
+export const selectOnCondition = async (table, column, condition) => {
     try {
       const result = await db.select().from(table).where(eq(column, condition)).execute();
       return result;
@@ -21,7 +21,7 @@ export const checkOneDetail = async (table, column, condition) => {
 
   export const detailExists = async (table, column, detail) => {
     try {
-      const result = await checkOneDetail(table, column, detail);
+      const result = await selectOnCondition(table, column, detail);
       return result.length > 0;
     } catch (err) {
       return false;
@@ -31,7 +31,7 @@ export const checkOneDetail = async (table, column, condition) => {
   
   export const getOne = async (table, column, entry) => {
     try {
-      const result = await checkOneDetail(table, column, entry);
+      const result = await selectOnCondition(table, column, entry);
       if (result.length > 0) {
         return result;
       } else {

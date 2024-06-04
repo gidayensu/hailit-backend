@@ -1,6 +1,16 @@
 import { DB } from './connectDb.js';
 import { errorHandler } from '../utils/errorHandler.js';
 
+export const getAllCustomers = async (tableName) => {
+  try {
+    const allItems = await DB.query(`SELECT * FROM ${tableName} WHERE `);
+    const data = allItems.rows;
+    return data;
+  } catch (err) {
+    return errorHandler("Error occurred", err, 500, "Database Functions");
+  }
+};
+
 export const getAll = async (tableName) => {
   try {
     const allItems = await DB.query(`SELECT * FROM ${tableName}`);
@@ -54,7 +64,7 @@ export const getAllDateSort = async (tableName, dateColumn, limit) => {
   }
 };
 
-export const checkOneDetail = async (tableName, columnName, condition) => {
+export const selectOnCondition = async (tableName, columnName, condition) => {
   try {
     const queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1`;
     const value = [condition];
@@ -68,7 +78,7 @@ export const checkOneDetail = async (tableName, columnName, condition) => {
 
 export const detailExists = async (tableName, columnName, detail) => {
   try {
-    const result = await checkOneDetail(tableName, columnName, detail);
+    const result = await selectOnCondition(tableName, columnName, detail);
     return result.rowCount > 0;
   } catch (err) {
     return false;
@@ -77,7 +87,7 @@ export const detailExists = async (tableName, columnName, detail) => {
 
 export const getOne = async (tableName, columnName, entry) => {
   try {
-    const result = await checkOneDetail(tableName, columnName, entry);
+    const result = await selectOnCondition(tableName, columnName, entry);
 
     if (result.rowCount > 0) {
       return result.rows;

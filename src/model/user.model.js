@@ -6,6 +6,7 @@ import {
   getAll,
   getOne,
   getSpecificDetailsUsingId,
+  selectOnCondition,
   updateOne,
 } from "./dBFunctions.js";
 
@@ -17,15 +18,18 @@ const userColumnsForAdding = [
   "last_name",
   "email",
   "phone_number",
+  "user_role"
 ];
 
+const USER_ROLE = "customer"
+const USER_ROLE_COLUMN = "user_role"
 export const getAllUsersFromDB = async () => {
   try {
-    const allUsers = await getAll(userTableName);
+    const allUsers = await selectOnCondition(userTableName, USER_ROLE_COLUMN, USER_ROLE );
     if (!allUsers) {
       return errorHandler("No user found", null, 404, "User Model");
     }
-    return allUsers;
+    return allUsers.rows;
   } catch (err) {
     return errorHandler(
       "Server error occurred getting all users",

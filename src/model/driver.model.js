@@ -2,7 +2,7 @@ import { errorHandler } from "../utils/errorHandler.js";
 import { v4 as uuid } from "uuid";
 import {
   addOne,
-  checkOneDetail,
+  selectOnCondition,
   deleteOne,
   getDispatchersVehicleJoin,
   getAll,
@@ -76,7 +76,7 @@ export const getOneDriverFromDB = async (driver_id) => {
 
 export const getDriverDetailOnCondition = async (columnName, condition) => {
   try {
-    const driverDetails = await checkOneDetail(
+    const driverDetails = await selectOnCondition(
       driverTableName,
       columnName,
       condition

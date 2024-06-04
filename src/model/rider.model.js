@@ -1,6 +1,6 @@
 import { errorHandler } from "../utils/errorHandler.js";
 import { v4 as uuid } from "uuid";
-import { addOne, checkOneDetail, deleteOne, getDispatchersVehicleJoin, getOne, getSpecificDetails, getSpecificDetailsUsingId, updateOne } from "./dBFunctions.js";
+import { addOne, selectOnCondition, deleteOne, getDispatchersVehicleJoin, getOne, getSpecificDetails, getSpecificDetailsUsingId, updateOne } from "./dBFunctions.js";
 
 const riderTableName = "rider";
 const riderColumnsForAdding = ["rider_id", "vehicle_id", "user_id"];
@@ -68,7 +68,7 @@ export const getOneRiderFromDB = async (rider_id) => {
 
 export const getRiderOnConditionFromDB = async (columnName, condition) => {
   try {
-    const riderDetails = await checkOneDetail(
+    const riderDetails = await selectOnCondition(
       riderTableName,
       columnName,
       condition
