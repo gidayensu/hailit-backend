@@ -38,10 +38,11 @@ export const getAllUsersFromDB = async () => {
 
 export const getOneUserFromDB = async (userId) => {
   try {
+    
     const userColumnName = userColumnsForAdding[0];
     const user = await getOne(userTableName, userColumnName, userId);
     if (user.error) {
-      return errorHandler("User does not exist", null, 404, "User Model");
+      return errorHandler(user.error, user.errorMessage, user.errorCode, user.errorLocation);
     }
     return user[0];
   } catch (err) {
