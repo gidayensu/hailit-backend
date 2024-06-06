@@ -1,4 +1,6 @@
+
 import express from 'express';
+import { isAdmin } from '../../auth/isAdmin.js';
 import {addTrip, deleteTrip, getAllTrips, getOneTrip, getUserTrips, rateTrip, updateTrip} from '../../controllers/trip.controller.js';
 import {isAdminOrUserAuth} from '../../auth/user-auth/isAdminOrUser.js';
 import { isUserRole } from '../../auth/user-auth/isUserRole.js';
@@ -10,9 +12,9 @@ import { tripSupaAuth } from '../../auth/trip-auth/tripSupaAuth.js';
 export const tripRouter = express.Router();
 
 
-tripRouter.get('/', getAllTrips);
+tripRouter.get('/', supaAuth, isAdmin, getAllTrips);
 
-tripRouter.get('/user-trip/:trip_id',  getOneTrip);
+tripRouter.get('/user-trip/:trip_id', tripSupaAuth,  getOneTrip);
 
 tripRouter.get('/user-trips/:user_id', supaAuth, getUserTrips)
 

@@ -5,13 +5,13 @@ import { supaAuth } from '../../auth/supaAuth.js'
 import { addUser, deleteUser, getAllUsers, getOneUser, updateUser } from '../../controllers/user.controller.js';
 import {userRoleValidation} from '../../validation/userRoleValidation.js';
 import {addingAdminAuth} from '../../auth/user-auth/addingAdminAuth.js';
-
+import { isAdmin } from '../../auth/isAdmin.js';
 
 
 export const userRouter = express.Router();
 
 
-userRouter.get('/', supaAuth, getAllUsers)
+userRouter.get('/', isAdmin, getAllUsers)
 
 userRouter.get('/:userId', supaAuth, getOneUser)
 userRouter.get('/admin/:userId', supaAuth, userIsAdmin)
