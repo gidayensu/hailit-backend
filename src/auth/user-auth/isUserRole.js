@@ -16,11 +16,11 @@ export const isUserRole = async (req, res, next) => {
 
     const isAdmin = await userIsUserRole(jwtUserId, "admin");
     const isRole = await userIsUserRole(jwtUserId, userRole);
-
+    console.log(isRole)
     if ((userId === jwtUserId && isRole) || isAdmin) {
       next();
     } else {
-      return res.status(401).json({ error: `Unauthorized to access` });
+      return res.status(401).json({ error: `Unauthorized to access: role based` });
     }
   } catch (err) {
     return res
