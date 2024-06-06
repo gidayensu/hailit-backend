@@ -41,11 +41,11 @@ export const getAllRiders = async (limit, offset) => {
       offset
     );
     if (allRiders.error) {
-      return errorHandler(allRiders.error, null, 500, "Rider Model");
+      return errorHandler(allRiders.error, null, 500, "All Riders Model");
     }
     return allRiders;
   } catch (err) {
-    return errorHandler("Server error occurred getting all riders", err, 500, "Rider Model");
+    return errorHandler("Server error occurred getting all riders", err, 500, "All Riders Model");
   }
 };
 

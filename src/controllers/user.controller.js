@@ -7,16 +7,24 @@ import {config} from 'dotenv';
 config({ path: '../../../.env' });
 
 export const getAllUsers = async (req, res) => {
+  const limit = req.query.limit;
+  const offset = req.query.offset;
+  console.log({offset, limit})
   try {
-    const allUsers = await getAllUsersService();
+    const allUsers = await getAllUsersService(limit, offset);
     if(allUsers.error) {
       return res.status(allUsers.errorCode).json({error: allUsers.error, errorMessage: allUsers.errorMessage, errorLocation: allUsers.errorLocation})
     };
+
+    if (limit && offset) {
+      return res.status(200).json(allUsers);
+    }
     if (res && res.status) {
       res.status(200).json({ users: allUsers });
-      return;
+      
     }
   } catch (err) {
+    
     if (res && res.status) {
       res.status(500).json({ error: "Error occurred in getting all users ", errorMessage: err, errorLocation: "User Controller" });
     }

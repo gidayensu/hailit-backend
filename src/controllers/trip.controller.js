@@ -1,16 +1,24 @@
+import { errorHandler } from "../utils/errorHandler.js";
 import {addTripService, deleteTripService, getAllTripsService, getUserTripsService, rateTripService, updateTripService, getOneTripService} from "../services/trip.service.js";
 
 export const getAllTrips = async (req, res) => {
   try {
     const limit = req.query.limit;
-    const allTrips = await getAllTripsService(limit);
+    const offset = req.query.offset;
+    const allTrips = await getAllTripsService(limit, offset);
     
     if(allTrips.error) {
       return res.status(allTrips.errorCode).json({error: allTrips.error, errorMessage: allTrips.errorMessage, errorLocation: allTrips.errorLocation})
     }
-    res.status(200).json({ trips: allTrips });
+    if(limit && offset) {
+
+      return res.status(200).json({ ...allTrips });
+    }
+
+    res.status(200).json({trips:allTrips})
   } catch (err) {
-    return res.status(500).json({ error: "Server Error occurred", errorMessage: err, errorLocation: "Trip Controller" });
+    
+    return res.status(500).json({ error: "Server Error occurred", errorMessage: err, errorLocation: "Get All Trips Controller" });
   }
 };
 

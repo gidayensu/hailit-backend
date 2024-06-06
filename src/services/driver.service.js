@@ -1,3 +1,4 @@
+import { paginatedRequest } from "../utils/paginatedRequest.js";
 import { errorHandler } from "../utils/errorHandler.js";
 import {addDriverToDB, deleteDriverFromDB, getAllDriversFromDB, getOneDriverFromDB, updateDriverOnDB} from "../model/driver.model.js";
 import { getOneVehicleFromDB } from "../model/vehicle.model.js";
@@ -6,12 +7,15 @@ import {getSpecificUserDetailsUsingId} from "../model/user.model.js";
 import { allowedPropertiesOnly } from "../utils/util.js";
 
 
-export const getAllDriversService = async () => {
+export const getAllDriversService = async (limit, offset) => {
   try {
-    const drivers = await getAllDriversFromDB();
+    const drivers = await getAllDriversFromDB(limit, offset);
     if(drivers.error) {
       
       return {error: drivers.error}
+    }
+    if(limit && offset) {
+      return await paginatedRequest(getAllDriversFromDB, drivers, offset, limit, "drivers")
     }
     return drivers;
   } catch (err) {

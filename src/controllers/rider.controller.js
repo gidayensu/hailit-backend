@@ -2,7 +2,13 @@ import { deleteRiderService, getAllRidersService, getOneRiderService, updateRide
 
 export const getAllRiders = async (req, res) => {
   try {
-    const allRiders = await getAllRidersService();
+    const limit = req.query.limit;
+    const offset = req.query.offset;
+
+    const allRiders = await getAllRidersService(limit, offset);
+    if(limit && offset) {
+      return res.status(200).json(allRiders)
+    }
     if (allRiders.error) {
       return res.status(allRiders.errorCode).json({ error: allRiders.error, errorMessage: allRiders.errorMessage, errorLocation: allRiders.errorLocation });
     }

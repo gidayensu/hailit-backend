@@ -11,8 +11,12 @@ export const getAllCustomers = async (tableName) => {
   }
 };
 
-export const getAll = async (tableName) => {
+export const getAll = async (tableName, limit, offset, ) => {
   try {
+    let queryText = `SELECT * FROM ${tableName}`;
+    if (limit) {
+      queryText = `SELECT * FROM ${tableName} LIMIT ${limit} OFFSET ${offset}`
+    }
     const allItems = await DB.query(`SELECT * FROM ${tableName}`);
     const data = allItems.rows;
     return data;
@@ -64,9 +68,20 @@ export const getAllDateSort = async (tableName, dateColumn, limit) => {
   }
 };
 
-export const selectOnCondition = async (tableName, columnName, condition) => {
+export const selectOnCondition = async (tableName, columnName, condition, limit, offset) => {
+
   try {
-    const queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1`;
+    let queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1`;
+    if (limit && offset) {
+      queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1 LIMIT ${limit} OFFSET ${offset}`;
+    }
+
+    if(limit) {
+      queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1 LIMIT ${limit} OFFSET ${offset}`;
+    }
+    console.log({offset, limit})
+    console.log(offset && limit)
+    console.log(queryText)
     const value = [condition];
     const result = await DB.query(queryText, value);
     
@@ -87,8 +102,9 @@ export const detailExists = async (tableName, columnName, detail) => {
 
 export const getOne = async (tableName, columnName, entry) => {
   try {
+    console.log({tableName, columnName, entry})
     const result = await selectOnCondition(tableName, columnName, entry);
-
+    console.log({result})
     if (result.rowCount > 0) {
       return result.rows;
     } else {

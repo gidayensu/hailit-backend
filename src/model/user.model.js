@@ -23,14 +23,16 @@ const userColumnsForAdding = [
 
 const USER_ROLE = "customer"
 const USER_ROLE_COLUMN = "user_role"
-export const getAllUsersFromDB = async () => {
+export const getAllUsersFromDB = async (limit, offset) => {
   try {
-    const allUsers = await selectOnCondition(userTableName, USER_ROLE_COLUMN, USER_ROLE );
+    const allUsers = await selectOnCondition(userTableName, USER_ROLE_COLUMN, USER_ROLE, limit, offset );
     if (!allUsers) {
       return errorHandler("No user found", null, 404, "User Model");
     }
+    
     return allUsers.rows;
   } catch (err) {
+    console.log(err)
     return errorHandler(
       "Server error occurred getting all users",
       err,
@@ -45,6 +47,7 @@ export const getOneUserFromDB = async (userId) => {
     
     const userColumnName = userColumnsForAdding[0];
     const user = await getOne(userTableName, userColumnName, userId);
+    
     if (user.error) {
       return errorHandler(user.error, user.errorMessage, user.errorCode, user.errorLocation);
     }
@@ -61,7 +64,7 @@ export const getOneUserFromDB = async (userId) => {
 
 export const isUserRole = async (userId, user_role) => {
   const data = await getOneUserFromDB(userId);
-
+  
   if (data.user_role === user_role) {
     return true;
   } else {

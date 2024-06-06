@@ -7,7 +7,7 @@ import {  getDriverDetailOnCondition, getSpecificDriversFromDB, updateDriverOnDB
 import { getOneDriverService } from "./driver.service.js";
 import { getRiderOnConditionFromDB, getSpecificRidersFromDB, updateRiderOnDB } from "../model/rider.model.js";
 import { allowedPropertiesOnly } from '../utils/util.js';
-
+import { paginatedRequest } from '../utils/paginatedRequest.js';
 import {config} from 'dotenv';
 
 config({ path: '../../../.env' });
@@ -29,16 +29,20 @@ export const allowedAddTripProperties = [
 
 const tripRequestDateColumn = "trip_request_date";
 
-export const getAllTripsService = async (limit) => {
+export const getAllTripsService = async (limit, offset) => {
   try {
-    const allTrips = await getAllTripsFromDB(limit);
-    if(allTrips.error) {
-      return {error: allTrips.error}
+    const trips = await getAllTripsFromDB(limit,offset);
+    
+    if(trips.error) {
+      return {error: trips.error}
     }
-    return allTrips;
+    if(limit && offset) {
+      return await paginatedRequest(getAllTripsFromDB, trips, offset, limit, "trips")
+    }
+    return trips;
   } catch (err) {
     
-    return errorHandler("Error Occurred in getting Trips Detail", err, 500, "Trip Service");
+    return errorHandler("Error Occurred in getting Trips Detail", err, 500, "Get All Trips Service");
   }
 };
 
@@ -86,7 +90,7 @@ export const getUserTripsService = async (user_id) => {
     }
     
     if (user_role === "driver" || user_role === "rider") {
-      const allDispatcherTrips = await dispatcherTrips (user_role);
+      const allDispatcherTrips = await dispatcherTrips (user_role, user_id);
       if (allDispatcherTrips.error) {
         return {error: allDispatcherTrips.error}
       }
@@ -119,7 +123,7 @@ export const getUserTripsService = async (user_id) => {
   }
  }
  //DISPATCHER TRIPS (HELPER FUNCTION)
- export const dispatcherTrips = async (user_role)=> {
+ export const dispatcherTrips = async (user_role, user_id)=> {
   try {
     const tripFieldsToSelect = [
       "trip_id, trip_medium, trip_status, trip_type, drop_off_location, package_type, trip_commencement_date, trip_completion_date",
@@ -161,7 +165,7 @@ export const getUserTripsService = async (user_id) => {
     
     return dispatcherTrips;
   } catch (err) {
-    
+    console.log('THIS IS THE ERROR:',err)
     return errorHandler(`Error occurred getting dispatcher trips`, err, 500, "Trip Service");
   }
 }

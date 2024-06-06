@@ -1,3 +1,4 @@
+import { paginatedRequest } from "../utils/paginatedRequest.js";
 import {addRiderToDB, deleteRiderFromDB, getAllRiders, getOneRiderFromDB, updateRiderOnDB} from "../model/rider.model.js";
 import { getOneVehicleFromDB } from "../model/vehicle.model.js";
 import { getSpecificUserDetailsUsingId } from "../model/user.model.js";
@@ -7,9 +8,14 @@ import { errorHandler } from "../utils/errorHandler.js";
 
 
 
-export const getAllRidersService = async () => {
+export const getAllRidersService = async (limit, offset) => {
   try {
-    const riders = await getAllRiders();
+    const riders = await getAllRiders(limit, offset);
+
+    if(limit && offset) {
+      return await paginatedRequest(getAllRiders, riders, offset, limit, "riders")
+    }
+
     return riders;
   } catch (err) {
     return errorHandler("Error occurred getting all riders", err, 500, "Rider Service");

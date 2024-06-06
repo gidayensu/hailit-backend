@@ -1,3 +1,4 @@
+import { errorHandler } from "../utils/errorHandler.js";
 import {
   addOne,
   deleteOne,
@@ -32,6 +33,7 @@ export const getAllTripsFromDB = async (limit, offset) => {
       offset,
       tripRequestDateColumn
     );
+    
     return allTrips;
   } catch (err) {
     return errorHandler(
