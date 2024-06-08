@@ -9,7 +9,6 @@ config({ path: '../../../.env' });
 export const getAllUsers = async (req, res) => {
   const limit = req.query.limit;
   const offset = req.query.offset;
-  console.log({offset, limit})
   try {
     const allUsers = await getAllUsersService(limit, offset);
     if(allUsers.error) {

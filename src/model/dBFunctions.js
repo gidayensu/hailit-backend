@@ -79,9 +79,7 @@ export const selectOnCondition = async (tableName, columnName, condition, limit,
     if(limit) {
       queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1 LIMIT ${limit} OFFSET ${offset}`;
     }
-    console.log({offset, limit})
-    console.log(offset && limit)
-    console.log(queryText)
+    
     const value = [condition];
     const result = await DB.query(queryText, value);
     
@@ -102,9 +100,9 @@ export const detailExists = async (tableName, columnName, detail) => {
 
 export const getOne = async (tableName, columnName, entry) => {
   try {
-    console.log({tableName, columnName, entry})
+    
     const result = await selectOnCondition(tableName, columnName, entry);
-    console.log({result})
+    
     if (result.rowCount > 0) {
       return result.rows;
     } else {

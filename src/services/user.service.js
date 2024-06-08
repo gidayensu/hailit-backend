@@ -23,13 +23,12 @@ export const getAllUsersService = async (limit, offset) => {
       const usersCount = totalUsers.length
       const total_number_of_pages = Math.floor(usersCount / limit);
       const current_page = offset/limit;
-      console.log({total_number_of_pages, usersCount, current_page})      
-      console.log(users[0].user_id)
+    
       return {users, total_number_of_pages, current_page }
     }
     return users;
   } catch (err) {
-    console.log(err)
+    
     return errorHandler("Error occurred getting all users", err, 500, "User service");
   }
 };

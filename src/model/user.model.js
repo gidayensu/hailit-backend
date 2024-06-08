@@ -32,7 +32,7 @@ export const getAllUsersFromDB = async (limit, offset) => {
     
     return allUsers.rows;
   } catch (err) {
-    console.log(err)
+    
     return errorHandler(
       "Server error occurred getting all users",
       err,

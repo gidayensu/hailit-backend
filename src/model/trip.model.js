@@ -118,7 +118,7 @@ export const getSpecificTripDetailsUsingIdFromDB = async (
 
 export const addTripToDB = async (tripDetails) => {
   try {
-    console.log(tripDetails)
+    
     const tripFieldsToSelect = Object.keys(tripDetails).join(", ");
     const tripDetailsValues = Object.values(tripDetails);
     const newTrip = await addOne(
