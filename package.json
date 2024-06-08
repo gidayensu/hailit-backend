@@ -5,8 +5,14 @@
   "description": "for hailit",
   "main": "App.js",
   "scripts": {
-    "test": "jest",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "node App.js"
+  
+    
+  },
+  "jest": {
+    "transform": {}
+
   },
   "author": "",
   "license": "MIT",

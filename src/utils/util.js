@@ -1,4 +1,5 @@
 import parsePhoneNumberFromString from 'libphonenumber-js';
+
 import { isUserRole } from "../model/user.model.js";
 import { associatedWithTrip } from "../model/trip.model.js";
 import { getOneRiderFromDB } from "../model/rider.model.js";
@@ -6,25 +7,24 @@ import {  getOneDriverFromDB } from "../model/driver.model.js";
 
 
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
 
 
 export const emailValidator = (email) => (!EMAIL_REGEX.test(email) ? false : true);
 
 export const phoneValidator = (phone_number)=> {
 
-const phone = parsePhoneNumberFromString(phone_number, {
-  
-    defaultCountry: 'GH',
-    
-    extract: false,
-  });
-  
+const phoneNumber = parsePhoneNumberFromString(phone_number, {
+  defaultCountry: "GH",
+  extract: false
+});
+
   // VALID PHONE NUMBER
-  if (phone && phone.isValid()) {
+  if (phoneNumber && phoneNumber.isValid()) {
+    
     return true
   }
-  
   return false;
 }
 
@@ -33,6 +33,9 @@ export const excludeNonMatchingElements = (firstArray, secondArray) => {
 };
 
 export const allowedPropertiesOnly = (data, allowedProperties) => {
+  if(!allowedProperties) {
+    return {};
+  }
   return Object.keys(data)
     .filter((key) => allowedProperties.includes(key))
     .reduce((obj, key) => {
