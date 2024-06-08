@@ -11,12 +11,10 @@ export const isUserRole = async (req, res, next) => {
       //new customer
       userRole = "customer";
     }
-    console.log('userRole:', userRole)
     const jwtUserId = req.user.sub;
 
     const isAdmin = await userIsUserRole(jwtUserId, "admin");
     const isRole = await userIsUserRole(jwtUserId, userRole);
-    console.log(isRole)
     if ((userId === jwtUserId && isRole) || isAdmin) {
       next();
     } else {

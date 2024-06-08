@@ -11,7 +11,7 @@ import { isAdmin } from '../../auth/isAdmin.js';
 export const userRouter = express.Router();
 
 
-userRouter.get('/', isAdmin, getAllUsers)
+userRouter.get('/', supaAuth, isAdmin, getAllUsers)
 
 userRouter.get('/:userId', supaAuth, getOneUser)
 userRouter.get('/admin/:userId', supaAuth, userIsAdmin)
