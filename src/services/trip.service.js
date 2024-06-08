@@ -75,12 +75,12 @@ export const getUserTripsService = async (user_id) => {
   try {
     const userData = await getOneUserFromDB(user_id);
     
-    if (userData.error) {
+    if (userData.error ) {
       return {error: userData.error};
     }
     const { user_role } = userData;
     
-    if (user_role === "customer") {
+    if (user_role === "customer" || user_role === "admin") {
       const allCustomerTrips = await getCustomerTrips (user_id);
       if(allCustomerTrips.error) {
         return {error: allCustomerTrips.error}
@@ -90,6 +90,7 @@ export const getUserTripsService = async (user_id) => {
     }
     
     if (user_role === "driver" || user_role === "rider") {
+      
       const allDispatcherTrips = await dispatcherTrips (user_role, user_id);
       if (allDispatcherTrips.error) {
         return {error: allDispatcherTrips.error}
@@ -165,7 +166,7 @@ export const getUserTripsService = async (user_id) => {
     
     return dispatcherTrips;
   } catch (err) {
-    console.log('THIS IS THE ERROR:',err)
+    
     return errorHandler(`Error occurred getting dispatcher trips`, err, 500, "Trip Service");
   }
 }
@@ -251,7 +252,7 @@ export const updateTripService = async (tripDetails) => {
     );
 
     const tripUpdate = await updateTripOnDB(validTripDetails);
-    console.log(validTripDetails)
+    
       return tripUpdate;
     
   } catch (err) {
