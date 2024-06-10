@@ -16,9 +16,9 @@ const columnsForUpdate = [
 const columnsForAdding = ["vehicle_id", ...columnsForUpdate];
 const vehicleIdColumn = "vehicle_id";
 
-export const getAllVehiclesFromDB = async () => {
+export const getAllVehiclesFromDB = async (limit, offset) => {
   try {
-    const allVehicles = await getAll(tableName);
+    const allVehicles = await getAll(tableName, limit, offset);
     
     return allVehicles;
   } catch (err) {
@@ -72,7 +72,7 @@ export const addVehicleToDB = async (completeVehicleDetails) => {
     );
 
     if (addVehicleResult.error) {
-      return addVehicleResult //error message returned
+      return addVehicleResult //error details returned
     }
 
     return addVehicleResult[0];
@@ -95,7 +95,7 @@ export const updateVehicleOnDB = async (vehicle_id, vehicleUpdateDetails) => {
       ...vehicleDetails
     );
     if (vehicleUpdate.error) {
-      return vehicleUpdate //Error message returned
+      return vehicleUpdate //Error details returned
     }
 
     return vehicleUpdate.rows[0];

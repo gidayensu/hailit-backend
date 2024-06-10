@@ -8,7 +8,7 @@ export const getAllDrivers = async (req, res) => {
     if (res && res.status) {
       if(allDrivers.error) {
         
-        return res.status(allDrivers.errorCode).json({error: allDrivers.error, errorMessage: allDrivers.errorMessage, errorLocation: allDrivers.errorLocation})
+        return res.status(allDrivers.errorCode).json({error: allDrivers.error, errorMessage: allDrivers.errorMessage, errorSource: allDrivers.errorSource})
       }
       if(limit && offset) {
         return res.status(200).json(allDrivers);
@@ -17,7 +17,7 @@ export const getAllDrivers = async (req, res) => {
     }
   } catch (err) {
     if (res && res.status) {
-      return res.status(500).json({ error: "Server Error occurred getting all drivers", errorMessage: err, errorLocation: "Driver Controller" });
+      return res.status(500).json({ error: "Server Error occurred getting all drivers", errorMessage: err, errorSource: "Driver Controller" });
     }
   }
 };
@@ -27,12 +27,12 @@ export const getOneDriver = async (req, res) => {
   try {
     const driver = await getOneDriverService(driver_id);
     if (driver.error) {
-      return res.status(driver.errorCode).json({error: driver.error, errorMessage: driver.errorMessage, errorLocation: driver.errorLocation});
+      return res.status(driver.errorCode).json({error: driver.error, errorMessage: driver.errorMessage, errorSource: driver.errorSource});
     } 
       res.status(400).json({ driver });
     
   } catch (err) {
-    return res.status(500).json({ error: "Error occurred getting driver", errorMessage: err, errorLocation: "Driver Controller" });
+    return res.status(500).json({ error: "Error occurred getting driver", errorMessage: err, errorSource: "Driver Controller" });
   }
 };
 
@@ -66,12 +66,12 @@ export const deleteDriver = async (req, res) => {
   const driverDelete = await deleteDriverService(driver_id);
   if (driverDelete.error) {
 
-  return  res.status(driverDelete.errorCode).json({ error: driverDelete.error, errorMessage: driverDelete.errorMessage, errorLocation: driverDelete.errorLocation });
+  return  res.status(driverDelete.errorCode).json({ error: driverDelete.error, errorMessage: driverDelete.errorMessage, errorSource: driverDelete.errorSource });
   }
   
     res.status(200).json({ success: "driver deleted" });
   } catch (err) {
-    res.status(500).json({error: "Error Occurred", errorMessage: err, errorLocation: "Driver Controller"})
+    res.status(500).json({error: "Error Occurred", errorMessage: err, errorSource: "Driver Controller"})
   }
   
 };

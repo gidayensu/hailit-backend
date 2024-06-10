@@ -8,16 +8,23 @@ import {
 
 export const getAllVehicles = async (req, res) => {
   try {
-    const allVehicles = await getAllVehiclesService();
+    const limit = req.query?.limit
+    const offset = req.query?.offset
+    const allVehicles = await getAllVehiclesService(limit, offset);
     if (allVehicles.error) {
-      return {error: allVehicles.error, errorMessage: allVehicles.errorMessage, errorLocation: allVehicles.errorLocation}
+      return {error: allVehicles.error, errorMessage: allVehicles.errorMessage, errorSource: allVehicles.errorSource}
     }
+    if(limit && offset) {
+      
+      return res.status(200).json({ ...allVehicles });
+    }
+
     res.status(200).json({ vehicles: allVehicles });
   } catch (err) {
     return res.status(500).json({
       error: "Server error occurred getting all vehicles",
       errorMessage: err,
-      errorLocation: "getAllVehicles Controller",
+      errorSource: "getAllVehicles Controller",
     });
   }
 };
@@ -28,7 +35,7 @@ export const getOneVehicle = async (req, res) => {
   if (getVehicle.error) {
     return res
       .status(400)
-      .json({ error: getVehicle.error, errorMessage: getVehicle.errorMessage, errorLocation: getVehicle.errorLocation });
+      .json({ error: getVehicle.error, errorMessage: getVehicle.errorMessage, errorSource: getVehicle.errorSource });
   }
 
   res.status(200).json({ vehicle: getVehicle });
@@ -47,7 +54,7 @@ export const addVehicle = async (req, res) => {
     return res.status(403).json({
       error: addingVehicleResult.error,
       errorMessage: addingVehicleResult.errorMessage, 
-      errorLocation: "addVehicle Controller",
+      errorSource: "addVehicle Controller",
     });
   }
 
@@ -71,7 +78,7 @@ export const updateVehicle = async (req, res) => {
       return res.status(403).json({
         error: updatingVehicle.error,
         errorMessage: updatingVehicle.errorMessage, 
-        errorLocation: "updateVehicle Controller",
+        errorSource: "updateVehicle Controller",
       });
     }
 
@@ -80,7 +87,7 @@ export const updateVehicle = async (req, res) => {
     return res.status(500).json({
       error: "Server Error",
       errorMessage: err,
-      errorLocation: "updateVehicle Controller",
+      errorSource: "updateVehicle Controller",
     });
   }
 };
@@ -95,7 +102,7 @@ export const deleteVehicle = async (req, res) => {
       return res.status(400).json({ // Assuming 400 for delete error
         error: "Error occurred deleting vehicle",
         errorMessage: deleteVehicle.errorMessage, 
-        errorLocation: "deleteVehicle Controller",
+        errorSource: "deleteVehicle Controller",
       });
     }
 
@@ -104,7 +111,7 @@ export const deleteVehicle = async (req, res) => {
     return res.status(500).json({
       error: "Server Error occurred deleting vehicle",
       errorMessage: err,
-      errorLocation: "deleteVehicle Controller",
+      errorSource: "deleteVehicle Controller",
     });
   }
 };

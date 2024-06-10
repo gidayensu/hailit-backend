@@ -64,7 +64,7 @@ export const getOneDriverFromDB = async (driver_id) => {
     const driverIdColumn = driverTableColumns[0];
     const driver = await getOne(driverTableName, driverIdColumn, driver_id);
     if (driver.error) {
-      return driver; //error message returned
+      return driver; //error details returned
     }
 
     return driver[0];
@@ -156,7 +156,7 @@ export const updateDriverOnDB = async (driverDetails) => {
     );
 
     if (driverUpdate.error) {
-      return driverUpdate; //Error message returned
+      return driverUpdate; //Error details returned
     }
     if (driverUpdate.rowCount === 0) {
       return errorHandler("Driver details not updated", "Driver detail not found", 400, "Driver Model");

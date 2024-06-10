@@ -112,7 +112,7 @@ export const addUserService = async (userDetails) => {
 
     const addedUser = await addUserToDB(validUserDetailsWithId);
     if (addedUser.error) {
-      return addedUser; //Error message will be returned
+      return addedUser; //Error details will be returned
     }
 
     const userRole = validUserDetailsWithId.user_role;
@@ -135,7 +135,7 @@ const addRiderIfApplicable = async (user_id, addedUser) => {
   try {
     const addRider = await addRiderToDB(user_id);
     if (addRider.error) {
-      return addRider //Error message will be returned
+      return addRider //Error details will be returned
     }
     const addedRider = addRider[0];
     return { ...addedUser, rider: addedRider };
@@ -148,7 +148,7 @@ const addDriverIfApplicable = async (user_id, addedUser) => {
   try {
     const addDriver = addDriverToDB(user_id);
     if (addDriver.error) {
-      return addDriver //error message will be returned
+      return addDriver //error details will be returned
     }
     const addedDriver = addDriver[0];
     return { ...addedUser, driver: addedDriver };

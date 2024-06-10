@@ -129,7 +129,7 @@ export const updateRiderOnDB = async (riderDetails) => {
       ...riderDetailsArray
     );
     if (riderUpdate.error) {
-      return riderUpdate //error message returned
+      return riderUpdate //error details returned
     }
     if (riderUpdate.rowCount === 0) {
       return errorHandler("Rider details not updated", "Rider detail not found", 400, "Rider Model");

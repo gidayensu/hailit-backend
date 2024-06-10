@@ -49,7 +49,7 @@ export const getOneUserFromDB = async (userId) => {
     const user = await getOne(userTableName, userColumnName, userId);
     
     if (user.error) {
-      return errorHandler(user.error, user.errorMessage, user.errorCode, user.errorLocation);
+      return errorHandler(user.error, user.errorMessage, user.errorCode, user.errorSource);
     }
     return user[0];
   } catch (err) {

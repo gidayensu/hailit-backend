@@ -50,7 +50,7 @@ export const getOneTripFromDB = async (trip_id, tripIdColumn) => {
     const oneTrip = await getOne(tripTableName, tripIdColumn, trip_id);
 
     if (oneTrip.error) {
-      return oneTrip //Error message returned
+      return oneTrip //Error details returned
     }
     return oneTrip[0];
   } catch (err) {
@@ -127,7 +127,7 @@ export const addTripToDB = async (tripDetails) => {
       tripDetailsValues
     );
     if (newTrip.error) {
-      return newTrip //Error message returned
+      return newTrip //Error details returned
     }
     return newTrip[0];
   } catch (err) {
