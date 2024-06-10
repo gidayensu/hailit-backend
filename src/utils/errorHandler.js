@@ -1,8 +1,8 @@
-export const errorHandler = (error, errorMessage, errorCode, errorLocation)=> {
+export const errorHandler = (error, errorMessage, errorCode, errorSource)=> {
     return {
         error, 
         errorMessage, 
         errorCode, 
-        errorLocation
+        errorSource
     }
 }
