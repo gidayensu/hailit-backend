@@ -16,7 +16,7 @@ tripRouter.get('/', supaAuth, isAdmin, getAllTrips);
 
 tripRouter.get('/user-trip/:trip_id', tripSupaAuth,  getOneTrip);
 
-tripRouter.get('/user-trips/:user_id', supaAuth, getUserTrips)
+tripRouter.get('/user-trips/:user_id',supaAuth, getUserTrips)
 
 tripRouter.post('/add-trip/', tripSupaAuth, addTrip)
 

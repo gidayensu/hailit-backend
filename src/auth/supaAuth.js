@@ -1,9 +1,8 @@
 import jwt from 'jsonwebtoken';
 
 export const supaAuth =  (req, res, next) => {
-
-    
-    const supaSecret = process.env.SUPABASE_JWT_SECRET;
+   
+       const supaSecret = process.env.SUPABASE_JWT_SECRET;
     const path = req.path;
     try {
         const authHeader = req.headers.authorization;

@@ -7,16 +7,14 @@
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "node App.js"
-  
-    
   },
   "jest": {
     "transform": {}
-
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@supabase/gotrue-js": "^2.62.2",
     "@supabase/ssr": "^0.3.0",
     "@supabase/supabase-js": "^2.43.1",
     "body-parser": "^1.20.2",
