@@ -15,10 +15,12 @@ export const getAll = async (tableName, limit, offset, ) => {
   try {
     let queryText = `SELECT * FROM ${tableName}`;
     if (limit) {
+      
       queryText = `SELECT * FROM ${tableName} LIMIT ${limit} OFFSET ${offset}`
     }
-    const allItems = await DB.query(`SELECT * FROM ${tableName}`);
+    const allItems = await DB.query(queryText);
     const data = allItems.rows;
+    
     return data;
   } catch (err) {
     return errorHandler("Error occurred", err, 500, "Database Functions");

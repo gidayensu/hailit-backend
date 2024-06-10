@@ -15,7 +15,7 @@ config({ path: '../../../.env' });
 const DEFAULT_DISPATCHER_ID = 'ff-12-53';
 
 export const tripFieldsToSelect = [
-  "trip_id, dispatcher_id, trip_medium, trip_status, package_value, recipient_number, sender_number, package_type, pickup_location, drop_off_location, additional_information, trip_request_date, trip_cost, payment_status, payment_method "
+  "trip_id, dispatcher_id, trip_medium, trip_status, package_value, trip_area, recipient_number, sender_number, package_type, pickup_location, drop_off_location, additional_information, trip_request_date, trip_cost, payment_status, payment_method "
 ];
 // const allowedTripStatus = ['booked', 'in progress', 'completed', 'cancelled'];
 export const allowedAddTripProperties = [
@@ -24,7 +24,10 @@ export const allowedAddTripProperties = [
   "pickup_location",
   "drop_off_location",
   "additional_information",
-  "package_value", "recipient_number", "sender_number",
+  "package_value", 
+  "recipient_number", 
+  "sender_number",
+  "trip_area"
 ];
 
 const tripRequestDateColumn = "trip_request_date";
@@ -127,7 +130,7 @@ export const getUserTripsService = async (user_id) => {
  export const dispatcherTrips = async (user_role, user_id)=> {
   try {
     const tripFieldsToSelect = [
-      "trip_id, trip_medium, trip_status, trip_type, drop_off_location, package_type, trip_commencement_date, trip_completion_date",
+      "trip_id, trip_medium, trip_status, trip_type, pickup_location, drop_off_location, package_type, trip_commencement_date, trip_completion_date, trip_cost, trip_request_date",
     ];
     
     //dispatcher is used to represent drivers and riders except user role
@@ -164,19 +167,39 @@ export const getUserTripsService = async (user_id) => {
       tripFieldsToSelect
     );
     
+    if(dispatcherTrips.length > 0) {
+
+      const {total_trip_count, delivered_trips, cancelled_trips, current_trips, total_earnings} =  tripCount(dispatcherTrips)
+      return { dispatcher_trips: dispatcherTrips,  total_trip_count,  delivered_trips,  cancelled_trips,  current_trips, total_earnings}
+    }
     return dispatcherTrips;
   } catch (err) {
     
     return errorHandler(`Error occurred getting dispatcher trips`, err, 500, "Trip Service");
   }
 }
+//CALCULATE TRIPS == breaks away from camel case to match the database case
+const tripCount = (trips)=> {
+  let total_earnings = 0;
+  trips.forEach(trip => {
+    trip.trip_status === "Delivered" ? total_earnings +=Math.ceil(trip.trip_cost) : ''
+  });
+  
+  const total_trip_count = trips.length + 1;
+  const delivered_trips = trips.filter(trip=>trip.trip_status === "Delivered").length;
+  const current_trips = trips.filter(trip=>trip.trip_status !== "Delivered" || trip.trip_status !== "Cancelled").length;
+  const cancelled_trips = trips.filter(trip=>trip.trip_status === "Cancelled").length;
+  return {total_trip_count, delivered_trips, cancelled_trips, current_trips, total_earnings}
+
+}
+//ADDING TRIPS
 export const addTripService = async (user_id, tripDetails) => {
   try {
     const trip_id = crypto.randomBytes(4).toString("hex");
     const validTripDetails = allowedPropertiesOnly(tripDetails, allowedAddTripProperties);
     
 
-    const trip_cost = 89 - 45; // current destination - delivery destination
+    const trip_cost = 85 - 45; // current destination - delivery destination
     const dispatcher_id = await getDispatcherId(tripDetails.trip_medium);
 
     const tripStatusDetails = {
@@ -194,7 +217,7 @@ export const addTripService = async (user_id, tripDetails) => {
       ...validTripDetails,
       ...tripStatusDetails,
     };
-
+    console.log({finalTripDetails})
     const newTrip = await addTripToDB(finalTripDetails);
     
 
@@ -242,7 +265,8 @@ export const updateTripService = async (tripDetails) => {
     "dispatcher_id",
     "recipient_number",
     "sender_number",
-    "trip_stage"
+    "trip_stage",
+    "trip_area"
   ];
 
   try {
@@ -250,6 +274,7 @@ export const updateTripService = async (tripDetails) => {
       tripDetails,
       allowedProperties
     );
+    console.log({validTripDetails})
 
     const tripUpdate = await updateTripOnDB(validTripDetails);
     
@@ -269,7 +294,7 @@ export const rateTripService = async (ratingDetails) => {
     const { trip_id, dispatcher_id } = validTripDetails;
     const updateTrip = await updateTripOnDB(validTripDetails);
     if (updateTrip.error) {
-      return updateTrip //Error message
+      return updateTrip //Error details returned
     }
 
     const tripMedium = await tripModel.getSpecificDetailsUsingId(trip_id, "trip_id", "trip_medium");
@@ -279,12 +304,12 @@ export const rateTripService = async (ratingDetails) => {
 
     const ratingUpdate = await updateDispatcherRating(trip_medium, dispatcher_id, averageDispatcherRating);
     if (ratingUpdate.error) {
-      return ratingUpdate //error message included
+      return ratingUpdate //error details returned
     }
 
     const ratingCountUpdate = await increaseRatingCount(trip_medium, dispatcher_id);
     if (ratingCountUpdate.error) {
-      return ratingCountUpdate //error message included
+      return ratingCountUpdate //error details included
     }
 
     return { success: "trip updated with rating" };
@@ -298,12 +323,12 @@ export const updateDispatcherRating = async (trip_medium, dispatcher_id, average
   if (trip_medium === "motor") {
     const riderUpdate = await updateRiderOnDB({ cumulative_rider_rating: averageDispatcherRating, rider_id: dispatcher_id });
     if (riderUpdate.error) {
-      return riderUpdate //Error message returned
+      return riderUpdate //Error details returned
     }
   } else if (trip_medium === "car" || trip_medium === "truck") {
     const driverUpdate = await updateDriverOnDB({ cumulative_driver_rating: averageDispatcherRating, driver_id: dispatcher_id });
     if (driverUpdate.error) {
-      return driverUpdate //Error message returned
+      return driverUpdate //Error details returned
     }
   }
   return { success: true };
@@ -326,7 +351,7 @@ export const increaseRatingCount = async (trip_medium, dispatcher_id) => {
 
   const countIncrease = await ratingCouIntIncrease(tableName, dispatcher_id, idColumn, ratingCountColumn);
   if (countIncrease.error) {
-    return countIncrease //error message returned
+    return countIncrease //error details returned
   }
   return { success: true };
 };
