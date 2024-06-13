@@ -121,8 +121,15 @@ export const getUserTripsService = async (user_id) => {
     if(trips.error) {
       return {error: trips.error}
     }
+    
+    if(trips.length > 0) {
+      const {total_trip_count, delivered_trips, cancelled_trips, current_trips, total_payment} =  tripsCount(trips)
+      return {customer_trips: trips, total_trip_count, delivered_trips, cancelled_trips, current_trips, total_payment}
+    }
+
     return trips;
   } catch (err) {
+    console.log(err)
     return errorHandler(`Error occurred getting customer trips`, err, 500, "Trip Service");
   }
  }
@@ -130,7 +137,7 @@ export const getUserTripsService = async (user_id) => {
  export const dispatcherTrips = async (user_role, user_id)=> {
   try {
     const tripFieldsToSelect = [
-      "trip_id, trip_medium, trip_status, trip_type, pickup_location, drop_off_location, package_type, trip_commencement_date, trip_completion_date, trip_cost, trip_request_date",
+      "trip_id, trip_medium, trip_status, trip_stage, recipient_number, sender_number,payment_status, trip_type, pickup_location, drop_off_location, package_type, trip_commencement_date, trip_completion_date, trip_cost, trip_request_date, payment_method",
     ];
     
     //dispatcher is used to represent drivers and riders except user role
@@ -169,7 +176,7 @@ export const getUserTripsService = async (user_id) => {
     
     if(dispatcherTrips.length > 0) {
 
-      const {total_trip_count, delivered_trips, cancelled_trips, current_trips, total_earnings} =  tripCount(dispatcherTrips)
+      const {total_trip_count, delivered_trips, cancelled_trips, current_trips, total_earnings} =  tripsCount(dispatcherTrips)
       return { dispatcher_trips: dispatcherTrips,  total_trip_count,  delivered_trips,  cancelled_trips,  current_trips, total_earnings}
     }
     return dispatcherTrips;
@@ -179,18 +186,37 @@ export const getUserTripsService = async (user_id) => {
   }
 }
 //CALCULATE TRIPS == breaks away from camel case to match the database case
-const tripCount = (trips)=> {
+const tripsCount = (trips) => {
   let total_earnings = 0;
-  trips.forEach(trip => {
-    trip.trip_status === "Delivered" ? total_earnings +=Math.ceil(trip.trip_cost) : ''
-  });
-  
-  const total_trip_count = trips.length + 1;
-  const delivered_trips = trips.filter(trip=>trip.trip_status === "Delivered").length;
-  const current_trips = trips.filter(trip=>trip.trip_status !== "Delivered" || trip.trip_status !== "Cancelled").length;
-  const cancelled_trips = trips.filter(trip=>trip.trip_status === "Cancelled").length;
-  return {total_trip_count, delivered_trips, cancelled_trips, current_trips, total_earnings}
+  let total_payment = 0;
+  let delivered_trips = 0;
+  let current_trips = 0;
+  let cancelled_trips = 0;
 
+  trips.forEach(trip => {
+    if (trip.trip_status === "Delivered") {
+      total_earnings += Math.ceil(trip.trip_cost * 0.8);
+      delivered_trips++;
+    } else if (trip.trip_status === "Cancelled") {
+      cancelled_trips++;
+    } else {
+      current_trips++;
+    }
+    if (trip.payment_status) {
+      total_payment += Math.ceil(trip.trip_cost);
+    }
+  });
+
+  const total_trip_count = trips.length;
+
+  return {
+    total_trip_count,
+    delivered_trips,
+    cancelled_trips,
+    current_trips,
+    total_earnings,
+    total_payment
+  };
 }
 //ADDING TRIPS
 export const addTripService = async (user_id, tripDetails) => {
