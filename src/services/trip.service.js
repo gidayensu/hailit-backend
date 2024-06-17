@@ -45,7 +45,7 @@ export const getAllTripsService = async (limit, offset) => {
     return trips;
   } catch (err) {
     
-    return errorHandler("Error Occurred in getting Trips Detail", err, 500, "Get All Trips Service");
+    return errorHandler("Error Occurred in getting Trips Detail", `${err}`, 500, "Get All Trips Service");
   }
 };
 
@@ -58,18 +58,55 @@ export const getOneTripService = async (trip_id) => {
     if(oneTrip.error) {
       return {error: oneTrip.error}
     }
-    const {dispatcher_id, trip_medium} = oneTrip;
-    let dispatcherDetails = {}
-      trip_medium == 'Motor' ? dispatcherDetails = await getOneRiderService(dispatcher_id) : dispatcherDetails = await getOneDriverService(dispatcher_id);
-      
-      if (dispatcherDetails.error) {
-        
-        return {...oneTrip, dispatcher: 'Not assigned'}
-      }
-    
-    return {...oneTrip, dispatcher: dispatcherDetails};
+    const { dispatcher_id, trip_medium } = oneTrip;
+
+const dispatcherService = trip_medium === 'Motor' ?  getOneRiderService : getOneDriverService;
+
+
+let dispatcherDetails = await dispatcherService(dispatcher_id);
+
+console.log({dispatcher_id, trip_medium, dispatcherDetails});
+
+if (dispatcherDetails.error) {
+  return { ...oneTrip, dispatcher: 'Not assigned' };
+}
+
+const {
+  rider_rating_count = 0,
+  cumulative_rider_rating = "0.0",
+  driver_rating_count = 0,
+  cumulative_driver_rating = "0.0",
+  user_id = "",
+  rider_id = "",
+  driver_id = "",
+  license_number = "",
+  rider_availability = "",
+  driver_availability = "",
+  vehicle_id = "",
+  first_name = "",
+  last_name = "",
+  phone_number = "",
+  vehicle
+} = dispatcherDetails;
+
+dispatcherDetails = {
+  rating_count: rider_rating_count || driver_rating_count,
+  cumulative_rating: cumulative_rider_rating || cumulative_driver_rating,
+  user_id,
+  dispatcher_id: rider_id || driver_id,
+  license_number,
+  availability: rider_availability || driver_availability,
+  vehicle_id,
+  first_name,
+  last_name,
+  phone_number,
+  vehicle
+};
+
+return { ...oneTrip, dispatcher: dispatcherDetails };
+
   } catch (err) {
-    return errorHandler("Error Occurred in getting One Trip Detail", err, 500, "Trip Service");
+    return errorHandler("Error Occurred in getting One Trip Detail", `${err}`, 500, "Trip Service");
   }
 };
 
@@ -103,7 +140,7 @@ export const getUserTripsService = async (user_id) => {
     }
   } catch (err) {
     
-    return errorHandler("Error occurred getting user trips details", err, 500, "Trip Service");
+    return errorHandler("Error occurred getting user trips details", `${err}`, 500, "Trip Service");
   }
 };
  //CUSTOMER TRIPS (HELPER FUNCTION)
@@ -130,7 +167,7 @@ export const getUserTripsService = async (user_id) => {
     return trips;
   } catch (err) {
     console.log(err)
-    return errorHandler(`Error occurred getting customer trips`, err, 500, "Trip Service");
+    return errorHandler(`Error occurred getting customer trips`, `${err}`, 500, "Trip Service");
   }
  }
  //DISPATCHER TRIPS (HELPER FUNCTION)
@@ -182,7 +219,7 @@ export const getUserTripsService = async (user_id) => {
     return dispatcherTrips;
   } catch (err) {
     
-    return errorHandler(`Error occurred getting dispatcher trips`, err, 500, "Trip Service");
+    return errorHandler(`Error occurred getting dispatcher trips`, `${err}`, 500, "Trip Service");
   }
 }
 //CALCULATE TRIPS == breaks away from camel case to match the database case
@@ -249,7 +286,7 @@ export const addTripService = async (user_id, tripDetails) => {
 
     return newTrip;
   } catch (err) {
-    return errorHandler(`Server Error [service] Occurred adding trip`, err, 500, "Trip Service");
+    return errorHandler(`Server Error [service] Occurred adding trip`, `${err}`, 500, "Trip Service");
   }
 };
 
@@ -307,7 +344,7 @@ export const updateTripService = async (tripDetails) => {
       return tripUpdate;
     
   } catch (err) {
-    return errorHandler(`Server Error Occurred updating trip`, err, 500, "Trip Service");
+    return errorHandler(`Server Error Occurred updating trip`, `${err}`, 500, "Trip Service");
   }
 };
 
@@ -340,7 +377,7 @@ export const rateTripService = async (ratingDetails) => {
 
     return { success: "trip updated with rating" };
   } catch (err) {
-    return errorHandler(`Server Error Occurred Adding Rating: ${err}`, err, 500, "Trip Service");
+    return errorHandler(`Server Error Occurred Adding Rating: ${err}`, `${err}`, 500, "Trip Service");
   }
 };
 
@@ -388,6 +425,6 @@ export const deleteTripService = async (trip_id) => {
     
     return tripDelete;
   } catch (err) {
-    return errorHandler("Error occurred deleting trip", err, 500, "Trip Service");
+    return errorHandler("Error occurred deleting trip", `${err}`, 500, "Trip Service");
   }
 };

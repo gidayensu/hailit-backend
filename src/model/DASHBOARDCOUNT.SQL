@@ -25,4 +25,4 @@ FROM
       AND trip_request_date <= CURRENT_DATE
   ) AS one_month_count
 FROM
-  trips;
+  trips;  
