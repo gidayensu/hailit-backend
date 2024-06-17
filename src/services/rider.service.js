@@ -18,7 +18,7 @@ export const getAllRidersService = async (limit, offset) => {
 
     return riders;
   } catch (err) {
-    return errorHandler("Error occurred getting all riders", err, 500, "Rider Service");
+    return errorHandler("Error occurred getting all riders", `${err}`, 500, "Rider Service");
   }
 };
 
@@ -47,7 +47,7 @@ export const getOneRiderService = async (rider_id) => {
       return {...riderDetails, vehicle: vehicleDetails};
     
   } catch (err) {
-    return errorHandler("Error occurred getting rider", err, 500, "Rider Service");
+    return errorHandler("Error occurred getting rider", `${err}`, 500, "Rider Service");
   }
 };
 
@@ -57,7 +57,7 @@ export const addRiderService = async (user_id, vehicle_id) => {
     const riderAdd = await addRiderToDB(user_id, vehicle_id);
     return riderAdd;
   } catch (err) {
-    return errorHandler("Server error occurred", err, 500, "Rider Service")
+    return errorHandler("Server error occurred", `${err}`, 500, "Rider Service")
   }
 
 };
@@ -75,7 +75,7 @@ export const updateRiderService = async (riderDetails) => {
     return riderUpdate;
     
   } catch (err) {
-    return errorHandler("Error occurred updating rider details", err, 500, "Rider Service");
+    return errorHandler("Error occurred updating rider details", `${err}`, 500, "Rider Service");
   }
 };
 
@@ -85,7 +85,7 @@ export const deleteRiderService = async (rider_id) => {
     return riderDelete;
     
   } catch (err) {
-    return errorHandler("Error occurred deleting rider", err, 500, "Rider Service");
+    return errorHandler("Error occurred deleting rider", `${err}`, 500, "Rider Service");
   }
 };
 

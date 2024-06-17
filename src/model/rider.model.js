@@ -45,7 +45,7 @@ export const getAllRiders = async (limit, offset) => {
     }
     return allRiders;
   } catch (err) {
-    return errorHandler("Server error occurred getting all riders", err, 500, "All Riders Model");
+    return errorHandler("Server error occurred getting all riders", `${err}`, 500, "All Riders Model");
   }
 };
 
@@ -62,7 +62,7 @@ export const getOneRiderFromDB = async (rider_id) => {
     }
     return rider[0];
   } catch (err) {
-    return errorHandler("Error occurred. Rider not fetched", err, 500, "Rider Model");
+    return errorHandler("Error occurred. Rider not fetched", `${err}`, 500, "Rider Model");
   }
 };
 
@@ -88,7 +88,7 @@ export const getSpecificRidersFromDB = async (specificColumn, condition) => {
     );
     return specificRiders;
   } catch (err) {
-    return errorHandler("Error occurred in retrieving riders", err, 500, "Rider Model");
+    return errorHandler("Error occurred in retrieving riders", `${err}`, 500, "Rider Model");
   }
 };
 
@@ -110,7 +110,7 @@ export const addRiderToDB = async (user_id) => {
       return addingMotor;
     
   } catch (err) {
-    return errorHandler("Error occurred adding rider", err, 500, "Rider Model");
+    return errorHandler("Error occurred adding rider", `${err}`, 500, "Rider Model");
   }
 };
 
@@ -136,7 +136,7 @@ export const updateRiderOnDB = async (riderDetails) => {
     }
     return riderUpdate.rows[0];
   } catch (err) {
-    return errorHandler("Error occurred in updating rider details", err, 500, "Rider Model");
+    return errorHandler("Error occurred in updating rider details", `${err}`, 500, "Rider Model");
   }
 };
 
@@ -151,6 +151,6 @@ export const deleteRiderFromDB = async (rider_id) => {
     
     
   } catch (err) {
-    return errorHandler("Error Occurred Deleting Rider", err, 500, "Rider Model");
+    return errorHandler("Error Occurred Deleting Rider", `${err}`, 500, "Rider Model");
   }
 };

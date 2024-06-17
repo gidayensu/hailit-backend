@@ -54,7 +54,7 @@ export const getAllDriversFromDB = async (limit, offset) => {
     return allDrivers;
   } catch (err) {
     
-    return errorHandler("server error occurred getting drivers", err, 500, "Driver Model");
+    return errorHandler("server error occurred getting drivers", `${err}`, 500, "Driver Model");
 
   }
 };
@@ -69,7 +69,7 @@ export const getOneDriverFromDB = async (driver_id) => {
 
     return driver[0];
   } catch (err) {
-    return errorHandler("Error occurred. Driver not fetched", err, 500, "Driver Model");
+    return errorHandler("Error occurred. Driver not fetched", `${err}`, 500, "Driver Model");
 
   }
 };
@@ -89,7 +89,7 @@ export const getDriverDetailOnCondition = async (columnName, condition) => {
 
     return driverDetails.rows;
   } catch (err) {
-    return errorHandler("Error occurred finding driver details", err, 500, "Driver Model");
+    return errorHandler("Error occurred finding driver details", `${err}`, 500, "Driver Model");
 
   }
 };
@@ -102,7 +102,7 @@ export const getSpecificDriversFromDB = async (specificColumn, condition) => {
     );
     return specificDrivers;
   } catch (err) {
-    return errorHandler("Error occurred in retrieving drivers", err, 500, "Driver Model");
+    return errorHandler("Error occurred in retrieving drivers", `${err}`, 500, "Driver Model");
 
   }
 };
@@ -135,7 +135,7 @@ export const addDriverToDB = async (user_id, vehicle_id) => {
   return addedDriver;
   
   } catch (err) {
-    return errorHandler("Error occurred adding driver", err, 500, "Driver Model");
+    return errorHandler("Error occurred adding driver", `${err}`, 500, "Driver Model");
 
   }
 };
@@ -165,7 +165,7 @@ export const updateDriverOnDB = async (driverDetails) => {
     return driverUpdate.rows[0];
   } catch (err) {
     
-    return errorHandler("Error occurred in updating driver details", err, 500, "Driver Model");
+    return errorHandler("Error occurred in updating driver details", `${err}`, 500, "Driver Model");
   }
 };
 
@@ -181,6 +181,6 @@ export const deleteDriverFromDB = async (driver_id) => {
       return driverDelete;
     
   } catch (err) {
-    return errorHandler("Server Error occurred deleting driver", err, 500, "Driver Model")
+    return errorHandler("Server Error occurred deleting driver", `${err}`, 500, "Driver Model")
   }
 };

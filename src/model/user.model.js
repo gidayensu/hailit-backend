@@ -123,7 +123,7 @@ export const addUserToDB = async (userDetails) => {
       );
     }
   } catch (err) {
-    return errorHandler(`Error occurred adding user`, err, 500, "User Model");
+    return errorHandler(`Error occurred adding user`, `${err}`, 500, "User Model");
   }
 };
 
@@ -191,7 +191,7 @@ export const updateUserOnDB = async (userId, userDetails) => {
       return errorHandler("User Does Not Exist", null, 404, "User Model");
     }
   } catch (err) {
-    return errorHandler(`Error occurred this error`, err, 500, "User Model");
+    return errorHandler(`Error occurred this error`, `${err}`, 500, "User Model");
   }
 };
 

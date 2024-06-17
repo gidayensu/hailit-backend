@@ -22,7 +22,7 @@ export const getAllVehiclesFromDB = async (limit, offset) => {
     
     return allVehicles;
   } catch (err) {
-    return errorHandler(`Error occurred getting all vehicles`, err, 500, "Vehicle Model");
+    return errorHandler(`Error occurred getting all vehicles`, `${err}`, 500, "Vehicle Model");
   }
 };
 
@@ -41,7 +41,7 @@ export const getOneVehicleFromDB = async (vehicle_id) => {
 
     return getVehicle[0];
   } catch (err) {
-    return errorHandler(`Error occurred`, err, 500, "Vehicle Model");
+    return errorHandler(`Error occurred`, `${err}`, 500, "Vehicle Model");
   }
 };
 
@@ -77,7 +77,7 @@ export const addVehicleToDB = async (completeVehicleDetails) => {
 
     return addVehicleResult[0];
   } catch (err) {
-    return errorHandler(`Error occurred`, err, 500, "Vehicle Model");
+    return errorHandler(`Error occurred`, `${err}`, 500, "Vehicle Model");
   }
 };
 
@@ -100,7 +100,7 @@ export const updateVehicleOnDB = async (vehicle_id, vehicleUpdateDetails) => {
 
     return vehicleUpdate.rows[0];
   } catch (err) {
-    return errorHandler(`Error occurred`, err, 500, "Vehicle Model");
+    return errorHandler(`Error occurred`, `${err}`, 500, "Vehicle Model");
   }
 };
 
@@ -115,6 +115,6 @@ export const deleteVehicleFromDB = async (vehicle_id) => {
     
     return vehicleDeletion;
   } catch (err) {
-    return errorHandler(`Error occurred`, err, 500, "Vehicle Model");
+    return errorHandler(`Error occurred`, `${err}`, 500, "Vehicle Model");
   }
 };

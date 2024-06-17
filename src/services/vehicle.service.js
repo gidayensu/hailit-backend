@@ -12,7 +12,7 @@ export const getAllVehiclesService = async (limit, offset) => {
     }
     return allVehicles;
   } catch (err) {
-    return errorHandler("Server error occurred getting all vehicles", err, 500, "Vehicle Service");
+    return errorHandler("Server error occurred getting all vehicles", `${err}`, 500, "Vehicle Service");
   }
 };
 
@@ -23,7 +23,7 @@ export const getOneVehicleService = async (vehicle_id) => {
     return getVehicle;
 
   } catch (err) {
-    return errorHandler("Server error occurred", err, 500, "Vehicle Service");
+    return errorHandler("Server error occurred", `${err}`, 500, "Vehicle Service");
   }
 };
 
@@ -45,7 +45,7 @@ export const addVehicleService = async (vehicleDetails) => {
     
   } catch (err) {
     
-    return errorHandler("Error occurred. Vehicle not added", err, 500, "Vehicle Service");
+    return errorHandler("Error occurred. Vehicle not added", `${err}`, 500, "Vehicle Service");
   }
 };
 
@@ -61,7 +61,7 @@ export const updateVehicleService = async (vehicle_id, vehicleUpdateDetails) => 
 
     return updateVehicle;
   } catch (err) {
-    return errorHandler("Server Error. Vehicle not updated", err, 500, "Vehicle Service");
+    return errorHandler("Server Error. Vehicle not updated", `${err}`, 500, "Vehicle Service");
   }
 };
 
@@ -71,7 +71,7 @@ export const deleteVehicleService = async (vehicle_id) => {
     return deleteVehicle
     
   } catch (err) {
-    return errorHandler("Vehicle not deleted. Server Error", err, 500, "Vehicle Service");
+    return errorHandler("Vehicle not deleted. Server Error", `${err}`, 500, "Vehicle Service");
   }
 };
 

@@ -19,7 +19,7 @@ export const getAllDriversService = async (limit, offset) => {
     }
     return drivers;
   } catch (err) {
-    return errorHandler("server error occurred getting drivers", err, 500, "service");
+    return errorHandler("server error occurred getting drivers", `${err}`, 500, "service");
   }
 };
 
@@ -49,7 +49,7 @@ export  const getOneDriverService = async (driver_id) => {
     }
       return {...driverDetails, vehicle: vehicleDetails};
   } catch (err) {
-    return errorHandler("Error occurred getting one driver", err, 500, "service");
+    return errorHandler("Error occurred getting one driver", `${err}`, 500, "service");
   }
 };
 
@@ -79,7 +79,7 @@ export const updateDriverService = async (driverDetails) => {
     } 
     return driverUpdate;
   } catch (err) {
-    return errorHandler("Error occurred updating driver details", err, 500, "service");
+    return errorHandler("Error occurred updating driver details", `${err}`, 500, "service");
   }
 };
 
@@ -92,7 +92,7 @@ export const deleteDriverService = async (driver_id) => {
     } 
     return driverDelete;
   } catch (err) {
-    return errorHandler('Server Error occurred deleting driver', err, 500, "Driver Service" )
+    return errorHandler('Server Error occurred deleting driver', `${err}`, 500, "Driver Service" )
   }
 };
 

@@ -29,7 +29,7 @@ export const getAllUsersService = async (limit, offset) => {
     return users;
   } catch (err) {
     
-    return errorHandler("Error occurred getting all users", err, 500, "User service");
+    return errorHandler("Error occurred getting all users", `${err}`, 500, "User service");
   }
 };
 
@@ -44,7 +44,7 @@ export const getOneUserService = async (userId) => {
     return user;
   } catch (err) {
     
-    return errorHandler("Server error occurred in getting user", err, 500, "User Service");
+    return errorHandler("Server error occurred in getting user", `${err}`, 500, "User Service");
 
   }
 };
@@ -96,7 +96,7 @@ export const getUserIdUsingEmailService = async (userEmail) => {
     return user;
   } catch (err) {
     
-    return errorHandler("Error occurred in getting user", err, 500, "User Service");
+    return errorHandler("Error occurred in getting user", `${err}`, 500, "User Service");
   }
 };
 
@@ -127,7 +127,7 @@ export const addUserService = async (userDetails) => {
     return addedUser;
   } catch (err) {
     
-return errorHandler("Error occurred in adding user", err, 500, "User Service");
+return errorHandler("Error occurred in adding user", `${err}`, 500, "User Service");
   }
 };
 
@@ -140,7 +140,7 @@ const addRiderIfApplicable = async (user_id, addedUser) => {
     const addedRider = addRider[0];
     return { ...addedUser, rider: addedRider };
   } catch (err) {
-    return errorHandler("Error adding rider", err, 500, "User Service");
+    return errorHandler("Error adding rider", `${err}`, 500, "User Service");
   }
 };
 
@@ -154,7 +154,7 @@ const addDriverIfApplicable = async (user_id, addedUser) => {
     return { ...addedUser, driver: addedDriver };
   } catch (err) {
     
-    return errorHandler("Error. User not updated", err, 500, "User Service");
+    return errorHandler("Error. User not updated", `${err}`, 500, "User Service");
   }
 };
 
@@ -174,7 +174,7 @@ export const updateUserService = async (userId, userDetails) => {
     return updatedDetails;
   } catch (err) {
     
-    return errorHandler("Error User not updated", err, 500, "Update User Service");
+    return errorHandler("Error User not updated", `${err}`, 500, "Update User Service");
   }
 };
 
@@ -203,7 +203,7 @@ export const updateUserService = async (userId, userDetails) => {
 
     return updatedDetails;
   } catch (err) {
-    return errorHandler("Error updating rider role", err, 500, "User Service");
+    return errorHandler("Error updating rider role", `${err}`, 500, "User Service");
 
   }
 };
@@ -230,7 +230,7 @@ const updateDriverRole = async (userId, updatedDetails) => {
 
     return updatedDetails;
   } catch (err) {
-    return errorHandler("Error updating driver role", err, 500, "User Service");
+    return errorHandler("Error updating driver role", `${err}`, 500, "User Service");
   }
 };
 
@@ -255,6 +255,6 @@ export const deleteUserService = async (userId) => {
       
     return await deleteUserFromDB(userId);
   } catch (err) {  
-    return errorHandler("Error occurred deleting user", err, 500, "User Service");
+    return errorHandler("Error occurred deleting user", `${err}`, 500, "User Service");
   }
 };

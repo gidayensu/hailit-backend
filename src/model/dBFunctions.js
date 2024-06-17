@@ -7,7 +7,7 @@ export const getAllCustomers = async (tableName) => {
     const data = allItems.rows;
     return data;
   } catch (err) {
-    return errorHandler("Error occurred", err, 500, "Database Functions");
+    return errorHandler("Error occurred", `${err}`, 500, "Database Functions");
   }
 };
 
@@ -23,7 +23,7 @@ export const getAll = async (tableName, limit, offset, ) => {
     
     return data;
   } catch (err) {
-    return errorHandler("Error occurred", err, 500, "Database Functions");
+    return errorHandler("Error occurred", `${err}`, 500, "Database Functions");
   }
 };
 
@@ -37,7 +37,7 @@ export const getTripsCustomersJoin = async (tripTable, usersTable, firstName, la
     const trips = allTrips.rows;
     return trips;
   } catch (err) {
-    return errorHandler("Error occurred", err, 500, "Database Functions");
+    return errorHandler("Error occurred", `${err}`, 500, "Database Functions");
   }
 };
 
@@ -52,7 +52,7 @@ export const getDispatchersVehicleJoin = async (dispatcherTable, usersTable, veh
     return dispatchers;
   } catch (err) {
     
-    return errorHandler("Error occurred", err, 500, "Database Functions");
+    return errorHandler("Error occurred", `${err}`, 500, "Database Functions");
   }
 };
 
@@ -66,7 +66,7 @@ export const getAllDateSort = async (tableName, dateColumn, limit) => {
     
     return data;
   } catch (err) {
-    return errorHandler("Error occurred", err, 500, "Database Functions");
+    return errorHandler("Error occurred", `${err}`, 500, "Database Functions");
   }
 };
 
@@ -87,7 +87,7 @@ export const selectOnCondition = async (tableName, columnName, condition, limit,
     
     return result;
   } catch (err) {
-    return errorHandler("Error occurred", err, 500, "Database Functions");
+    return errorHandler("Error occurred", `${err}`, 500, "Database Functions");
   }
 };
 
@@ -111,7 +111,7 @@ export const getOne = async (tableName, columnName, entry) => {
       return errorHandler("detail does not exist", null, 404, "Database Functions");
     }
   } catch (err) {
-    return errorHandler("Error occurred", err, 500, "Database Functions");
+    return errorHandler("Error occurred", `${err}`, 500, "Database Functions");
   }
 };
 
@@ -135,7 +135,7 @@ export const addOne = async (tableName, columns, values) => {
     return result.rows;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return errorHandler(`Server Error occurred`, err, 500, 'Database Functions');
+    return errorHandler(`Server Error occurred`, `${err}`, 500, 'Database Functions');
   }
 };
 
@@ -158,7 +158,7 @@ export const updateOne = async (tableName, columns, id, idColumn, ...details) =>
     return updatedData;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return errorHandler(`Error occurred`, err, 500, 'Database Functions');
+    return errorHandler(`Error occurred`, `${err}`, 500, 'Database Functions');
   }
 };
 
@@ -172,7 +172,7 @@ export const getSpecificDetails = async (tableName, specificColumn, condition) =
     return rows;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return errorHandler("Server Error occurred, data not retrieved", err, 500, 'Database Functions');
+    return errorHandler("Server Error occurred, data not retrieved", `${err}`, 500, 'Database Functions');
   }
 };
 
@@ -200,7 +200,7 @@ export const getSpecificDetailsUsingId = async (tableName, id, idColumn, columns
   } catch (err) {
     
     await DB.query("ROLLBACK");
-    return errorHandler("Server Error occurred, data not retrieved", err, 500, 'Database Functions');
+    return errorHandler("Server Error occurred, data not retrieved", `${err}`, 500, 'Database Functions');
   }
 };
 
@@ -214,7 +214,7 @@ export const deleteOne = async (tableName, columnName, id) => {
     return deletion.rowCount ? true : false;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return errorHandler(`Error occurred`, err, 500, 'Database Functions');
+    return errorHandler(`Error occurred`, `${err}`, 500, 'Database Functions');
   }
 };
 
@@ -236,6 +236,6 @@ export const increaseByValue = async (
     return increaseValue.rowCount ? true : false;
   } catch (err) {
     DB.query("ROLLBACK");
-    return errorHandler(`Error occurred`, err, 500, 'Database Functions');
+    return errorHandler(`Error occurred`, `${err}`, 500, 'Database Functions');
   }
 };

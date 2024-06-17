@@ -39,7 +39,7 @@ export const getOneTrip = async (req, res) => {
     
     return res
       .status(500)
-      .json({ error: "Server Error occurred", errorMessage: err, errorSource: "Trip Controller" });
+      .json({ error: "Server Error occurred getting trip", errorMessage: err, errorSource: "Trip Controller" });
   }
 };
 
@@ -57,7 +57,7 @@ export const getUserTrips = async (req, res) => {
     
     return res
       .status(500)
-      .json({ error: "Server Error occurred", errorMessage: err, errorSource: "User Trips Controller" });
+      .json({ error: "Server Error occurred getting user trips", errorMessage: err, errorSource: "User Trips Controller" });
   }
 };
 
@@ -96,7 +96,7 @@ export const addTrip = async (req, res) => {
     
     return res
       .status(500)
-      .json({ error: "Server Error occurred", errorMessage: err, errorSource: "Adding Trip Controller" });
+      .json({ error: "Server Error occurred adding trip", errorMessage: err, errorSource: "Adding Trip Controller" });
   }
 };
 
@@ -106,7 +106,7 @@ export const updateTrip = async (req, res) => {
     const tripDetails = { trip_id, ...req.body };
     
     const tripUpdate = await updateTripService(tripDetails);
-    if(tripUpdate.error) {
+    if(tripUpdate?.error) {
       return res.status(403).json({error: tripUpdate.error, errorMessage: tripUpdate.errorMessage, errorSource: tripUpdate.errorSource})
     }
     
@@ -115,7 +115,7 @@ export const updateTrip = async (req, res) => {
   } catch (err) {
     return res
       .status(500)
-      .json({ error: "Server Error occurred", errorMessage: err, errorSource: "Trip Controller" });
+      .json({ error: "Server Error occurred updating trip", errorMessage: `${err}`, errorSource: "Trip Controller" });
   }
 };
 
