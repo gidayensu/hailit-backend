@@ -59,6 +59,18 @@ export const getAllDriversFromDB = async (limit, offset) => {
   }
 };
 
+
+export const getDriversCount = async()=> {
+  try {
+    const driversCount = await getCountOnOneCondition(driverTableName);
+    
+    return driversCount;
+    
+  } catch(err) {
+    return errorHandler("Error occurred getting drivers count", `${err}`, 500, "Driver Model: Drivers Count")
+  }
+}
+
 export const getOneDriverFromDB = async (driver_id) => {
   try {
     const driverIdColumn = driverTableColumns[0];
@@ -76,7 +88,7 @@ export const getOneDriverFromDB = async (driver_id) => {
 
 export const getDriverDetailOnCondition = async (columnName, condition) => {
   try {
-    const driverDetails = await selectOnCondition(
+    const driverDetails = await getOne(
       driverTableName,
       columnName,
       condition

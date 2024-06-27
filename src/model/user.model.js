@@ -4,6 +4,7 @@ import {
   deleteOne,
   detailExists,
   getAll,
+  getCountOnOneCondition,
   getOne,
   getSpecificDetailsUsingId,
   selectOnCondition,
@@ -30,7 +31,7 @@ export const getAllUsersFromDB = async (limit, offset) => {
       return errorHandler("No user found", null, 404, "User Model");
     }
     
-    return allUsers.rows;
+    return allUsers;
   } catch (err) {
     
     return errorHandler(
@@ -42,12 +43,23 @@ export const getAllUsersFromDB = async (limit, offset) => {
   }
 };
 
+
+export const getCustomersCount = async()=> {
+  try {
+    const customersCount = await getCountOnOneCondition(userTableName, 'customer', 'user_role' );
+    
+    return customersCount;
+    
+  } catch(err) {
+    return errorHandler("Error occurred getting customers count", `${err}`, 500, "User Model: Customers Count")
+  }
+}
 export const getOneUserFromDB = async (userId) => {
   try {
     
     const userColumnName = userColumnsForAdding[0];
     const user = await getOne(userTableName, userColumnName, userId);
-    
+    console.log({user})
     if (user.error) {
       return errorHandler(user.error, user.errorMessage, user.errorCode, user.errorSource);
     }

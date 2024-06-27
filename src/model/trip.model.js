@@ -2,12 +2,16 @@ import { errorHandler } from "../utils/errorHandler.js";
 import {
   addOne,
   deleteOne,
-  getTripsCustomersJoin,
-  getAllDateSort,
   getOne,
+  getPreviousTwoMonthsCounts,
   getSpecificDetailsUsingId,
+  getTripsCustomersJoin,
+  getCountByMonth,
+  getTripsMonths,
   increaseByValue,
   updateOne,
+  getCountOnOneCondition,
+  selectOnCondition,
 } from "./dBFunctions.js";
 
 const tripTableName = "trips";
@@ -19,8 +23,45 @@ const lastName = "users.last_name";
 const userIdUser = "users.user_id";
 const userIdTrip = "trips.customer_id";
 
+export const tripsMonths = async()=> {
+  try {
+    const tripMonthsData = await getTripsMonths();
+    
+    return tripMonthsData;
+    
+  } catch(err) {
+    return errorHandler("Error occurred getting Trips Monts", `${err}`, 500, "Trips Months Trip Model")
+  }
+}
+
+
+export const getTripCount = async()=> {
+  try {
+    const tripCounts = await getCountOnOneCondition(tripTableName);
+    
+    return tripCounts;
+    
+  } catch(err) {
+    return errorHandler("Error occurred getting Trips Monts", `${err}`, 500, "Trips Months Trip Model")
+  }
+}
+export const searchTrips = async(searchQuery, limit, offset)=> {
+  try {
+    
+    const searchResults = await selectOnCondition(tripTableName, 'trip_id', searchQuery, limit, offset, true);
+
+    return searchResults;
+    
+  } catch(err) {
+    return errorHandler("Error occurred getting Trips Monts", `${err}`, 500, "Trips Months Trip Model")
+  }
+}
+
+
+
 export const getAllTripsFromDB = async (limit, offset) => {
   try {
+    
     const allTrips = await getTripsCustomersJoin(
       tripTableName,
       usersTable,
@@ -36,14 +77,49 @@ export const getAllTripsFromDB = async (limit, offset) => {
     
     return allTrips;
   } catch (err) {
+    
     return errorHandler(
       "Server Error Occurred in getting all trips from database at the model level",
-      err,
+      `${err}`,
       500,
       "Trip Model"
     );
   }
 };
+
+export const getCurrentMonthTripsCount = async ()=> {
+  try {
+
+    const currentMonthTripsCount = await getPreviousTwoMonthsCounts(tripTableName, 'trip_request_date', 'trip_status', 'trip_cost', 'payment_status');
+    return currentMonthTripsCount;
+  } catch (err) {
+
+    return errorHandler(
+      `Server Error Occurred in retrieving current month trips count`,
+      `${err}`,
+      500,
+      "Trip Model: get current months trips count"
+    );
+  }
+  
+  
+}
+
+export const getTripCountByMonth = async (dataColumn, condition, month)=> {
+  try {
+
+    const tripCount = await getCountByMonth(dataColumn, condition, month);
+    console.log(tripCount)
+  } catch(err) {
+    return errorHandler(
+      `Server Error Occurred in retrieving ${dataColumn} data`,
+      `${err}`,
+      500,
+      "Trip Model: getTripCountByMonth"
+    );
+  }
+  
+}
 
 export const getOneTripFromDB = async (trip_id, tripIdColumn) => {
   try {

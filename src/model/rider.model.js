@@ -1,6 +1,6 @@
 import { errorHandler } from "../utils/errorHandler.js";
 import { v4 as uuid } from "uuid";
-import { addOne, selectOnCondition, deleteOne, getDispatchersVehicleJoin, getOne, getSpecificDetails, getSpecificDetailsUsingId, updateOne } from "./dBFunctions.js";
+import { addOne, getCountOnOneCondition, selectOnCondition, deleteOne, getDispatchersVehicleJoin, getOne, getSpecificDetails, getSpecificDetailsUsingId, updateOne } from "./dBFunctions.js";
 
 const riderTableName = "rider";
 const riderColumnsForAdding = ["rider_id", "vehicle_id", "user_id"];
@@ -49,6 +49,17 @@ export const getAllRiders = async (limit, offset) => {
   }
 };
 
+export const getRidersCount = async()=> {
+  try {
+    const ridersCount = await getCountOnOneCondition(riderTableName);
+    
+    return ridersCount;
+    
+  } catch(err) {
+    return errorHandler("Error occurred getting Riders Count", `${err}`, 500, "Rider Model: Riders Count")
+  }
+}
+
 export const getOneRiderFromDB = async (rider_id) => {
   try {
     const riderIdColumn = riderColumnsForAdding[0];
@@ -68,7 +79,7 @@ export const getOneRiderFromDB = async (rider_id) => {
 
 export const getRiderOnConditionFromDB = async (columnName, condition) => {
   try {
-    const riderDetails = await selectOnCondition(
+    const riderDetails = await getOne(
       riderTableName,
       columnName,
       condition
