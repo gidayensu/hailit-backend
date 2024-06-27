@@ -1,16 +1,23 @@
 import { paginatedRequest } from "../utils/paginatedRequest.js";
 import { v4 as uuid } from "uuid";
-import { addVehicleToDB, deleteVehicleFromDB, getAllVehiclesFromDB, getOneVehicleFromDB, updateVehicleOnDB } from '../model/vehicle.model.js';
+import { addVehicleToDB, deleteVehicleFromDB, getAllVehiclesFromDB, getOneVehicleFromDB, updateVehicleOnDB, getVehiclesCount } from '../model/vehicle.model.js';
 import { allowedPropertiesOnly } from "../utils//util.js";
+import { errorHandler } from "../utils/errorHandler.js";
 
-
-export const getAllVehiclesService = async (limit, offset) => {
+export const getAllVehiclesService = async (page) => {
   try {
+    
+    const limit = 7;
+    let offset = 0;
+
+    page > 1 ? offset = limit * page : page;
+
     const allVehicles = await getAllVehiclesFromDB(limit, offset);
-    if(limit && offset) {
-      return await paginatedRequest(getAllVehiclesFromDB, allVehicles, offset, limit, "vehicles")
-    }
-    return allVehicles;
+    
+    const totalCount = await getVehiclesCount();
+    console.log({totalCount})
+    return await paginatedRequest(totalCount, allVehicles, offset, limit, "vehicles")
+    
   } catch (err) {
     return errorHandler("Server error occurred getting all vehicles", `${err}`, 500, "Vehicle Service");
   }

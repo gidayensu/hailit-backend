@@ -1,19 +1,17 @@
 import { deleteDriverService, getAllDriversService, getOneDriverService, updateDriverService} from "../services/driver.service.js";
 
 export const getAllDrivers = async (req, res) => {
-  const limit = req.query.limit;
-  const offset = req.query.offset;
+  const page = req.query.page;
+  
   try {
-    const allDrivers = await getAllDriversService(limit, offset);
+    const allDrivers = await getAllDriversService(page);
     if (res && res.status) {
       if(allDrivers.error) {
         
         return res.status(allDrivers.errorCode).json({error: allDrivers.error, errorMessage: allDrivers.errorMessage, errorSource: allDrivers.errorSource})
       }
-      if(limit && offset) {
-        return res.status(200).json(allDrivers);
-      }
-      res.status(200).json({ drivers: allDrivers });
+      
+      res.status(200).json({...allDrivers });
     }
   } catch (err) {
     if (res && res.status) {

@@ -1,21 +1,32 @@
 import { errorHandler } from "../utils/errorHandler.js";
-import {addTripService, deleteTripService, getAllTripsService, getUserTripsService, rateTripService, updateTripService, getOneTripService} from "../services/trip.service.js";
+import {
+  addTripService,
+  getTripMonthsService,
+  deleteTripService,
+  getAllTripsService,
+  getUserTripsService,
+  searchTripService,
+  currentMonthTripsCountService,
+  rateTripService,
+  updateTripService,
+  getOneTripService,
+} from "../services/trip.service.js";
 
 export const getAllTrips = async (req, res) => {
   try {
-    const limit = req.query.limit;
-    const offset = req.query.offset;
-    const allTrips = await getAllTripsService(limit, offset);
+    const page = req.query.page;
+    
+    const allTrips = await getAllTripsService(page);
     
     if(allTrips.error) {
+      
       return res.status(allTrips.errorCode).json({error: allTrips.error, errorMessage: allTrips.errorMessage, errorSource: allTrips.errorSource})
     }
-    if(limit && offset) {
+    
+    
+    res.status(200).json({ ...allTrips });
 
-      return res.status(200).json({ ...allTrips });
-    }
-
-    res.status(200).json({trips:allTrips})
+    
   } catch (err) {
     
     return res.status(500).json({ error: "Server Error occurred", errorMessage: err, errorSource: "Get All Trips Controller" });
@@ -66,7 +77,7 @@ export const addTrip = async (req, res) => {
   
   try {
     const reqBody = req.body;
-    console.log({reqBody})
+    
     const { trip_medium, trip_type, package_type, drop_off_location, pickup_location } =
       req.body;
     if (!trip_medium || !trip_type || !package_type || !drop_off_location || !pickup_location) {
@@ -157,6 +168,54 @@ export const deleteTrip = async (req, res) => {
       res.status(400).json({ error: "trip not deleted" });
     }
   } catch (err) {
-    return res.status(500).json({error:"Error Occurred; Rider Not Deleted", errorMessage: err, errorSource: "Trip Controller"});
+    return res.status(500).json({error:"Error Occurred; Trip Not Deleted", errorMessage: err, errorSource: "Trip Controller"});
   }
 };
+
+
+
+export const searchTrips = async (req, res) => {
+  try {
+
+    const search = req.query.search
+    
+    const page = req.query.page || 1
+    const searchResults = await searchTripService(search, page);
+    if (searchResults.error) {
+      
+      return res.status(searchResults.errorCode).json({error:searchResults.error, searchResults: searchResults.errorMessage, errorSource: searchResults.errorSource})
+    } 
+    res.status(200).json({trips: searchResults})
+  } catch (err) {
+    return res.status(500).json({error:"Error Occurred; Trips not retrived", errorMessage: `${err}`, errorSource: "Trip Controller: Search Trips"});
+  }
+};
+//TRIP STATS
+export const getTripMonths = async (req, res) => {
+  try {
+    const tripMonths = await getTripMonthsService();
+    if (tripMonths.error) {
+      console.log(tripMonths)
+      return res.status(tripMonths.errorCode).json({error: tripMonths.error, errorMessage: tripMonths.errorMessage, errorSource: tripMonths.errorSource})
+    } 
+    res.status(200).json({tripMonths})
+  } catch (err) {
+    return res.status(500).json({error:"Error Occurred; Trip Months Not Retrieved", errorMessage: err, errorSource: "Trip Controller. Trip Months"});
+  }
+};
+export const getCurrentMonthTripCounts = async (req, res) => {
+  try {
+    const tripCounts = await currentMonthTripsCountService();
+    if (tripCounts.error) {
+      
+      return res.status(tripCounts.errorCode).json({error: tripCounts.error, errorMessage: tripCounts.errorMessage, errorSource: tripCounts.errorSource})
+    } 
+    res.status(200).json({...tripCounts})
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({error:"Error Occurred; Trip Months Not Retrieved", errorMessage: err, errorSource: "Trip Controller. Trip Months"});
+  }
+};
+
+
+

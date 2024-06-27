@@ -1,5 +1,5 @@
 import { paginatedRequest } from "../utils/paginatedRequest.js";
-import {addRiderToDB, deleteRiderFromDB, getAllRiders, getOneRiderFromDB, updateRiderOnDB} from "../model/rider.model.js";
+import {addRiderToDB, deleteRiderFromDB, getAllRiders, getOneRiderFromDB, updateRiderOnDB, getRidersCount} from "../model/rider.model.js";
 import { getOneVehicleFromDB } from "../model/vehicle.model.js";
 import { getSpecificUserDetailsUsingId } from "../model/user.model.js";
 
@@ -8,13 +8,16 @@ import { errorHandler } from "../utils/errorHandler.js";
 
 
 
-export const getAllRidersService = async (limit, offset) => {
+export const getAllRidersService = async (page) => {
   try {
+    const limit = 7;
+    let offset = 0;
+
+    page > 1 ? offset = limit * page : '';
     const riders = await getAllRiders(limit, offset);
 
-    if(limit && offset) {
-      return await paginatedRequest(getAllRiders, riders, offset, limit, "riders")
-    }
+    const totalCount = await getRidersCount();
+    return await paginatedRequest(totalCount, riders, offset, limit, "riders")
 
     return riders;
   } catch (err) {

@@ -1,8 +1,9 @@
 import { errorHandler } from "../utils/errorHandler.js";
-import {addUserToDB, deleteUserFromDB, getAllUsersFromDB, getOneUserFromDB, updateUserOnDB, getUserIdUsingEmail } from "../model/user.model.js";
+import {addUserToDB, deleteUserFromDB, getAllUsersFromDB, getOneUserFromDB, updateUserOnDB, getUserIdUsingEmail, getCustomersCount } from "../model/user.model.js";
 import {addDriverToDB, deleteDriverFromDB, getDriverDetailOnCondition } from "../model/driver.model.js";
 import {addRiderToDB, deleteRiderFromDB, getRiderOnConditionFromDB} from "../model/rider.model.js";
 import { allowedPropertiesOnly } from "../utils/util.js";
+import { paginatedRequest } from "../utils/paginatedRequest.js";
 
 let allowedProperties = [
   "user_id",
@@ -14,19 +15,17 @@ let allowedProperties = [
   "onboard"
 ];
 
-export const getAllUsersService = async (limit, offset) => {
+export const getAllUsersService = async (page) => {
   try {
+    const limit = 7;
+    let offset = 0;
+
+    page > 1 ? offset = limit * page : '';
+
     const users = await getAllUsersFromDB(limit, offset);
+    const totalCount = await getCustomersCount();
+    return await paginatedRequest(totalCount, users, offset, limit, "users") 
     
-    if(limit && offset) {
-      const totalUsers = await getAllUsersFromDB();
-      const usersCount = totalUsers.length
-      const total_number_of_pages = Math.floor(usersCount / limit);
-      const current_page = offset/limit;
-    
-      return {users, total_number_of_pages, current_page }
-    }
-    return users;
   } catch (err) {
     
     return errorHandler("Error occurred getting all users", `${err}`, 500, "User service");
@@ -44,7 +43,7 @@ export const getOneUserService = async (userId) => {
     return user;
   } catch (err) {
     
-    return errorHandler("Server error occurred in getting user", `${err}`, 500, "User Service");
+    return errorHandler("Server error occurred in getting user", `${err}`, 500, "User Service: Get One User");
 
   }
 };
@@ -79,11 +78,11 @@ const riderOrDriverDetails = async (user_role, userId)=> {
     
     //if user is rider but no details in database add rider to rider table
 
-    if (riderDetails.rows.length < 1) {
+    if (riderDetails.length < 1) {
         const addRider = await addRiderToDB(userId)
         return {rider: addRider}
     }
-    const returnedRiderDetails = riderDetails.rows[0]
+    const returnedRiderDetails = riderDetails
     return { rider: returnedRiderDetails };
   }
   

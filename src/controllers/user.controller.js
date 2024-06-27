@@ -8,15 +8,15 @@ import {config} from 'dotenv';
 config({ path: '../../../.env' });
 
 export const getAllUsers = async (req, res) => {
-  const limit = req.query.limit;
-  const offset = req.query.offset;
+  const page = req.query.page;
+  
   try {
-    const allUsers = await getAllUsersService(limit, offset);
+    const allUsers = await getAllUsersService(page);
     if(allUsers.error) {
       return res.status(allUsers.errorCode).json({error: allUsers.error, errorMessage: allUsers.errorMessage, errorSource: allUsers.errorSource})
     };
 
-    if (limit && offset) {
+    if (page) {
       return res.status(200).json(allUsers);
     }
     if (res && res.status) {
@@ -36,7 +36,7 @@ export const googleAuth = async (req, res) => {
   const accessToken = req.body
   const next = req.query.next ?? "/"
 
-  console.log({code, accessToken})
+  
 
   if (code) {
     const supabase = createClient({ req, res })

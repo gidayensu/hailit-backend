@@ -1,3 +1,4 @@
+
 import {
   addVehicleService,
   deleteVehicleService,
@@ -8,22 +9,20 @@ import {
 
 export const getAllVehicles = async (req, res) => {
   try {
-    const limit = req.query?.limit
-    const offset = req.query?.offset
-    const allVehicles = await getAllVehiclesService(limit, offset);
+    const page = req.query?.page;
+    
+    const allVehicles = await getAllVehiclesService(page);
     if (allVehicles.error) {
       return {error: allVehicles.error, errorMessage: allVehicles.errorMessage, errorSource: allVehicles.errorSource}
     }
-    if(limit && offset) {
-      
-      return res.status(200).json({ ...allVehicles });
-    }
+    
+    res.status(200).json({ ...allVehicles });
 
-    res.status(200).json({ vehicles: allVehicles });
+    
   } catch (err) {
     return res.status(500).json({
       error: "Server error occurred getting all vehicles",
-      errorMessage: err,
+      errorMessage: `${err}`,
       errorSource: "getAllVehicles Controller",
     });
   }

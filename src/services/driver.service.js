@@ -1,25 +1,32 @@
 import { paginatedRequest } from "../utils/paginatedRequest.js";
 import { errorHandler } from "../utils/errorHandler.js";
-import {addDriverToDB, deleteDriverFromDB, getAllDriversFromDB, getOneDriverFromDB, updateDriverOnDB} from "../model/driver.model.js";
+import {addDriverToDB, deleteDriverFromDB, getAllDriversFromDB, getOneDriverFromDB, updateDriverOnDB, getDriversCount} from "../model/driver.model.js";
 import { getOneVehicleFromDB } from "../model/vehicle.model.js";
 import {getSpecificUserDetailsUsingId} from "../model/user.model.js";
 
 import { allowedPropertiesOnly } from "../utils/util.js";
 
 
-export const getAllDriversService = async (limit, offset) => {
+export const getAllDriversService = async (page) => {
   try {
+    const limit = 7;
+    let offset = 0;
+
+    page > 1 ? offset = limit * page : '';
     const drivers = await getAllDriversFromDB(limit, offset);
+    
     if(drivers.error) {
       
       return {error: drivers.error}
-    }
-    if(limit && offset) {
-      return await paginatedRequest(getAllDriversFromDB, drivers, offset, limit, "drivers")
-    }
-    return drivers;
+    };
+    const totalCount = await getDriversCount();
+    
+    
+    return await paginatedRequest(totalCount, drivers, offset, limit, "drivers")
+    
+    
   } catch (err) {
-    return errorHandler("server error occurred getting drivers", `${err}`, 500, "service");
+    return errorHandler("server error occurred getting drivers", `${err}`, 500, "get all drivers service");
   }
 };
 
