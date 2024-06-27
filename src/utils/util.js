@@ -85,3 +85,9 @@ export const driverUserId = async (driver_id) => {
   return driverData.user_id;
 };
 
+export const currencyFormatter = new Intl.NumberFormat('gh-GA', {
+  style: 'currency',
+  currency: 'GHS',  // Specify Ghanaian Cedis
+  minimumFractionDigits: 2, // Display at least 2 decimal places
+  maximumFractionDigits: 2  // Limit to 2 decimal places
+});
