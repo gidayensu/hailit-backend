@@ -1,5 +1,6 @@
 import { errorHandler } from '../utils/errorHandler.js';
-import {addTripToDB, deleteTripFromDB, getAllTripsFromDB, getOneTripFromDB, getUserTripsFromDB, ratingCouIntIncrease, updateTripOnDB } from '../model/trip.model.js';
+import { currencyFormatter } from '../utils/util.js';
+import {addTripToDB, deleteTripFromDB, getAllTripsFromDB, getOneTripFromDB, getUserTripsFromDB, ratingCouIntIncrease, updateTripOnDB, tripsMonths, getCurrentMonthTripsCount, getTripCount, searchTrips } from '../model/trip.model.js';
 import crypto from 'crypto'
 import { getOneRiderService } from "./rider.service.js";
 import { getOneUserFromDB } from "../model/user.model.js";
@@ -32,22 +33,116 @@ export const allowedAddTripProperties = [
 
 const tripRequestDateColumn = "trip_request_date";
 
-export const getAllTripsService = async (limit, offset) => {
+
+export const getAllTripsService = async (page) => {
   try {
+    
+    const limit = 7;
+    let offset = 0;
+
+    page > 1 ? offset = limit * page : page;
+    
     const trips = await getAllTripsFromDB(limit,offset);
     
     if(trips.error) {
       return {error: trips.error}
     }
-    if(limit && offset) {
-      return await paginatedRequest(getAllTripsFromDB, trips, offset, limit, "trips")
-    }
-    return trips;
+    const totalCount = await getTripCount();
+    
+    return await paginatedRequest(totalCount, trips, offset, limit, "trips")
+    
   } catch (err) {
     
     return errorHandler("Error Occurred in getting Trips Detail", `${err}`, 500, "Get All Trips Service");
   }
 };
+export const searchTripService = async (search, page) => {
+  try {
+    
+    const limit = 7;
+    let offset = 0;
+
+    page > 1 ? offset = limit * page : page;
+    
+    const searchResults = await searchTrips(search, limit,offset);
+        
+    return searchResults
+    
+  } catch (err) {
+    
+    return errorHandler("Error Occurred in getting Trips Detail", `${err}`, 500, "Get All Trips Service");
+  }
+};
+
+export const getTripMonthsService = async ()=> {
+  try {
+    const tripMonthsData = await tripsMonths();
+    if(tripMonthsData.error) {
+      return tripMonthsData; //error message returned
+    }
+    const monthsArray = tripMonthsData.map(tripsMonth=>tripsMonth.month)
+      const monthOrder = [
+        'January', 'February', 'March', 'April', 'May', 'June', 
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+  
+      
+      monthsArray.sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
+  
+      return monthsArray;
+  }
+  catch (err) {
+    return errorHandler('Error occurred getting trips months', `${err}`, 500, 'Trips Months Service')
+  }
+}
+export const currentMonthTripsCountService = async ()=> {
+  try {
+      const currentMonthTripsCount = await getCurrentMonthTripsCount();
+    const {
+      total_trips_current_month,
+      delivered_current_month,
+      cancelled_current_month,
+      revenue_current_month,
+      total_trips_previous_month,
+      delivered_previous_month,
+      cancelled_previous_month,
+      revenue_previous_month,
+    } = currentMonthTripsCount;
+  
+    //_percentage_difference = PercentageDifference
+    const percentageDifference = (currentMonth, previousMonth) => {
+        
+        return +((((+currentMonth)-(+previousMonth))/(+previousMonth)) * 100).toFixed(2);
+  
+    }
+    const pending_current_month = (+total_trips_current_month) - (+delivered_current_month + (+cancelled_current_month));
+    const pending_previous_month = (+total_trips_previous_month) - (+delivered_previous_month + (+cancelled_previous_month));
+    const pending_percentage_difference = percentageDifference(+pending_current_month, +pending_previous_month);
+    
+    const delivered_percentage_difference = percentageDifference(+delivered_current_month, +delivered_previous_month);
+    const total_trips_percentage_difference = percentageDifference(total_trips_current_month, total_trips_previous_month)
+    const revenue_percentage_difference = percentageDifference(+revenue_current_month, +revenue_previous_month);
+    const cancelled_percentage_difference = percentageDifference(cancelled_current_month, cancelled_previous_month)
+
+    const revenue_with_currency = currencyFormatter.format(revenue_current_month)
+    return {
+      total_trips_current_month,
+      revenue_current_month: revenue_with_currency,
+      cancelled_current_month,
+      delivered_current_month,
+      pending_current_month,
+      delivered_percentage_difference,
+      revenue_percentage_difference,
+      pending_percentage_difference,
+      total_trips_percentage_difference,
+      cancelled_percentage_difference,
+    };
+  
+  }
+  catch (err) {
+    return errorHandler('Error occurred getting trips months', `${err}`, 500, 'Trips Months Service')
+  }
+}
 
 export const getOneTripService = async (trip_id) => {
   
@@ -65,7 +160,7 @@ const dispatcherService = trip_medium === 'Motor' ?  getOneRiderService : getOne
 
 let dispatcherDetails = await dispatcherService(dispatcher_id);
 
-console.log({dispatcher_id, trip_medium, dispatcherDetails});
+
 
 if (dispatcherDetails.error) {
   return { ...oneTrip, dispatcher: 'Not assigned' };
@@ -132,9 +227,7 @@ export const getUserTripsService = async (user_id) => {
     if (user_role === "driver" || user_role === "rider") {
       
       const allDispatcherTrips = await dispatcherTrips (user_role, user_id);
-      if (allDispatcherTrips.error) {
-        return {error: allDispatcherTrips.error}
-      }
+      
       return allDispatcherTrips;
       
     }
@@ -166,12 +259,13 @@ export const getUserTripsService = async (user_id) => {
 
     return trips;
   } catch (err) {
-    console.log(err)
+    
     return errorHandler(`Error occurred getting customer trips`, `${err}`, 500, "Trip Service");
   }
  }
  //DISPATCHER TRIPS (HELPER FUNCTION)
  export const dispatcherTrips = async (user_role, user_id)=> {
+  
   try {
     const tripFieldsToSelect = [
       "trip_id, trip_medium, trip_status, trip_stage, recipient_number, sender_number,payment_status, trip_type, pickup_location, drop_off_location, package_type, trip_commencement_date, trip_completion_date, trip_cost, trip_request_date, payment_method",
@@ -183,11 +277,14 @@ export const getUserTripsService = async (user_id) => {
     let dispatcher_id = '';
     if (user_role === 'rider'){
     dispatcherData = await getRiderOnConditionFromDB("user_id", user_id );
+    
     if(dispatcherData.error) {
       return {error: dispatcherData.error}
     }
-    const returnedDispatcherData = dispatcherData.rows[0];
-    dispatcher_id = returnedDispatcherData.rider_id;
+    
+    
+    dispatcher_id = dispatcherData[0].rider_id;
+    
     }
     
     if (user_role === "driver") {
@@ -199,7 +296,7 @@ export const getUserTripsService = async (user_id) => {
       if(dispatcherData.error) {
         return {error: dispatcherData.error}
       }
-      
+      //could be  a source of bug
       dispatcher_id = dispatcherData[0].driver_id;
     }
     
@@ -211,15 +308,15 @@ export const getUserTripsService = async (user_id) => {
       tripFieldsToSelect
     );
     
+    console.log('dispatcherTrips')
     if(dispatcherTrips.length > 0) {
-
       const {total_trip_count, delivered_trips, cancelled_trips, current_trips, total_earnings} =  tripsCount(dispatcherTrips)
       return { dispatcher_trips: dispatcherTrips,  total_trip_count,  delivered_trips,  cancelled_trips,  current_trips, total_earnings}
     }
     return dispatcherTrips;
   } catch (err) {
-    
-    return errorHandler(`Error occurred getting dispatcher trips`, `${err}`, 500, "Trip Service");
+    console.log(err)
+    return errorHandler(`Error occurred getting dispatcher trips`, `${err}`, 500, "Trip Service: dispatcherTrips");
   }
 }
 //CALCULATE TRIPS == breaks away from camel case to match the database case
@@ -280,7 +377,7 @@ export const addTripService = async (user_id, tripDetails) => {
       ...validTripDetails,
       ...tripStatusDetails,
     };
-    console.log({finalTripDetails})
+    
     const newTrip = await addTripToDB(finalTripDetails);
     
 
@@ -337,7 +434,7 @@ export const updateTripService = async (tripDetails) => {
       tripDetails,
       allowedProperties
     );
-    console.log({validTripDetails})
+    
 
     const tripUpdate = await updateTripOnDB(validTripDetails);
     
@@ -381,7 +478,7 @@ export const rateTripService = async (ratingDetails) => {
   }
 };
 
-//UPDATE DISPATCHER RATING (HELPER FUNCTION)
+//U_percentage_differenceATE DISPATCHER RATING (HELPER FUNCTION)
 export const updateDispatcherRating = async (trip_medium, dispatcher_id, averageDispatcherRating) => {
   if (trip_medium === "motor") {
     const riderUpdate = await updateRiderOnDB({ cumulative_rider_rating: averageDispatcherRating, rider_id: dispatcher_id });
@@ -428,3 +525,5 @@ export const deleteTripService = async (trip_id) => {
     return errorHandler("Error occurred deleting trip", `${err}`, 500, "Trip Service");
   }
 };
+
+
