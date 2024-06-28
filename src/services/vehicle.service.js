@@ -15,7 +15,7 @@ export const getAllVehiclesService = async (page) => {
     const allVehicles = await getAllVehiclesFromDB(limit, offset);
     
     const totalCount = await getVehiclesCount();
-    console.log({totalCount})
+    
     return await paginatedRequest(totalCount, allVehicles, offset, limit, "vehicles")
     
   } catch (err) {
