@@ -63,8 +63,8 @@ export const searchTripService = async (search, page) => {
     let offset = 0;
 
     page > 1 ? offset = limit * page : page;
-    
-    const searchResults = await searchTrips(search, limit,offset);
+    const searchLowerCase = search.toLowerCase();    
+    const searchResults = await searchTrips(searchLowerCase, limit,offset);
         
     return searchResults
     
@@ -308,14 +308,14 @@ export const getUserTripsService = async (user_id) => {
       tripFieldsToSelect
     );
     
-    console.log('dispatcherTrips')
+    
     if(dispatcherTrips.length > 0) {
       const {total_trip_count, delivered_trips, cancelled_trips, current_trips, total_earnings} =  tripsCount(dispatcherTrips)
       return { dispatcher_trips: dispatcherTrips,  total_trip_count,  delivered_trips,  cancelled_trips,  current_trips, total_earnings}
     }
     return dispatcherTrips;
   } catch (err) {
-    console.log(err)
+    
     return errorHandler(`Error occurred getting dispatcher trips`, `${err}`, 500, "Trip Service: dispatcherTrips");
   }
 }
