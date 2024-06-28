@@ -129,7 +129,7 @@ export const updateUser = async (req, res) => {
 
     const updateUser = await updateUserService(userId, userDetails);
     if (updateUser.error) {
-      return res.status(500).json({ error: updateUser.error, errorMessage: updateUser.errorMessage, errorSource: updateUser.errorSource });
+      return res.status(updateUser.errorCode).json({ error: updateUser.error, errorMessage: updateUser.errorMessage, errorSource: updateUser.errorSource });
     }
     res.status(200).json({user: updateUser});
   } catch (err) {
