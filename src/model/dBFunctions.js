@@ -67,7 +67,7 @@ GROUP BY TRIM(TO_CHAR(trip_request_date, 'Month'))
   }
 
   const data = await DB.query(queryText, values);
-  console.log(data.rows);
+  
   return data.rows;
 };
 
@@ -281,7 +281,9 @@ export const selectOnCondition = async (
 export const detailExists = async (tableName, columnName, detail) => {
   try {
     const result = await selectOnCondition(tableName, columnName, detail);
-    return result.rowCount > 0;
+    
+    return result[0] ? true : false
+    
   } catch (err) {
     return false;
   }
@@ -311,7 +313,7 @@ export const getOne = async (tableName, columnName, entry) => {
 
 //...args changed to args
 export const addOne = async (tableName, columns, values) => {
-  console.log({ columns, values });
+  
   let valuesArray = values;
   if (typeof values === "string") {
     valuesArray = [values];

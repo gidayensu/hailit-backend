@@ -195,7 +195,7 @@ export const getTripMonths = async (req, res) => {
   try {
     const tripMonths = await getTripMonthsService();
     if (tripMonths.error) {
-      console.log(tripMonths)
+      
       return res.status(tripMonths.errorCode).json({error: tripMonths.error, errorMessage: tripMonths.errorMessage, errorSource: tripMonths.errorSource})
     } 
     res.status(200).json({tripMonths})
@@ -212,7 +212,7 @@ export const getCurrentMonthTripCounts = async (req, res) => {
     } 
     res.status(200).json({...tripCounts})
   } catch (err) {
-    console.log(err)
+    
     return res.status(500).json({error:"Error Occurred; Trip Months Not Retrieved", errorMessage: err, errorSource: "Trip Controller. Trip Months"});
   }
 };

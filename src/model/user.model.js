@@ -59,7 +59,7 @@ export const getOneUserFromDB = async (userId) => {
     
     const userColumnName = userColumnsForAdding[0];
     const user = await getOne(userTableName, userColumnName, userId);
-    console.log({user})
+    
     if (user.error) {
       return errorHandler(user.error, user.errorMessage, user.errorCode, user.errorSource);
     }
@@ -85,14 +85,19 @@ export const isUserRole = async (userId, user_role) => {
 };
 
 export const getUserIdUsingEmail = async (userEmail) => {
-  const emailColumnName = userColumnsForAdding[3];
-  const userDetails = await getOne(userTableName, emailColumnName, userEmail);
+  try {
 
-  if (userDetails.error) {
-    return errorHandler("User does not exist", null, 404, "User Model");
-  } else {
-    const userId = { user_id: userDetails[0].user_id };
-    return userId;
+    const emailColumnName = userColumnsForAdding[3];
+    const userDetails = await getOne(userTableName, emailColumnName, userEmail);
+  
+    if (userDetails.error) {
+      return userDetails //error message included
+    } else {
+      const userId = { user_id: userDetails[0].user_id };
+      return userId;
+    }
+  } catch (err) {
+    return errorHandler('Error occurred getting uesr ID', `${err}`, 500, "User Model: User ID with User Email")
   }
 };
 
@@ -151,10 +156,11 @@ export const updateUserOnDB = async (userId, userDetails) => {
     
     if (idValidation) {
       const userData = await getOne(userTableName, idColumn, userId);
-
+      
+      
       if (email !== "") {
         const resultEmail = userData[0].email;
-
+        console.log({resultEmail})
         const emailExist = await emailExists(email);
         if (emailExist && email !== resultEmail) {
           return errorHandler(
@@ -167,18 +173,22 @@ export const updateUserOnDB = async (userId, userDetails) => {
       }
 
       if (phone_number !== "") {
+        console.log(userData)
         const resultPhoneNumber = userData[0].phone_number;
+        if(resultPhoneNumber!==null) {
 
-        const numberExist = await numberExists(phone_number);
-        if (numberExist && phone_number !== resultPhoneNumber) {
-          return errorHandler(
-            "phone number is taken user not updated",
-            null,
-            400,
-            "User Model"
-          );
+          const numberExist = await numberExists(phone_number);
+          
+          if (numberExist && phone_number !== resultPhoneNumber) {
+            return errorHandler(
+              "phone number is taken user not updated",
+              null,
+              400,
+              "User Model"
+            );
+          }
         }
-      }
+        }
 
       const updateDate = "now()";
       userDetailsArray.splice(userDetailsArray.length - 1, 0, updateDate);

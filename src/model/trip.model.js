@@ -109,7 +109,7 @@ export const getTripCountByMonth = async (dataColumn, condition, month)=> {
   try {
 
     const tripCount = await getCountByMonth(dataColumn, condition, month);
-    console.log(tripCount)
+    
   } catch(err) {
     return errorHandler(
       `Server Error Occurred in retrieving ${dataColumn} data`,
