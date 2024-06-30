@@ -14,7 +14,7 @@ export const tripRouter = express.Router();
 
 tripRouter.get('/', supaAuth, isAdmin,  getAllTrips);
 
-tripRouter.get('/search-trips',  searchTrips);
+tripRouter.get('/search-trips',  supaAuth, isAdmin, searchTrips);
 
 tripRouter.get('/user-trip/:trip_id', tripSupaAuth,  getOneTrip);
 
@@ -30,6 +30,6 @@ tripRouter.put('/rate-trip/:trip_id', supaAuth, rateTrip)
 tripRouter.delete('/user-trip/:trip_id', supaAuth, deleteTrip)
 
 //TRIP STATS
-tripRouter.get('/trip-months',  getTripMonths);
+tripRouter.get('/trip-months', supaAuth, isAdmin,  getTripMonths);
 
-tripRouter.get('/current-month-trip-count',  getCurrentMonthTripCounts);
+tripRouter.get('/current-month-trip-count', supaAuth, isAdmin,  getCurrentMonthTripCounts);

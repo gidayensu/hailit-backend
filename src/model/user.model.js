@@ -87,7 +87,7 @@ export const isUserRole = async (userId, user_role) => {
 export const getUserIdUsingEmail = async (userEmail) => {
   try {
 
-    const emailColumnName = userColumnsForAdding[3];
+    const emailColumnName = 'email';
     const userDetails = await getOne(userTableName, emailColumnName, userEmail);
   
     if (userDetails.error) {
@@ -120,13 +120,14 @@ export const addUserToDB = async (userDetails) => {
 
   try {
     const emailExist = await emailExists(email);
-
+    
     if (!emailExist) {
       const insertUserDetails = await addOne(
         userTableName,
         columnsForAdding,
         userDetailsArray
       );
+      
       if (insertUserDetails) {
         const insertedDetails = insertUserDetails[0];
         return insertedDetails;
@@ -160,7 +161,7 @@ export const updateUserOnDB = async (userId, userDetails) => {
       
       if (email !== "") {
         const resultEmail = userData[0].email;
-        console.log({resultEmail})
+        
         const emailExist = await emailExists(email);
         if (emailExist && email !== resultEmail) {
           return errorHandler(
@@ -173,7 +174,7 @@ export const updateUserOnDB = async (userId, userDetails) => {
       }
 
       if (phone_number !== "") {
-        console.log(userData)
+        
         const resultPhoneNumber = userData[0].phone_number;
         if(resultPhoneNumber!==null) {
 

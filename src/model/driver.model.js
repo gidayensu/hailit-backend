@@ -94,12 +94,9 @@ export const getDriverDetailOnCondition = async (columnName, condition) => {
       condition
     );
 
-    if (driverDetails.rowCount === 0) {
-      return errorHandler("Error occurred", "driver detail not found", 404, "Driver Model");
+       
 
-    }
-
-    return driverDetails.rows;
+    return driverDetails
   } catch (err) {
     return errorHandler("Error occurred finding driver details", `${err}`, 500, "Driver Model");
 

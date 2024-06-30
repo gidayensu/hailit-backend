@@ -4,7 +4,7 @@ import { errorHandler } from "../utils/errorHandler.js";
 
 
 
-export const getCountOnOneCondition = async (tableName, condition, conditiFlumn)=> {
+export const getCountOnOneCondition = async (tableName, condition, conditionColumn)=> {
   try {
     let queryText = `SELECT COUNT(*) AS total_count FROM ${tableName}`;
     const values = [];
@@ -280,12 +280,16 @@ export const selectOnCondition = async (
 
 export const detailExists = async (tableName, columnName, detail) => {
   try {
-    const result = await selectOnCondition(tableName, columnName, detail);
+    const queryText = `SELECT * FROM ${tableName} WHERE ${columnName} = $1`;
     
-    return result[0] ? true : false
+    const value = [detail];
+    const results = await DB.query(queryText, value);
+    
+    return results.rowCount > 0 ? true : false;
     
   } catch (err) {
-    return false;
+    return errorHandler("Error occurred", `${err}`, 500, "Database Functions: Detail Exists")
+    
   }
 };
 

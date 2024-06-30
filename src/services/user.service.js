@@ -24,6 +24,7 @@ export const getAllUsersService = async (page) => {
 
     const users = await getAllUsersFromDB(limit, offset);
     const totalCount = await getCustomersCount();
+    
     return await paginatedRequest(totalCount, users, offset, limit, "users") 
     
   } catch (err) {
@@ -110,6 +111,7 @@ export const addUserService = async (userDetails) => {
     const validUserDetailsWithId = allowedPropertiesOnly(userDetailsWithId, allowedProperties);
 
     const addedUser = await addUserToDB(validUserDetailsWithId);
+    console.log({addedUser})
     if (addedUser.error) {
       return addedUser; //Error details will be returned
     }
@@ -178,15 +180,19 @@ export const updateUserService = async (userId, userDetails) => {
 };
 
  const updateRiderRole = async (userId, updatedDetails) => {
+  
   try {
+    //delete if the user is a driver
     const isDriver = await getDriverDetailOnCondition('user_id', userId);
+    
     if (!isDriver.error && isDriver.length > 0) {
       const { driver_id } = isDriver[0];
       await deleteDriverFromDB(driver_id);
     }
 
     const riderExists = await getRiderOnConditionFromDB('user_id', userId);
-    if (riderExists.rowCount >= 1) {
+    
+    if (riderExists.rider_id) {
       const riderDetails = riderExists.rows[0];
       return { ...updatedDetails, rider: riderDetails };
     }
@@ -196,13 +202,14 @@ export const updateUserService = async (userId, userDetails) => {
     const addRider = await addRiderToDB(userId);
     
     const addedRiderDetails = addRider[0];
+    
     if (addedRiderDetails.rider_id) {
       return { ...updatedDetails, rider: addedRiderDetails };
     }
 
     return updatedDetails;
   } catch (err) {
-    return errorHandler("Error updating rider role", `${err}`, 500, "User Service");
+    return errorHandler("Error updating rider role", `${err}`, 500, "User Service: Update Rider Role");
 
   }
 };
