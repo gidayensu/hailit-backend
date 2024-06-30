@@ -1,18 +1,12 @@
 import { errorHandler } from "../utils/errorHandler.js";
-import {
-  addOne,
-  deleteOne,
-  getOne,
-  getPreviousTwoMonthsCounts,
-  getSpecificDetailsUsingId,
-  getTripsCustomersJoin,
-  getCountByMonth,
-  getTripsMonths,
-  increaseByValue,
-  updateOne,
-  getCountOnOneCondition,
-  selectOnCondition,
-} from "./dBFunctions.js";
+import { increaseByValue } from "./DB/helperDbFunctions.js";
+
+import { addOne } from "./DB/addDbFunctions.js";
+import {deleteOne} from "./DB/deleteDbFunctions.js"
+import { selectOnCondition, getOne, getCountOnOneCondition, getSpecificDetailsUsingId } from "./DB/getDbFunctions.js";
+import {updateOne} from "./DB/updateDbFunctions.js"
+import {getPreviousTwoMonthsCounts, getTripsMonths, getTripsCustomersJoin, getCountByMonth} from "./DB/tripsDbFunctions.js"
+
 
 const tripTableName = "trips";
 const tripId = "trips.trip_id";
@@ -271,7 +265,7 @@ export const deleteTripFromDB = async (trip_id) => {
   }
 };
 
-export const ratingCouIntIncrease = async (
+export const ratingCountIncrease = async (
   tableName,
   dispatcher_id,
   idColumn,

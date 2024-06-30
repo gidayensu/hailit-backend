@@ -1,6 +1,17 @@
 import { errorHandler } from "../utils/errorHandler.js";
 import { v4 as uuid } from "uuid";
-import { addOne, getCountOnOneCondition, selectOnCondition, deleteOne, getDispatchersVehicleJoin, getOne, getSpecificDetails, getSpecificDetailsUsingId, updateOne } from "./dBFunctions.js";
+import { addOne } from "./DB/addDbFunctions.js";
+import {deleteOne} from "./DB/deleteDbFunctions.js"
+import { getDispatchersVehicleJoin } from "./DB/usersDbFunctions.js";
+import {
+  selectOnCondition,
+  getSpecificDetails,
+  getOne,
+  getCountOnOneCondition,
+  getSpecificDetailsUsingId,
+} from "./DB/getDbFunctions.js";
+import {updateOne} from "./DB/updateDbFunctions.js"
+
 
 const riderTableName = "rider";
 const riderColumnsForAdding = ["rider_id", "vehicle_id", "user_id"];

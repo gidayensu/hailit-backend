@@ -1,9 +1,10 @@
+import { deleteDriverFromDB, getDriverDetailOnCondition } from "../model/driver.model.js";
+import { deleteRiderFromDB, getRiderOnConditionFromDB } from "../model/rider.model.js";
+import { addUserToDB, deleteUserFromDB, getAllUsersFromDB, getCustomersCount, getOneUserFromDB, getUserIdUsingEmail, updateUserOnDB } from "../model/user.model.js";
 import { errorHandler } from "../utils/errorHandler.js";
-import {addUserToDB, deleteUserFromDB, getAllUsersFromDB, getOneUserFromDB, updateUserOnDB, getUserIdUsingEmail, getCustomersCount } from "../model/user.model.js";
-import {addDriverToDB, deleteDriverFromDB, getDriverDetailOnCondition } from "../model/driver.model.js";
-import {addRiderToDB, deleteRiderFromDB, getRiderOnConditionFromDB} from "../model/rider.model.js";
-import { allowedPropertiesOnly } from "../utils/util.js";
 import { paginatedRequest } from "../utils/paginatedRequest.js";
+import { allowedPropertiesOnly } from "../utils/util.js";
+import { addDriverIfApplicable, addRiderIfApplicable, riderOrDriverDetails, updateDriverRole, updateRiderRole } from "./dispatcherRole.service.js";
 
 let allowedProperties = [
   "user_id",
@@ -15,6 +16,7 @@ let allowedProperties = [
   "onboard"
 ];
 
+//GET ALL CUSTOMERS (USERS WITH CUSTOMER ROLE)
 export const getAllUsersService = async (page) => {
   try {
     const limit = 7;
@@ -33,6 +35,7 @@ export const getAllUsersService = async (page) => {
   }
 };
 
+//GET USER
 export const getOneUserService = async (userId) => {
   try {
     const user = await getOneUserFromDB(userId);
@@ -49,46 +52,8 @@ export const getOneUserService = async (userId) => {
   }
 };
 
-const riderOrDriverDetails = async (user_role, userId)=> {
-  if (user_role === "driver") {
-    const driverDetails = await getDriverDetailOnCondition(
-      "user_id",
-      userId
-    );
 
-    
-    
-  //if user is driver  but no details in database add driver to driver table
-
-    if (driverDetails.error) {
-        const addDriver = await addDriverToDB(userId);
-        
-        return {driver:addDriver}
-    }
-    
-    
-    return {driver: driverDetails[0] };
-    
-  }
-
-  if (user_role === "rider") {
-    const riderDetails = await getRiderOnConditionFromDB(
-      "user_id",
-      userId
-    );
-    
-    //if user is rider but no details in database add rider to rider table
-
-    if (riderDetails.length < 1) {
-        const addRider = await addRiderToDB(userId)
-        return {rider: addRider}
-    }
-    const returnedRiderDetails = riderDetails
-    return { rider: returnedRiderDetails };
-  }
-  
-}
-
+//GET USER ID WITH EMAIL
 
 export const getUserIdUsingEmailService = async (userEmail) => {
   try {
@@ -100,7 +65,7 @@ export const getUserIdUsingEmailService = async (userEmail) => {
   }
 };
 
-
+//ADD USER
 export const addUserService = async (userDetails) => {
   const user_id_property = "user_id";
   allowedProperties.unshift(user_id_property);
@@ -132,33 +97,7 @@ return errorHandler("Error occurred in adding user", `${err}`, 500, "User Servic
   }
 };
 
-const addRiderIfApplicable = async (user_id, addedUser) => {
-  try {
-    const addRider = await addRiderToDB(user_id);
-    if (addRider.error) {
-      return addRider //Error details will be returned
-    }
-    const addedRider = addRider[0];
-    return { ...addedUser, rider: addedRider };
-  } catch (err) {
-    return errorHandler("Error adding rider", `${err}`, 500, "User Service");
-  }
-};
-
-const addDriverIfApplicable = async (user_id, addedUser) => {
-  try {
-    const addDriver = addDriverToDB(user_id);
-    if (addDriver.error) {
-      return addDriver //error details will be returned
-    }
-    const addedDriver = addDriver[0];
-    return { ...addedUser, driver: addedDriver };
-  } catch (err) {
-    
-    return errorHandler("Error. User not updated", `${err}`, 500, "User Service");
-  }
-};
-
+//UPDATE USER
 export const updateUserService = async (userId, userDetails) => {
   try {
     const validUserDetails = allowedPropertiesOnly(userDetails, allowedProperties);
@@ -179,67 +118,8 @@ export const updateUserService = async (userId, userDetails) => {
   }
 };
 
- const updateRiderRole = async (userId, updatedDetails) => {
-  
-  try {
-    //delete if the user is a driver
-    const isDriver = await getDriverDetailOnCondition('user_id', userId);
-    
-    if (!isDriver.error && isDriver.length > 0) {
-      const { driver_id } = isDriver[0];
-      await deleteDriverFromDB(driver_id);
-    }
-
-    const riderExists = await getRiderOnConditionFromDB('user_id', userId);
-    
-    if (riderExists.rider_id) {
-      const riderDetails = riderExists.rows[0];
-      return { ...updatedDetails, rider: riderDetails };
-    }
-
-    
-
-    const addRider = await addRiderToDB(userId);
-    
-    const addedRiderDetails = addRider[0];
-    
-    if (addedRiderDetails.rider_id) {
-      return { ...updatedDetails, rider: addedRiderDetails };
-    }
-
-    return updatedDetails;
-  } catch (err) {
-    return errorHandler("Error updating rider role", `${err}`, 500, "User Service: Update Rider Role");
-
-  }
-};
-
-const updateDriverRole = async (userId, updatedDetails) => {
-  try {
-    const isRider = await getRiderOnConditionFromDB('user_id', userId);
-    if (isRider.rows.length >= 1) {
-      const { rider_id } = isRider.rows[0];
-      await deleteRiderFromDB(rider_id);
-    }
-
-    const driverExists = await getDriverDetailOnCondition('user_id', userId);
-    if (!driverExists.error && driverExists.length > 0) {
-      const driverDetails = driverExists[0];
-      return { ...updatedDetails, driver: driverDetails };
-    }
-
-    const addDriver = await addDriverToDB(userId);
-    const addedDriverDetails = addDriver[0];
-    if (addedDriverDetails.driver_id) {
-      return { ...updatedDetails, driver: addedDriverDetails };
-    }
-
-    return updatedDetails;
-  } catch (err) {
-    return errorHandler("Error updating driver role", `${err}`, 500, "User Service");
-  }
-};
-
+ 
+//DELETE USER
 export const deleteUserService = async (userId) => {
   try {
     //user is rider, delete rider

@@ -1,17 +1,19 @@
-import { errorHandler } from "../utils/errorHandler.js";
 import { v4 as uuid } from "uuid";
+import { errorHandler } from "../utils/errorHandler.js";
+
+import { addOne } from "./DB/addDbFunctions.js";
+import { deleteOne } from "./DB/deleteDbFunctions.js";
 import {
-  addOne,
-  selectOnCondition,
-  deleteOne,
-  getDispatchersVehicleJoin,
-  getAll,
+  getCountOnOneCondition,
   getOne,
   getSpecificDetails,
-  getSpecificDetailsUsingId,
-  increaseByValue,
-  updateOne,
-} from "./dBFunctions.js";
+  getSpecificDetailsUsingId
+} from "./DB/getDbFunctions.js";
+import { updateOne } from "./DB/updateDbFunctions.js";
+import { getDispatchersVehicleJoin } from "./DB/usersDbFunctions.js";
+
+
+
 
 const driverTableName = "driver";
 const driverTableColumns = ["driver_id", "user_id", "vehicle_id"];

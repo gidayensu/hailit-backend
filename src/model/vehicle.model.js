@@ -1,11 +1,8 @@
-import {
-  addOne,
-  deleteOne,
-  getAll,
-  getOne,
-  updateOne,
-  getCountOnOneCondition
-} from "./dBFunctions.js";
+import { addOne } from "./DB/addDbFunctions.js";
+import {deleteOne} from "./DB/deleteDbFunctions.js"
+import { getAll, getOne, getCountOnOneCondition } from "./DB/getDbFunctions.js";
+import {updateOne} from "./DB/updateDbFunctions.js"
+
 
 const vehicleTableName = "vehicle";
 const columnsForUpdate = [

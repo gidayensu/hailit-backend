@@ -1,15 +1,12 @@
 import { errorHandler } from "../utils/errorHandler.js";
-import {
-  addOne,
-  deleteOne,
-  detailExists,
-  getAll,
-  getCountOnOneCondition,
-  getOne,
-  getSpecificDetailsUsingId,
-  selectOnCondition,
-  updateOne,
-} from "./dBFunctions.js";
+
+import { detailExists } from "./DB/helperDbFunctions.js";
+
+import { addOne } from "./DB/addDbFunctions.js";
+import {deleteOne} from "./DB/deleteDbFunctions.js"
+import { selectOnCondition, getOne, getCountOnOneCondition, getSpecificDetailsUsingId } from "./DB/getDbFunctions.js";
+import {updateOne} from "./DB/updateDbFunctions.js"
+
 
 const userTableName = "users";
 

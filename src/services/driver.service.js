@@ -1,5 +1,6 @@
 import { paginatedRequest } from "../utils/paginatedRequest.js";
 import { errorHandler } from "../utils/errorHandler.js";
+
 import {addDriverToDB, deleteDriverFromDB, getAllDriversFromDB, getOneDriverFromDB, updateDriverOnDB, getDriversCount} from "../model/driver.model.js";
 import { getOneVehicleFromDB } from "../model/vehicle.model.js";
 import {getSpecificUserDetailsUsingId} from "../model/user.model.js";
