@@ -35,7 +35,7 @@ const isAdmin = async(req, res, next)=> {
     const {user_id} = req.user;
     try {const adminStatus = await isAdmin(user_id);
     if (!adminStatus) {
-        res.status(403).json({error: "Access denied", errorMessage: "User is not an Admin"})
+        res.status(403).json({error: "Access denied. Unauthorised", errorMessage: "User is not an Admin"})
     }
 
     next();
