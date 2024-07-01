@@ -14,7 +14,7 @@ export const isAdmin = async (req, res, next) => {
     }
 
     if (!adminStatus) {
-      return res.status(403).json({ error: "Access denied" });
+      res.status(403).json({error: "Access denied. Unauthorised", errorMessage: "User is not an Admin"})
     }
 
     next();

@@ -179,7 +179,7 @@ export const updateUserOnDB = async (userId, userDetails) => {
           
           if (numberExist && phone_number !== resultPhoneNumber) {
             return errorHandler(
-              "phone number is taken user not updated",
+              "Phone number already registered. Use a different number",
               null,
               400,
               "User Model"
