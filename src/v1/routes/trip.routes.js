@@ -14,7 +14,7 @@ export const tripRouter = express.Router();
 
 tripRouter.get('/', supaAuth, isAdmin,  getAllTrips);
 
-tripRouter.get('/search-trips',  supaAuth, isAdmin, searchTrips);
+tripRouter.get('/search-trips',  supaAuth,  searchTrips);
 
 tripRouter.get('/user-trip/:trip_id', tripSupaAuth,  getOneTrip);
 
