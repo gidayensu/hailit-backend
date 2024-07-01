@@ -5,6 +5,7 @@ import { ratingCountIncrease } from "../model/trip.model.js";
 
 const tripRequestDateColumn = "trip_request_date";
 
+const DEFAULT_DISPATCHER_ID = 'ff-12-53';
 
 export const tripFieldsToSelect = [
   "trip_id, dispatcher_id, trip_medium, trip_status, package_value, trip_area, recipient_number, sender_number, package_type, pickup_location, drop_off_location, additional_information, trip_request_date, trip_cost, payment_status, payment_method "
