@@ -1,7 +1,5 @@
 import crypto from 'crypto';
 import { config } from 'dotenv';
-import { getSpecificDriversFromDB } from "../model/driver.model.js";
-import { getSpecificRidersFromDB } from "../model/rider.model.js";
 import {
   addTripToDB,
   deleteTripFromDB,
@@ -20,13 +18,13 @@ import { allowedPropertiesOnly, currencyFormatter } from '../utils/util.js';
 import { getOneDriverService } from "./driver.service.js";
 import { getOneRiderService } from "./rider.service.js";
 import {
-  increaseRatingCount,
-  percentageDifference,
-  updateDispatcherRating,
+  allowedAddTripProperties,
   dispatcherTrips,
   getCustomerTrips,
-  allowedAddTripProperties,
-  getDispatcherId
+  getDispatcherId,
+  increaseRatingCount,
+  percentageDifference,
+  updateDispatcherRating
 } from "./tripServiceHelpers.js";
 
 config({ path: '../../../.env' });
@@ -178,7 +176,7 @@ export const addTripService = async (user_id, tripDetails) => {
     const validTripDetails = allowedPropertiesOnly(tripDetails, allowedAddTripProperties);
     
 
-    const trip_cost = 85 - 45; // current destination - delivery destination
+    const trip_cost = 85 - 45; // current destination - delivery destination [CHANGE TO LOCATION BASED CALCULATION]
     const dispatcher_id = await getDispatcherId(tripDetails.trip_medium);
 
     const tripStatusDetails = {
@@ -202,7 +200,7 @@ export const addTripService = async (user_id, tripDetails) => {
 
     return newTrip;
   } catch (err) {
-    return errorHandler(`Server Error [service] Occurred adding trip`, `${err}`, 500, "Trip Service");
+    return errorHandler(`Server Error  Occurred adding trip`, `${err}`, 500, "Trip Service");
   }
 };
 
@@ -323,6 +321,7 @@ export const getTripMonthsService = async ()=> {
 export const currentMonthTripsCountService = async ()=> {
   try {
       const currentMonthTripsCount = await getCurrentMonthTripsCount();
+      console.log({currentMonthTripsCount})
     const {
       total_trips_current_month,
       delivered_current_month,
