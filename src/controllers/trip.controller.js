@@ -39,8 +39,9 @@ export const getOneTrip = async (req, res) => {
         
     const { trip_id } = req.params;
     
+    const user_id = req.user?.sub;
     
-    const oneTrip = await getOneTripService(trip_id);
+    const oneTrip = await getOneTripService(trip_id, user_id);
     
     if (oneTrip.error) {
       return res.status(400).json({error: oneTrip.error, errorMessage: oneTrip.errorMessage, errorSource: oneTrip.errorSource})

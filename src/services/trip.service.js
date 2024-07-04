@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { config } from 'dotenv';
+import { userIsUserRole } from '../utils/util.js';
 import {
   addTripToDB,
   deleteTripFromDB,
@@ -14,7 +15,7 @@ import {
 import { getOneUserFromDB } from "../model/user.model.js";
 import { errorHandler } from '../utils/errorHandler.js';
 import { paginatedRequest } from '../utils/paginatedRequest.js';
-import { allowedPropertiesOnly, currencyFormatter } from '../utils/util.js';
+import { allowedPropertiesOnly, currencyFormatter, userAssociatedWithTrip } from '../utils/util.js';
 import { getOneDriverService } from "./driver.service.js";
 import { getOneRiderService } from "./rider.service.js";
 import {
@@ -30,7 +31,7 @@ import {
 config({ path: '../../../.env' });
 
 const DEFAULT_DISPATCHER_ID = 'ff-12-53';
-
+// const DEFAULT_USER_ID = '92e6ff67-a1d0-4f56-830c-60d23a63913d';
 
 //GET ALL TRIPS
 export const getAllTripsService = async (page) => {
@@ -66,7 +67,10 @@ export const searchTripService = async (search, page) => {
     page > 1 ? offset = limit * page : page;
     const searchLowerCase = search.toLowerCase();    
     const searchResults = await searchTrips(searchLowerCase, limit,offset);
-        
+    //ONLY ALLOW USERS TO SEARCH THEIR TRIPS
+    //  const validSearchResults = searchResults.map(async (result)=> {
+    //   return await userAssociatedWithTrip(user_id, result.trip_id, )
+    //  } )
     return searchResults
     
   } catch (err) {
@@ -76,14 +80,43 @@ export const searchTripService = async (search, page) => {
 };
 
 //GET ONE TRIP
-export const getOneTripService = async (trip_id) => {
-  
+
+export const getOneTripService = async (trip_id, requester_user_id) => {
+  const anonymousUserProps = [
+    "trip_id",
+    "trip_medium",
+    "trip_status",
+    "trip_type",
+    "package_type",
+    "package_value",
+    "pickup_location",
+    "drop_off_location",
+    "additional_information",
+    "trip_request_date",
+    "trip_commencement_date",
+    "trip_completion_date",
+    "payment_status",
+    "payment_method",
+    "dispatcher_id",
+    "trip_stage",
+    "trip_area",
+    "trip_cost"
+  ];
   try {
+    //check if user is admin
+    const isAdmin = await userIsUserRole(requester_user_id, "admin");
+
     const tripIdColumn = "trip_id";
-    const oneTrip = await getOneTripFromDB(trip_id, tripIdColumn);
-    
+    let oneTrip = await getOneTripFromDB(trip_id, tripIdColumn, );
     if(oneTrip.error) {
       return {error: oneTrip.error}
+    }
+    console.log({requester_user_id})
+    //exclude sender and recipient phone numbers from data sent
+    if(!requester_user_id || (requester_user_id !== oneTrip.customer_id && !isAdmin)) {
+      oneTrip = allowedPropertiesOnly(oneTrip, anonymousUserProps) 
+      console.log('this runs')
+      
     }
     const { dispatcher_id, trip_medium } = oneTrip;
 
@@ -139,6 +172,7 @@ return { ...oneTrip, dispatcher: dispatcherDetails };
 
 export const getUserTripsService = async (user_id) => {
   
+
   try {
     const userData = await getOneUserFromDB(user_id);
     
