@@ -33,17 +33,22 @@ export const excludeNonMatchingElements = (firstArray, secondArray) => {
 };
 
 export const allowedPropertiesOnly = (data, allowedProperties) => {
-  if(!allowedProperties) {
+  try {
+    if (!allowedProperties) {
+      return {};
+    }
+    return Object.keys(data)
+      .filter((key) => allowedProperties.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = data[key];
+        return obj;
+      }, {});
+  } catch (err) {
+    console.error('An error occurred:', err);
     return {};
   }
-  return Object.keys(data)
-    .filter((key) => allowedProperties.includes(key))
-    .reduce((obj, key) => {
-      obj[key] = data[key];
-
-      return obj;
-    }, {});
 };
+
 
 export const excludeProperties = (data, propertiesToExclude) => {
   return Object.keys(data)
