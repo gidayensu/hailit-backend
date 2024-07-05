@@ -163,11 +163,12 @@ export const deleteTrip = async (req, res) => {
   try {
     const { trip_id } = req.params;
     const tripDelete = await deleteTripService(trip_id);
-    if (tripDelete) {
-      res.status(200).json({ success: "trip deleted" });
-    } else {
-      res.status(400).json({ error: "trip not deleted" });
+
+    if (tripDelete.error) {
+      return res.status(tripDelete.errorCode).json({error: tripDelete.error, errorMessage: tripDelete.errorMessage, errorSource: tripDelete.errorSource})
     }
+
+    res.status(200).json({ error: "trip deleted" });
   } catch (err) {
     return res.status(500).json({error:"Error Occurred; Trip Not Deleted", errorMessage: err, errorSource: "Trip Controller"});
   }

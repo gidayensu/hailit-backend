@@ -109,7 +109,7 @@ export const getTripCountByMonth = async (dataColumn, condition, month)=> {
       `Server Error Occurred in retrieving ${dataColumn} data`,
       `${err}`,
       500,
-      "Trip Model: getTripCountByMonth"
+      "Trip Model: Get Trip Count By Month"
     );
   }
   
@@ -128,7 +128,7 @@ export const getOneTripFromDB = async (trip_id, tripIdColumn) => {
       "Server Error Occurred in getting data from Database",
       err,
       500,
-      "Trip Model"
+      "Trip Model: Get One Trip"
     );
   }
 };
@@ -157,7 +157,7 @@ export const getUserTripsFromDB = async (
       "Server Error Occurred in getting user Trips from DB",
       err,
       500,
-      "Trip Model"
+      "Trip Model: Get User Trips From DB"
     );
   }
 };
@@ -181,14 +181,13 @@ export const getSpecificTripDetailsUsingIdFromDB = async (
       "Server Error Occurred in getting specific trip from DB",
       err,
       500,
-      "Trip Model"
+      "Trip Model: Get Specifc Trip Detail Using ID"
     );
   }
 };
 
 export const addTripToDB = async (tripDetails) => {
-  try {
-    
+  try {    
     const tripFieldsToSelect = Object.keys(tripDetails).join(", ");
     const tripDetailsValues = Object.values(tripDetails);
     const newTrip = await addOne(
@@ -205,7 +204,7 @@ export const addTripToDB = async (tripDetails) => {
       "Server Error Occurred in adding trip to DB",
       err,
       500,
-      "Trip Model"
+      "Trip Model: Add Trip"
     );
   }
 };
@@ -241,26 +240,22 @@ export const updateTripOnDB = async (tripDetails) => {
       "Server Error Occurred updating trip details on DB",
       err,
       500,
-      "Trip Model"
+      "Trip Model: Update Trip"
     );
   }
 };
 
 export const deleteTripFromDB = async (trip_id) => {
   try {
-    const tripDelete = await deleteOne(
-      tripTableName,
-      tripFieldsToSelectForAdding[0],
-      trip_id
-    );
+    const tripDelete = await deleteOne(tripTableName, "trip_id", trip_id);
     return tripDelete;
     
   } catch (err) {
     return errorHandler(
-      "Error Occurred Deleting Rider",
+      "Error Occurred Deleting Trip",
       err,
       500,
-      "Trip Model"
+      "Trip Model: delete Trip"
     );
   }
 };
@@ -300,7 +295,7 @@ export const associatedWithTrip = async (trip_id, roleIdColumn) => {
       "Error occurred while confirming user's relation to trip",
       err,
       500,
-      "Trip Model"
+      "Trip Model: Associated With Trip"
     );
   }
 };

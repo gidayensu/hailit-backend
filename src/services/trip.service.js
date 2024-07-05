@@ -315,14 +315,13 @@ export const rateTripService = async (ratingDetails) => {
 
 
 //DELETE TRIP
-
 export const deleteTripService = async (trip_id) => {
   try {
     const tripDelete = await deleteTripFromDB(trip_id);
     
     return tripDelete;
   } catch (err) {
-    return errorHandler("Error occurred deleting trip", `${err}`, 500, "Trip Service");
+    return errorHandler("Error occurred deleting trip", `${err}`, 500, "Trip Service: Delete Trip");
   }
 };
 
@@ -371,14 +370,15 @@ export const currentMonthTripsCountService = async ()=> {
     
     const pending_current_month = (+total_trips_current_month) - (+delivered_current_month + (+cancelled_current_month));
     const pending_previous_month = (+total_trips_previous_month) - (+delivered_previous_month + (+cancelled_previous_month));
+
     const pending_percentage_difference = percentageDifference(+pending_current_month, +pending_previous_month);
-    
     const delivered_percentage_difference = percentageDifference(+delivered_current_month, +delivered_previous_month);
     const total_trips_percentage_difference = percentageDifference(total_trips_current_month, total_trips_previous_month)
     const revenue_percentage_difference = percentageDifference(+revenue_current_month, +revenue_previous_month);
     const cancelled_percentage_difference = percentageDifference(cancelled_current_month, cancelled_previous_month)
 
-    const revenue_with_currency = currencyFormatter.format(revenue_current_month)
+    const revenue_with_currency = currencyFormatter.format(revenue_current_month);
+
     return {
       total_trips_current_month,
       revenue_current_month: revenue_with_currency,
