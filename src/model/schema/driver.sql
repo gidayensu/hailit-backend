@@ -9,7 +9,7 @@ CREATE TABLE "public"."driver" (
 	"driver_id" Character Varying( 255 ) NOT NULL,
 	"user_id" Character Varying( 255 ),
 	"vehicle_id" Character Varying( 255 ),
-	"driver_availability" Character Varying( 255 ) DEFAULT 'available'::character varying NOT NULL,
+	"available" Character Varying( 255 ) DEFAULT 'available'::character varying NOT NULL,
 	PRIMARY KEY ( "driver_id" ) );
  ;
 -- -------------------------------------------------------------

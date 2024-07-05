@@ -9,7 +9,7 @@ CREATE TABLE "public"."rider" (
 	"rider_id" Character Varying( 255 ) NOT NULL,
 	"vehicle_id" Character Varying( 255 ),
 	"user_id" Character Varying( 255 ),
-	"rider_availability" Character Varying( 255 ) DEFAULT 'available'::character varying NOT NULL,
+	"available" Character Varying( 255 ) DEFAULT 'available'::character varying NOT NULL,
 	PRIMARY KEY ( "rider_id" ) );
  ;
 -- -------------------------------------------------------------

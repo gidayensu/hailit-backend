@@ -183,14 +183,14 @@ export const getDispatcherId = async (trip_medium) => {
   let dispatcher_id = DEFAULT_DISPATCHER_ID;
 
   if (trip_medium === "car" || trip_medium === "truck") {
-    const availableDrivers = await getSpecificDriversFromDB("driver_availability", "Available");
+    const availableDrivers = await getSpecificDriversFromDB("available", true);
     if (availableDrivers && availableDrivers.length > 0) {
       dispatcher_id = availableDrivers[0].driver_id;
     }
   }
 
   if (trip_medium === "motor") {
-    const availableRiders = await getSpecificRidersFromDB("rider_availability", "Available");
+    const availableRiders = await getSpecificRidersFromDB("available", true);
     if (availableRiders && availableRiders.length > 0) {
       dispatcher_id = availableRiders[0].rider_id;
     }

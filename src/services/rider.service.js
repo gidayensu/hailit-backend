@@ -67,7 +67,7 @@ export const addRiderService = async (user_id, vehicle_id) => {
 
 export const updateRiderService = async (riderDetails) => {
   
-  const allowedProperties = ["rider_id", "vehicle_id", "license_number", "rider_availability"];
+  const allowedProperties = ["rider_id", "vehicle_id", "license_number", "available"];
   try {
     const validRiderDetails =  allowedPropertiesOnly(
       riderDetails,

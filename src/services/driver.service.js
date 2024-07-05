@@ -74,7 +74,7 @@ export const updateDriverService = async (driverDetails) => {
     "driver_id",
     "vehicle_id",
     "license_number",
-    "driver_availability",
+    "available",
   ];
   try {
     const validDriverDetails = allowedPropertiesOnly(

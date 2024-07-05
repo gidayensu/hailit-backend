@@ -137,8 +137,8 @@ const {
   rider_id = "",
   driver_id = "",
   license_number = "",
-  rider_availability = "",
-  driver_availability = "",
+  available = "",
+  
   vehicle_id = "",
   first_name = "",
   last_name = "",
@@ -152,7 +152,7 @@ dispatcherDetails = {
   user_id,
   dispatcher_id: rider_id || driver_id,
   license_number,
-  availability: rider_availability || driver_availability,
+   available ,
   vehicle_id,
   first_name,
   last_name,
@@ -186,6 +186,7 @@ export const getUserTripsService = async (user_id) => {
       if(allCustomerTrips.error) {
         return {error: allCustomerTrips.error}
       }
+      
       return allCustomerTrips;
       
     }
