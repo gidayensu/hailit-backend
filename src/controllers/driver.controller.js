@@ -27,7 +27,7 @@ export const getOneDriver = async (req, res) => {
     if (driver.error) {
       return res.status(driver.errorCode).json({error: driver.error, errorMessage: driver.errorMessage, errorSource: driver.errorSource});
     } 
-      res.status(400).json({ driver });
+      res.status(200).json({ driver });
     
   } catch (err) {
     return res.status(500).json({ error: "Error occurred getting driver", errorMessage: err, errorSource: "Driver Controller" });

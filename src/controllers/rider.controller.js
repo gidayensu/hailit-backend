@@ -29,7 +29,7 @@ export const getOneRider = async (req, res) => {
     if (rider.error) {
       return res.status(rider.errorCode).json({ error: rider.error, errorMessage: rider.errorMessage, errorSource: rider.errorSource });
     }
-    res.status(400).json({ rider });
+    res.status(200).json({ rider });
 
   } catch (err) {
     return res.status(500).json({ error: "Server error occurred getting rider", errorMessage: err, errorSource: "Rider Controller" });
