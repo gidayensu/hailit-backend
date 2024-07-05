@@ -124,9 +124,8 @@ export const deleteUserService = async (userId) => {
   try {
     //user is rider, delete rider
     const isRider =  await getRiderOnConditionFromDB('user_id', userId);
-    
-        if(isRider.rows.length >= 1) {
-          
+        console.log(isRider)
+        if(!isRider.error) {
           const {rider_id} = isRider.rows[0]
           await deleteRiderFromDB(rider_id)
         }
@@ -138,9 +137,10 @@ export const deleteUserService = async (userId) => {
           const { driver_id } = isDriver[0]
           await deleteDriverFromDB(driver_id)
         }
-      
-    return await deleteUserFromDB(userId);
-  } catch (err) {  
-    return errorHandler("Error occurred deleting user", `${err}`, 500, "User Service");
+    const deleteUser = await deleteUserFromDB(userId);
+    console.log({deleteUser})
+    return deleteUser;
+  } catch (err) { 
+    return errorHandler("Error occurred deleting user", `${err}`, 500, "User Service: Delete user");
   }
 };
