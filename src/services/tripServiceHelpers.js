@@ -28,11 +28,11 @@ export const increaseRatingCount = async (trip_medium, dispatcher_id) => {
     if (trip_medium === "motor") {
       tableName = 'rider';
       idColumn = 'rider_id';
-      ratingCountColumn = 'rider_rating_count';
+      ratingCountColumn = 'rating_count';
     } else if (trip_medium === "car" || trip_medium === "truck") {
       tableName = 'driver';
       idColumn = 'driver_id';
-      ratingCountColumn = 'driver_rating_count';
+      ratingCountColumn = 'rating_count';
     } else {
       return errorHandler("Error occurred", "Invalid trip medium", 400, "service");
     }
@@ -84,12 +84,12 @@ export const tripsCount = (trips) => {
 
 export const updateDispatcherRating = async (trip_medium, dispatcher_id, averageDispatcherRating) => {
     if (trip_medium === "motor") {
-      const riderUpdate = await updateRiderOnDB({ cumulative_rider_rating: averageDispatcherRating, rider_id: dispatcher_id });
+      const riderUpdate = await updateRiderOnDB({ cumulative_rating: averageDispatcherRating, rider_id: dispatcher_id });
       if (riderUpdate.error) {
         return riderUpdate //Error details returned
       }
     } else if (trip_medium === "car" || trip_medium === "truck") {
-      const driverUpdate = await updateDriverOnDB({ cumulative_driver_rating: averageDispatcherRating, driver_id: dispatcher_id });
+      const driverUpdate = await updateDriverOnDB({ cumulative_rating: averageDispatcherRating, driver_id: dispatcher_id });
       if (driverUpdate.error) {
         return driverUpdate //Error details returned
       }

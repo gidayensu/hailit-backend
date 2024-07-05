@@ -129,16 +129,13 @@ if (dispatcherDetails.error) {
 }
 
 const {
-  rider_rating_count = 0,
-  cumulative_rider_rating = "0.0",
-  driver_rating_count = 0,
-  cumulative_driver_rating = "0.0",
+  rating_count = 0,
+  cumulative_rating = "0.0",
   user_id = "",
   rider_id = "",
   driver_id = "",
   license_number = "",
   available = "",
-  
   vehicle_id = "",
   first_name = "",
   last_name = "",
@@ -147,8 +144,8 @@ const {
 } = dispatcherDetails;
 
 dispatcherDetails = {
-  rating_count: rider_rating_count || driver_rating_count,
-  cumulative_rating: cumulative_rider_rating || cumulative_driver_rating,
+  rating_count,
+  cumulative_rating,
   user_id,
   dispatcher_id: rider_id || driver_id,
   license_number,
