@@ -169,6 +169,8 @@ export const deleteRiderFromDB = async (rider_id) => {
       riderColumnsForAdding[0],
       rider_id
     );
+
+    
       return riderDelete;
     
     

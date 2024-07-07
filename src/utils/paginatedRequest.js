@@ -6,9 +6,13 @@ export const paginatedRequest = async (
     source
   ) => {
     const {total_count} = totalCount;
-    const total_number_of_pages = Math.floor(total_count / limit);
-
-    const current_page = (offset / limit)+1;
+    const total_number_of_pages = Math.ceil(total_count / limit);
+    
+    let  current_page = ((offset +limit) / limit);
+    if(offset === 0) {
+        current_page = 1;  
+    }
+    
   
     return {
       [source]: data,

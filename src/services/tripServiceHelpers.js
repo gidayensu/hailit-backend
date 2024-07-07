@@ -2,7 +2,7 @@ import { getUserTripsFromDB } from "../model/trip.model.js";
 import { updateDriverOnDB, getDriverDetailOnCondition } from "../model/driver.model.js";
 import { updateRiderOnDB, getRiderOnConditionFromDB } from "../model/rider.model.js";
 import { ratingCountIncrease } from "../model/trip.model.js";
-
+import { currencyFormatter } from "../utils/util.js";
 const tripRequestDateColumn = "trip_request_date";
 
 const DEFAULT_DISPATCHER_ID = 'ff-12-53';
@@ -63,7 +63,7 @@ export const tripsCount = (trips) => {
         total_payment += Math.ceil(trip.trip_cost);
       }
     });
-  
+    total_earnings = currencyFormatter.format(total_earnings);
     const total_trip_count = trips.length;
   
     return {
@@ -109,9 +109,7 @@ export const updateDispatcherRating = async (trip_medium, dispatcher_id, average
       tripRequestDateColumn,
     );
     
-    if(trips.error) {
-      return {error: trips.error}
-    }
+    
     
     if(trips.length > 0) {
       const {total_trip_count, delivered_trips, cancelled_trips, current_trips, total_payment} =  tripsCount(trips)
@@ -136,7 +134,7 @@ export const updateDispatcherRating = async (trip_medium, dispatcher_id, average
     
     let dispatcherData = {};
     let dispatcher_id = '';
-    if (user_role === 'rider'){
+    if (user_role === 'Rider'){
     dispatcherData = await getRiderOnConditionFromDB("user_id", user_id );
     
     if(dispatcherData.error) {

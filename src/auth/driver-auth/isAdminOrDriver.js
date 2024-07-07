@@ -7,7 +7,7 @@ export const isAdminOrRider = async (req, res, next) => {
         const path = req.path;
         const { driver_id } = req.params;
         const jwtUserId = req.user.user_id;
-        const isAdmin = await userIsUserRole(jwtUserId, 'admin');
+        const isAdmin = await userIsUserRole(jwtUserId, 'Admin');
         const driver_user_id = await driverUserId(driver_id);
         // for (let i = 0; i<role.length; i++) {
         //      isRole = await userIsUserRole(jwtUserId, role[i]);

@@ -4,13 +4,17 @@ import { errorHandler } from "../../utils/errorHandler.js";
 
 
 
-export const getAll = async (tableName, limit, offset) => {
+export const getAll = async (tableName, limit, offset, condition, conditionColumn) => {
   try {
     let queryText = `SELECT * FROM ${tableName}`;
-    if (limit) {
+    const values = [];
+    if(limit && condition) {
+      queryText = `SELECT * FROM ${tableName} WHERE ${conditionColumn} =$1 LIMIT ${limit} OFFSET ${offset}`;
+      values.push(condition)
+    }else if (limit) {
       queryText = `SELECT * FROM ${tableName} LIMIT ${limit} OFFSET ${offset}`;
     }
-    const allItems = await DB.query(queryText);
+    const allItems = await DB.query(queryText, values);
     const data = allItems.rows;
 
     return data;
@@ -20,6 +24,7 @@ export const getAll = async (tableName, limit, offset) => {
 };
 
 export const getCountOnOneCondition = async (tableName, condition, conditionColumn)=> {
+  
     try {
       let queryText = `SELECT COUNT(*) AS total_count FROM ${tableName}`;
       const values = [];
@@ -28,7 +33,7 @@ export const getCountOnOneCondition = async (tableName, condition, conditionColu
         queryText += ` WHERE ${conditionColumn} = $1`;
         values.push(condition);
       }
-  
+      
       const data = await DB.query(queryText, values);
       
       return data.rows[0];

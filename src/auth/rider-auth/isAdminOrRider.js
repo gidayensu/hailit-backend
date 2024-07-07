@@ -7,7 +7,7 @@ export const isAdminOrRider = async (req, res, next) => {
         const path = req.path;
         const { rider_id } = req.params;
         const jwtUserId = req.user.user_id;
-        const isAdmin = await userIsUserRole(jwtUserId, 'admin');
+        const isAdmin = await userIsUserRole(jwtUserId, 'Admin');
         const rider_user_id = await riderUserId(rider_id);
         
         

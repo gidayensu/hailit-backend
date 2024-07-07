@@ -22,7 +22,7 @@ export const getAllUsersService = async (page) => {
     const limit = 7;
     let offset = 0;
 
-    page > 1 ? offset = limit * page : '';
+    page > 1 ? offset = (limit * page) - limit : page;
 
     const users = await getAllUsersFromDB(limit, offset);
     const totalCount = await getCustomersCount();
@@ -39,7 +39,7 @@ export const getAllUsersService = async (page) => {
 export const getOneUserService = async (userId) => {
   try {
     const user = await getOneUserFromDB(userId);
-    if (user.user_role && user.user_role === "driver" || user.user_role === "rider") {
+    if (user.user_role && user.user_role === "Driver" || user.user_role === "Rider") {
       const getRiderOrDriverDetails = await riderOrDriverDetails (user.user_role, userId); 
       return {...user, ...getRiderOrDriverDetails}
     }
@@ -76,7 +76,7 @@ export const addUserService = async (userDetails) => {
     const validUserDetailsWithId = allowedPropertiesOnly(userDetailsWithId, allowedProperties);
 
     const addedUser = await addUserToDB(validUserDetailsWithId);
-    console.log({addedUser})
+    
     if (addedUser.error) {
       return addedUser; //Error details will be returned
     }
@@ -85,7 +85,7 @@ export const addUserService = async (userDetails) => {
     if (userRole) {
       if (userRole === "rider") {
         return await addRiderIfApplicable(user_id, addedUser);
-      } else if (userRole === "driver") {
+      } else if (userRole === "Driver") {
         return await addDriverIfApplicable(user_id, addedUser);
       }
     }
@@ -104,9 +104,9 @@ export const updateUserService = async (userId, userDetails) => {
     const updatedDetails = await updateUserOnDB(userId, validUserDetails);
     
     if (validUserDetails.user_role) {
-      if (validUserDetails.user_role === "rider") {
+      if (validUserDetails.user_role === "Rider") {
         return await updateRiderRole(userId, updatedDetails);
-      } else if (validUserDetails.user_role === "driver") {
+      } else if (validUserDetails.user_role === "Driver") {
         return await updateDriverRole(userId, updatedDetails);
       }
     }
@@ -124,7 +124,7 @@ export const deleteUserService = async (userId) => {
   try {
     //user is rider, delete rider
     const isRider =  await getRiderOnConditionFromDB('user_id', userId);
-        console.log(isRider)
+        
         if(!isRider.error) {
           const {rider_id} = isRider.rows[0]
           await deleteRiderFromDB(rider_id)
@@ -138,7 +138,7 @@ export const deleteUserService = async (userId) => {
           await deleteDriverFromDB(driver_id)
         }
     const deleteUser = await deleteUserFromDB(userId);
-    console.log({deleteUser})
+    
     return deleteUser;
   } catch (err) { 
     return errorHandler("Error occurred deleting user", `${err}`, 500, "User Service: Delete user");

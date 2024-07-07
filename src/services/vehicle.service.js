@@ -4,17 +4,29 @@ import { addVehicleToDB, deleteVehicleFromDB, getAllVehiclesFromDB, getOneVehicl
 import { allowedPropertiesOnly } from "../utils//util.js";
 import { errorHandler } from "../utils/errorHandler.js";
 
-export const getAllVehiclesService = async (page) => {
+export const getAllVehiclesService = async (page,  vehicleType) => {
   try {
     
     const limit = 7;
     let offset = 0;
 
-    page > 1 ? offset = limit * page : page;
-
-    const allVehicles = await getAllVehiclesFromDB(limit, offset);
+    page > 1 ? offset = (limit * page) - limit : page;
     
-    const totalCount = await getVehiclesCount();
+    const vehiclesArgs = [limit, offset] 
+    const totalCountArgs = [];
+    if(vehicleType === "car" || vehicleType === "motor") {
+      const vehicleTypeColumn = 'vehicle_type'
+      vehiclesArgs.push(vehicleType, vehicleTypeColumn)
+      totalCountArgs.push(vehicleType, vehicleTypeColumn)
+    }
+    
+    const allVehicles = await getAllVehiclesFromDB(...vehiclesArgs);
+
+    
+    
+    
+    
+    const totalCount = await getVehiclesCount(...totalCountArgs);
     
     return await paginatedRequest(totalCount, allVehicles, offset, limit, "vehicles")
     

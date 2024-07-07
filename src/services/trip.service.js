@@ -40,7 +40,7 @@ export const getAllTripsService = async (page) => {
     const limit = 7;
     let offset = 0;
 
-    page > 1 ? offset = limit * page : page;
+    page > 1 ? offset = (limit * page) - limit : page;
     
     const trips = await getAllTripsFromDB(limit,offset);
     
@@ -64,7 +64,7 @@ export const searchTripService = async (search, page) => {
     const limit = 7;
     let offset = 0;
 
-    page > 1 ? offset = limit * page : page;
+    page > 1 ? offset = (limit * page) - limit : page;
     const searchLowerCase = search.toLowerCase();    
     const searchResults = await searchTrips(searchLowerCase, limit,offset);
     //ONLY ALLOW USERS TO SEARCH THEIR TRIPS
@@ -104,18 +104,18 @@ export const getOneTripService = async (trip_id, requester_user_id) => {
   ];
   try {
     //check if user is admin
-    const isAdmin = await userIsUserRole(requester_user_id, "admin");
+    const isAdmin = await userIsUserRole(requester_user_id, "Admin");
 
     const tripIdColumn = "trip_id";
     let oneTrip = await getOneTripFromDB(trip_id, tripIdColumn, );
     if(oneTrip.error) {
       return {error: oneTrip.error}
     }
-    console.log({requester_user_id})
+    
     //exclude sender and recipient phone numbers from data sent
     if(!requester_user_id || (requester_user_id !== oneTrip.customer_id && !isAdmin)) {
       oneTrip = allowedPropertiesOnly(oneTrip, anonymousUserProps) 
-      console.log('this runs')
+    
       
     }
     const { dispatcher_id, trip_medium } = oneTrip;
@@ -174,21 +174,18 @@ export const getUserTripsService = async (user_id) => {
     const userData = await getOneUserFromDB(user_id);
     
     if (userData.error ) {
-      return {error: userData.error};
+      return userData;
     }
     const { user_role } = userData;
     
-    if (user_role === "customer" || user_role === "admin") {
+    if (user_role === "Customer" || user_role === "Admin") {
       const allCustomerTrips = await getCustomerTrips (user_id);
-      if(allCustomerTrips.error) {
-        return {error: allCustomerTrips.error}
-      }
       
       return allCustomerTrips;
       
     }
     
-    if (user_role === "driver" || user_role === "rider") {
+    if (user_role === "Driver" || user_role === "Rider") {
       
       const allDispatcherTrips = await dispatcherTrips (user_role, user_id);
       
@@ -352,7 +349,7 @@ export const getTripMonthsService = async ()=> {
 export const currentMonthTripsCountService = async ()=> {
   try {
       const currentMonthTripsCount = await getCurrentMonthTripsCount();
-      console.log({currentMonthTripsCount})
+      
     const {
       total_trips_current_month,
       delivered_current_month,

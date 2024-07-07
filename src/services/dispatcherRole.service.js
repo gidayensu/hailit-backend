@@ -11,7 +11,7 @@ import {
 import { errorHandler } from "../utils/errorHandler.js";
 
 export const riderOrDriverDetails = async (user_role, userId) => {
-  if (user_role === "driver") {
+  if (user_role === "Driver") {
     const driverDetails = await getDriverDetailOnCondition("user_id", userId);
     
     //if user is driver  but no details in database add driver to driver table
@@ -24,7 +24,7 @@ export const riderOrDriverDetails = async (user_role, userId) => {
     return { driver: driverDetails[0] };
   }
 
-  if (user_role === "rider") {
+  if (user_role === "Rider") {
     const riderDetails = await getRiderOnConditionFromDB("user_id", userId);
 
     //if user is rider but no details in database add rider to rider table

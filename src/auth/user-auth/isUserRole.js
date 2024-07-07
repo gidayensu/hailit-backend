@@ -9,11 +9,11 @@ export const isUserRole = async (req, res, next) => {
 
     if (req.body.onboard) {
       //new customer
-      userRole = "customer";
+      userRole = "Customer";
     }
     const jwtUserId = req.user.sub;
 
-    const isAdmin = await userIsUserRole(jwtUserId, "admin");
+    const isAdmin = await userIsUserRole(jwtUserId, "Admin");
     const isRole = await userIsUserRole(jwtUserId, userRole);
     if ((userId === jwtUserId && isRole) || isAdmin) {
       next();
@@ -33,7 +33,7 @@ export const userIsAdmin = async (req, res) => {
 
     const { userId } = req.params;
     const jwtUserId = req.user.sub;
-    const isAdmin = await userIsUserRole(jwtUserId, "admin");
+    const isAdmin = await userIsUserRole(jwtUserId, "Admin");
 
     if (userId === jwtUserId && isAdmin) {
       return res.status(200).json({ admin: true });

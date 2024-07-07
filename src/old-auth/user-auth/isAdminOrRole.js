@@ -6,7 +6,7 @@ export const isUserRole = (role) => {
         const path = req.path;
         const { userId } = req.params;
         const jwtUserId = req.user.user_id;
-        const isAdmin = await userIsUserRole(jwtUserId, 'admin');
+        const isAdmin = await userIsUserRole(jwtUserId, 'Admin');
         const isRole = await userIsUserRole(jwtUserId, role);
         // for (let i = 0; i<role.length; i++) {
         //      isRole = await userIsUserRole(jwtUserId, role[i]);

@@ -4,8 +4,7 @@ import { errorHandler } from "../utils/errorHandler.js";
 import {addDriverToDB, deleteDriverFromDB, getAllDriversFromDB, getOneDriverFromDB, updateDriverOnDB, getDriversCount} from "../model/driver.model.js";
 import { getOneVehicleFromDB } from "../model/vehicle.model.js";
 import {getSpecificUserDetailsUsingId} from "../model/user.model.js";
-
-import { allowedPropertiesOnly } from "../utils/util.js";
+import { allowedPropertiesOnly, userIsUserRole } from "../utils/util.js";
 
 
 export const getAllDriversService = async (page) => {
@@ -13,7 +12,7 @@ export const getAllDriversService = async (page) => {
     const limit = 7;
     let offset = 0;
 
-    page > 1 ? offset = limit * page : '';
+    page > 1 ? offset = (limit * page) - limit : page;
     const drivers = await getAllDriversFromDB(limit, offset);
     
     if(drivers.error) {
@@ -31,7 +30,7 @@ export const getAllDriversService = async (page) => {
   }
 };
 
-export  const getOneDriverService = async (driver_id) => {
+export  const getOneDriverService = async (driver_id, requester_user_id) => {
   try {
     const driver = await getOneDriverFromDB(driver_id);
     if (driver.error) {
@@ -41,7 +40,12 @@ export  const getOneDriverService = async (driver_id) => {
 
     let driverDetails = {...driver}
     const {user_id} = driver;
+    
+    //fetching driver name and related details
+    const isAdmin = await userIsUserRole(requester_user_id, 'Admin');
+
     const columns = ["first_name", "last_name", "phone_number"]
+    isAdmin ? columns.push("email") : '' 
     const driverNamePhone = await getSpecificUserDetailsUsingId(user_id, columns);
     if(driverNamePhone.error) {
       return {error: driverNamePhone.error}

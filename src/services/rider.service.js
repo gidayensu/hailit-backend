@@ -2,7 +2,7 @@ import { paginatedRequest } from "../utils/paginatedRequest.js";
 import {addRiderToDB, deleteRiderFromDB, getAllRiders, getOneRiderFromDB, updateRiderOnDB, getRidersCount} from "../model/rider.model.js";
 import { getOneVehicleFromDB } from "../model/vehicle.model.js";
 import { getSpecificUserDetailsUsingId } from "../model/user.model.js";
-
+import { userIsUserRole } from "../utils/util.js";
 import { allowedPropertiesOnly } from "../utils/util.js";
 import { errorHandler } from "../utils/errorHandler.js";
 
@@ -13,7 +13,7 @@ export const getAllRidersService = async (page) => {
     const limit = 7;
     let offset = 0;
 
-    page > 1 ? offset = limit * page : '';
+    page > 1 ? offset = (limit * page) - limit : page;
     const riders = await getAllRiders(limit, offset);
 
     const totalCount = await getRidersCount();
@@ -25,7 +25,7 @@ export const getAllRidersService = async (page) => {
   }
 };
 
-export const getOneRiderService = async (rider_id) => {
+export const getOneRiderService = async (rider_id, requester_user_id) => {
   
   try {
     const rider = await getOneRiderFromDB(rider_id);
@@ -34,12 +34,16 @@ export const getOneRiderService = async (rider_id) => {
     } 
     let riderDetails = {...rider}
     const {user_id} = rider;
+    //fetching rider name and related details
+    const isAdmin = await userIsUserRole(requester_user_id, 'Admin');
+
     const columns = ["first_name", "last_name", "phone_number"]
-    const riderNamePhone = await getSpecificUserDetailsUsingId(user_id, columns);
-    if(riderNamePhone.error) {
-      return {error: riderNamePhone.error}
+    isAdmin ? columns.push("email") : '' 
+    const riderOtherDetails = await getSpecificUserDetailsUsingId(user_id, columns);
+    if(riderOtherDetails.error) {
+      return {error: riderOtherDetails.error}
     }
-    riderDetails = {...rider, ...riderNamePhone[0]}
+    riderDetails = {...rider, ...riderOtherDetails[0]}
 
     
     const {vehicle_id} = rider;
@@ -73,6 +77,7 @@ export const updateRiderService = async (riderDetails) => {
       riderDetails,
       allowedProperties
     );
+    
     const riderUpdate = await updateRiderOnDB(validRiderDetails);
     
     return riderUpdate;
@@ -85,6 +90,7 @@ export const updateRiderService = async (riderDetails) => {
 export const deleteRiderService = async (rider_id) => {
   try {
     const riderDelete = await deleteRiderFromDB(rider_id);
+    
     return riderDelete;
     
   } catch (err) {

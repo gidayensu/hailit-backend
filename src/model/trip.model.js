@@ -149,7 +149,7 @@ export const getUserTripsFromDB = async (
     );
     
     if ( userTrips.length === 0) {
-      return errorHandler("No user Trip found", null, null, "Trip Model");
+      return errorHandler("No user Trip found", null, 404, "Trip Model: Get User Trips");
     }
     return userTrips;
   } catch (err) {
@@ -280,7 +280,7 @@ export const ratingCountIncrease = async (
 export const associatedWithTrip = async (trip_id, roleIdColumn) => {
   const tripIdColumn = "trip_id";
 
-  try {
+  try { 
     const tripData = await getSpecificDetailsUsingId(
       trip_id,
       tripIdColumn,

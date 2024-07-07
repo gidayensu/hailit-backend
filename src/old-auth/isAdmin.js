@@ -11,7 +11,7 @@ export const isAdmin = async(req, res, next)=> {
         if (!user_id) {
             return res.status(400).json({ error: "User ID not provided in request" });
         }
-        const adminStatus = await userIsUserRole(user_id, 'admin');
+        const adminStatus = await userIsUserRole(user_id, 'Admin');
         
     if (!adminStatus) {
         return res.status(403).json({error: "Access denied"})

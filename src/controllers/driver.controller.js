@@ -22,8 +22,9 @@ export const getAllDrivers = async (req, res) => {
 
 export const getOneDriver = async (req, res) => {
   const { driver_id } = req.params;
+  const requester_user_id = req.user.sub
   try {
-    const driver = await getOneDriverService(driver_id);
+    const driver = await getOneDriverService(driver_id, requester_user_id);
     if (driver.error) {
       return res.status(driver.errorCode).json({error: driver.error, errorMessage: driver.errorMessage, errorSource: driver.errorSource});
     } 
@@ -67,9 +68,12 @@ export const deleteDriver = async (req, res) => {
   return  res.status(driverDelete.errorCode).json({ error: driverDelete.error, errorMessage: driverDelete.errorMessage, errorSource: driverDelete.errorSource });
   }
   
+  if(!driverDelete) {
+    return res.status(404).json({error: "driver not delete. Driver details was not found"})
+  }
     res.status(200).json({ success: "driver deleted" });
   } catch (err) {
-    res.status(500).json({error: "Error Occurred", errorMessage: err, errorSource: "Driver Controller"})
+    res.status(500).json({error: "Error Occurred", errorMessage: err, errorSource: "Driver Controller: Delete Driver"})
   }
   
 };

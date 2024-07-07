@@ -1,4 +1,4 @@
-const allowedUserRoles = ['admin', 'driver', 'rider', 'customer', 'dispatcher'];
+const allowedUserRoles = ['Admin', 'Driver', 'Rider', 'Customer', 'Dispatcher'];
 
 export const userRoleValidation = async (req, res, next)=> {
     

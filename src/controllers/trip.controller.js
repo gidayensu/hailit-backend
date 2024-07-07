@@ -62,14 +62,14 @@ export const getUserTrips = async (req, res) => {
     const userTrips = await getUserTripsService(user_id);
     
     if (userTrips.error) {
-      return res.status(400).json({error: userTrips.error, errorMessage: userTrips.errorMessage, errorSource: userTrips.errorSource})
+      return res.status(userTrips.errorCode).json({error: userTrips.error, errorMessage: userTrips.errorMessage, errorSource: userTrips.errorSource})
     }
     res.status(200).json({ trips: userTrips });
   } catch (err) {
     
     return res
       .status(500)
-      .json({ error: "Server Error occurred getting user trips", errorMessage: err, errorSource: "User Trips Controller" });
+      .json({ error: "Server Error occurred getting user trips", errorMessage: err, errorSource: "User Trips Controller: Get User Trips" });
   }
 };
 
@@ -168,7 +168,7 @@ export const deleteTrip = async (req, res) => {
       return res.status(tripDelete.errorCode).json({error: tripDelete.error, errorMessage: tripDelete.errorMessage, errorSource: tripDelete.errorSource})
     }
 
-    res.status(200).json({ error: "trip deleted" });
+    res.status(200).json({ success: "trip deleted" });
   } catch (err) {
     return res.status(500).json({error:"Error Occurred; Trip Not Deleted", errorMessage: err, errorSource: "Trip Controller"});
   }

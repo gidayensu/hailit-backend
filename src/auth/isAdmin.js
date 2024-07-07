@@ -5,7 +5,7 @@ export const isAdmin = async (req, res, next) => {
   
   const user_id = req.user?.sub;
   
-  const adminStatus = await userIsUserRole(user_id, "admin");
+  const adminStatus = await userIsUserRole(user_id, "Admin");
   
 
   try {

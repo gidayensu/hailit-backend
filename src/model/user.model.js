@@ -19,11 +19,12 @@ const userColumnsForAdding = [
   "user_role"
 ];
 
-const USER_ROLE = "customer"
+const USER_ROLE = "Customer"
 const USER_ROLE_COLUMN = "user_role"
 export const getAllUsersFromDB = async (limit, offset) => {
   try {
     const allUsers = await selectOnCondition(userTableName, USER_ROLE_COLUMN, USER_ROLE, limit, offset );
+    
     if (!allUsers) {
       return errorHandler("No user found", null, 404, "User Model");
     }
@@ -43,7 +44,7 @@ export const getAllUsersFromDB = async (limit, offset) => {
 
 export const getCustomersCount = async()=> {
   try {
-    const customersCount = await getCountOnOneCondition(userTableName, 'customer', 'user_role' );
+    const customersCount = await getCountOnOneCondition(userTableName, 'Customer', 'user_role' );
     
     return customersCount;
     

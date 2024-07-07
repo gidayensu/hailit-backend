@@ -66,7 +66,7 @@ export const userIsUserRole = async (user_id, user_role) => {
 export const userAssociatedWithTrip = async (role_id, trip_id, role) => {
   let roleIdColumn = "user_id";
 
-  if (role === "driver") {
+  if (role === "Driver") {
     roleIdColumn = "driver_id";
   }
   const tripData = await associatedWithTrip(trip_id, roleIdColumn);
@@ -74,7 +74,7 @@ export const userAssociatedWithTrip = async (role_id, trip_id, role) => {
     return false;
   }
 
-  if (role === "driver") {
+  if (role === "Driver") {
     return tripData[0]?.driver_id === role_id ? true : false;
   }
 

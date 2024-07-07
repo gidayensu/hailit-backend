@@ -9,9 +9,10 @@ import {
 
 export const getAllVehicles = async (req, res) => {
   try {
+    const vehicleType = req.query?.vehicle_type
     const page = req.query?.page;
     
-    const allVehicles = await getAllVehiclesService(page);
+    const allVehicles = await getAllVehiclesService(page, vehicleType);
     if (allVehicles.error) {
       return {error: allVehicles.error, errorMessage: allVehicles.errorMessage, errorSource: allVehicles.errorSource}
     }

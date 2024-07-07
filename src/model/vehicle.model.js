@@ -14,11 +14,11 @@ const columnsForUpdate = [
 const columnsForAdding = ["vehicle_id", ...columnsForUpdate];
 const vehicleIdColumn = "vehicle_id";
 
-export const getAllVehiclesFromDB = async (limit, offset) => {
+export const getAllVehiclesFromDB = async (limit, offset, condition, conditionColumn) => {
 
   try {
     
-    const allVehicles = await getAll(vehicleTableName, limit, offset);
+    const allVehicles = await getAll(vehicleTableName, limit, offset, condition, conditionColumn);
     
     return allVehicles;
   } catch (err) {
@@ -26,9 +26,9 @@ export const getAllVehiclesFromDB = async (limit, offset) => {
   }
 };
 
-export const getVehiclesCount = async()=> {
+export const getVehiclesCount = async(countCondition, countConditionColumn)=> {
   try {
-    const vehiclesCount = await getCountOnOneCondition(vehicleTableName );
+    const vehiclesCount = await getCountOnOneCondition(vehicleTableName, countCondition, countConditionColumn );
     
     
     return vehiclesCount;
