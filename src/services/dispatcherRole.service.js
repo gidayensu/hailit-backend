@@ -8,11 +8,12 @@ import {
   deleteRiderFromDB,
   getRiderOnConditionFromDB,
 } from "../model/rider.model.js";
+import { USER_ID_COLUMN } from "../constants/usersConstants.js";
 import { errorHandler } from "../utils/errorHandler.js";
 
 export const riderOrDriverDetails = async (user_role, userId) => {
   if (user_role === "Driver") {
-    const driverDetails = await getDriverDetailOnCondition("user_id", userId);
+    const driverDetails = await getDriverDetailOnCondition(USER_ID_COLUMN, userId);
     
     //if user is driver  but no details in database add driver to driver table
     if (driverDetails.error) {
@@ -25,7 +26,7 @@ export const riderOrDriverDetails = async (user_role, userId) => {
   }
 
   if (user_role === "Rider") {
-    const riderDetails = await getRiderOnConditionFromDB("user_id", userId);
+    const riderDetails = await getRiderOnConditionFromDB(USER_ID_COLUMN, userId);
 
     //if user is rider but no details in database add rider to rider table
     if (riderDetails.length < 1) {
@@ -64,11 +65,11 @@ export const addDriverIfApplicable = async (user_id, addedUser) => {
 
 export const updateRiderRole = async (userId, updatedDetails) => {
   try {
-    const isDriver = await getDriverDetailOnCondition("user_id", userId);
+    const isDriver = await getDriverDetailOnCondition(USER_ID_COLUMN, userId);
     if (!isDriver.error && isDriver.length > 0)
       await deleteDriverFromDB(isDriver[0].driver_id);
 
-    const riderExists = await getRiderOnConditionFromDB("user_id", userId);
+    const riderExists = await getRiderOnConditionFromDB(USER_ID_COLUMN, userId);
     if (riderExists.length > 0)
       return { ...updatedDetails, rider: riderExists[0] };
 
@@ -86,10 +87,10 @@ export const updateRiderRole = async (userId, updatedDetails) => {
 
 export const updateDriverRole = async (userId, updatedDetails) => {
   try {
-    const isRider = await getRiderOnConditionFromDB("user_id", userId);
+    const isRider = await getRiderOnConditionFromDB(USER_ID_COLUMN, userId);
     if (isRider.length > 0) await deleteRiderFromDB(isRider[0].rider_id);
 
-    const driverExists = await getDriverDetailOnCondition("user_id", userId);
+    const driverExists = await getDriverDetailOnCondition(USER_ID_COLUMN, userId);
     if (!driverExists.error && driverExists.length > 0)
       return { ...updatedDetails, driver: driverExists[0] };
 

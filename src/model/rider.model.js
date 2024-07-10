@@ -3,8 +3,11 @@ import { v4 as uuid } from "uuid";
 import { addOne } from "./DB/addDbFunctions.js";
 import {deleteOne} from "./DB/deleteDbFunctions.js"
 import { getDispatchersVehicleJoin } from "./DB/usersDbFunctions.js";
+import { VEHICLE_TABLE_NAME } from "../constants/vehicleConstants.js";
+import { USER_TABLE_NAME } from "../constants/usersConstants.js";
+import { RIDER_TABLE_NAME, RIDER_COLUMNS_FOR_ADDING, DEFAULT_VEHICLE_ID, USER_FIRST_NAME, USER_LAST_NAME, USER_ID_RIDER, VEHICLE_PLATE_COLUMN, RIDER_VEHICLE_ID, VEHICLE_ID, RIDER_ID_COLUMN, PHONE_NUMBER, VEHICLE_NAME_COLUMN, EMAIL_COLUMN, USER_ID_USERS,  } from "../constants/riderConstants.js";
+import { USER_ID_COLUMN } from "../constants/usersConstants.js";
 import {
-  selectOnCondition,
   getSpecificDetails,
   getOne,
   getCountOnOneCondition,
@@ -13,41 +16,23 @@ import {
 import {updateOne} from "./DB/updateDbFunctions.js"
 
 
-const riderTableName = "rider";
-const riderColumnsForAdding = ["rider_id", "vehicle_id", "user_id"];
-
-const defaultVehicleId = "04daa784-1dab-4b04-842c-a9a3ff8ae016";
-const firstName = "users.first_name";
-const lastName = "users.last_name";
-const usersTable = "users";
-const vehicleTable = "vehicle";
-const userIdRider = "rider.user_id";
-const userIdUsers = "users.user_id";
-const emailColumn = "users.email";
-const vehicleNameColumn = "vehicle.vehicle_name";
-const vehiclePlateColumn = "vehicle.plate_number";
-const riderVehicleId = "rider.vehicle_id";
-const vehicleId = "vehicle.vehicle_id";
-const riderId = "rider_id";
-const phoneNumber = "users.phone_number";
-
 export const getAllRiders = async (limit, offset) => {
   try {
     const allRiders = await getDispatchersVehicleJoin(
-      riderTableName,
-      usersTable,
-      vehicleTable,
-      firstName,
-      lastName,
-      phoneNumber,
-      emailColumn,
-      vehicleNameColumn,
-      vehiclePlateColumn,
-      userIdRider,
-      userIdUsers,
-      riderVehicleId,
-      vehicleId,
-      riderId,
+      RIDER_TABLE_NAME,
+      USER_TABLE_NAME,
+      VEHICLE_TABLE_NAME,
+      USER_FIRST_NAME,
+      USER_LAST_NAME,
+      PHONE_NUMBER,
+      EMAIL_COLUMN,
+      VEHICLE_NAME_COLUMN,
+      VEHICLE_PLATE_COLUMN,
+      USER_ID_RIDER,
+      USER_ID_USERS,
+      RIDER_VEHICLE_ID,
+      VEHICLE_ID,
+      RIDER_ID_COLUMN,
       limit,
       offset
     );
@@ -62,7 +47,7 @@ export const getAllRiders = async (limit, offset) => {
 
 export const getRidersCount = async()=> {
   try {
-    const ridersCount = await getCountOnOneCondition(riderTableName);
+    const ridersCount = await getCountOnOneCondition(RIDER_TABLE_NAME);
     
     return ridersCount;
     
@@ -73,9 +58,9 @@ export const getRidersCount = async()=> {
 
 export const getOneRiderFromDB = async (rider_id) => {
   try {
-    const riderIdColumn = riderColumnsForAdding[0];
+    const riderIdColumn = RIDER_COLUMNS_FOR_ADDING[0];
     const rider = await getOne(
-      riderTableName,
+      RIDER_TABLE_NAME,
       riderIdColumn,
       rider_id
     );
@@ -84,14 +69,14 @@ export const getOneRiderFromDB = async (rider_id) => {
     }
     return rider[0];
   } catch (err) {
-    return errorHandler("Error occurred. Rider not fetched", `${err}`, 500, "Rider Model");
+    return errorHandler("Error occurred. Rider not fetched", `${err}`, 500, "Rider Model"); 
   }
 };
 
 export const getRiderOnConditionFromDB = async (columnName, condition) => {
   try {
     const riderDetails = await getOne(
-      riderTableName,
+      RIDER_TABLE_NAME,
       columnName,
       condition
     );
@@ -104,7 +89,7 @@ export const getRiderOnConditionFromDB = async (columnName, condition) => {
 export const getSpecificRidersFromDB = async (specificColumn, condition) => {
   try {
     const specificRiders = await getSpecificDetails(
-      riderTableName,
+      RIDER_TABLE_NAME,
       specificColumn,
       condition
     );
@@ -116,16 +101,16 @@ export const getSpecificRidersFromDB = async (specificColumn, condition) => {
 
 export const addRiderToDB = async (user_id) => {
   try {
-    const userIsRider = await getSpecificDetailsUsingId(riderTableName, user_id, 'user_id', 'rider_id');
+    const userIsRider = await getSpecificDetailsUsingId(RIDER_TABLE_NAME, user_id, USER_ID_COLUMN, RIDER_ID_COLUMN);
     
     if (userIsRider.length >= 1) {
       return errorHandler("User is rider", "User already exists", 400, "Rider Model");
     }
     const rider_id = uuid();
-    const riderDetails = [rider_id, defaultVehicleId, user_id];
+    const riderDetails = [rider_id, DEFAULT_VEHICLE_ID, user_id];
     const addingMotor = await addOne(
-      riderTableName,
-      riderColumnsForAdding,
+      RIDER_TABLE_NAME,
+      RIDER_COLUMNS_FOR_ADDING,
       riderDetails
     );
     
@@ -138,13 +123,13 @@ export const addRiderToDB = async (user_id) => {
 
 export const updateRiderOnDB = async (riderDetails) => {
   const { rider_id } = riderDetails;
-  const idColumn = riderColumnsForAdding[0];
+  const idColumn = RIDER_COLUMNS_FOR_ADDING[0];
   const tableColumns = Object.keys(riderDetails);
   const riderDetailsArray = Object.values(riderDetails);
 
   try {
     const riderUpdate = await updateOne(
-      riderTableName,
+      RIDER_TABLE_NAME,
       tableColumns,
       rider_id,
       idColumn,
@@ -165,8 +150,8 @@ export const updateRiderOnDB = async (riderDetails) => {
 export const deleteRiderFromDB = async (rider_id) => {
   try {
     const riderDelete = await deleteOne(
-      riderTableName,
-      riderColumnsForAdding[0],
+      RIDER_TABLE_NAME,
+      RIDER_COLUMNS_FOR_ADDING[0],
       rider_id
     );
 

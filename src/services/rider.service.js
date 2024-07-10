@@ -3,6 +3,7 @@ import {addRiderToDB, deleteRiderFromDB, getAllRiders, getOneRiderFromDB, update
 import { getOneVehicleFromDB } from "../model/vehicle.model.js";
 import { getSpecificUserDetailsUsingId } from "../model/user.model.js";
 import { userIsUserRole } from "../utils/util.js";
+import { ALLOWED_UPDATE_RIDER_PROPERTIES, RIDER_DETAILS } from "../constants/riderConstants.js";
 import { allowedPropertiesOnly } from "../utils/util.js";
 import { errorHandler } from "../utils/errorHandler.js";
 
@@ -15,11 +16,14 @@ export const getAllRidersService = async (page) => {
 
     page > 1 ? offset = (limit * page) - limit : page;
     const riders = await getAllRiders(limit, offset);
-
+    if(riders.error) {
+      return riders;
+    }
     const totalCount = await getRidersCount();
+
     return await paginatedRequest(totalCount, riders, offset, limit, "riders")
 
-    return riders;
+    
   } catch (err) {
     return errorHandler("Error occurred getting all riders", `${err}`, 500, "Rider Service");
   }
@@ -37,9 +41,9 @@ export const getOneRiderService = async (rider_id, requester_user_id) => {
     //fetching rider name and related details
     const isAdmin = await userIsUserRole(requester_user_id, 'Admin');
 
-    const columns = ["first_name", "last_name", "phone_number"]
-    isAdmin ? columns.push("email") : '' 
-    const riderOtherDetails = await getSpecificUserDetailsUsingId(user_id, columns);
+    
+    isAdmin ? RIDER_DETAILS.push("email") : '' 
+    const riderOtherDetails = await getSpecificUserDetailsUsingId(user_id, RIDER_DETAILS);
     if(riderOtherDetails.error) {
       return {error: riderOtherDetails.error}
     }
@@ -71,12 +75,15 @@ export const addRiderService = async (user_id, vehicle_id) => {
 
 export const updateRiderService = async (riderDetails) => {
   
-  const allowedProperties = ["rider_id", "vehicle_id", "license_number", "available"];
-  try {
-    const validRiderDetails =  allowedPropertiesOnly(
-      riderDetails,
-      allowedProperties
-    );
+  
+
+try {
+  const validRiderDetails = allowedPropertiesOnly(
+    riderDetails,
+    ALLOWED_UPDATE_RIDER_PROPERTIES
+  );
+
+
     
     const riderUpdate = await updateRiderOnDB(validRiderDetails);
     

@@ -1,21 +1,13 @@
 import { errorHandler } from "../utils/errorHandler.js";
 import { increaseByValue } from "./DB/helperDbFunctions.js";
-
+import { USER_TABLE_NAME } from "../constants/usersConstants.js";
+import {TRIP_TABLE_NAME, TRIP_ID, TRIP_REQUEST_DATE_COLUMN, USER_ID_TRIP, FIRST_NAME, LAST_NAME, USER_ID_USER,} from '../constants/tripConstants.js'
 import { addOne } from "./DB/addDbFunctions.js";
 import {deleteOne} from "./DB/deleteDbFunctions.js"
 import { selectOnCondition, getOne, getCountOnOneCondition, getSpecificDetailsUsingId } from "./DB/getDbFunctions.js";
 import {updateOne} from "./DB/updateDbFunctions.js"
-import {getPreviousTwoMonthsCounts, getTripsMonths, getTripsCustomersJoin, getCountByMonth} from "./DB/tripsDbFunctions.js"
+import {getPreviousTwoMonthsCounts, getTripsMonths, getTripsCustomersJoin, getCountByMonth, upToOneWeekTripCounts} from "./DB/tripsDbFunctions.js"
 
-
-const tripTableName = "trips";
-const tripId = "trips.trip_id";
-const tripRequestDateColumn = "trips.trip_request_date";
-const usersTable = "users";
-const firstName = "users.first_name";
-const lastName = "users.last_name";
-const userIdUser = "users.user_id";
-const userIdTrip = "trips.customer_id";
 
 export const tripsMonths = async()=> {
   try {
@@ -28,10 +20,9 @@ export const tripsMonths = async()=> {
   }
 }
 
-
 export const getTripCount = async()=> {
   try {
-    const tripCounts = await getCountOnOneCondition(tripTableName);
+    const tripCounts = await getCountOnOneCondition(TRIP_TABLE_NAME);
     
     return tripCounts;
     
@@ -42,7 +33,7 @@ export const getTripCount = async()=> {
 export const searchTrips = async(searchQuery, limit, offset)=> {
   try {
     
-    const searchResults = await selectOnCondition(tripTableName, 'trip_id', searchQuery, limit, offset, true);
+    const searchResults = await selectOnCondition(TRIP_TABLE_NAME, 'trip_id', searchQuery, limit, offset, true);
 
     return searchResults;
     
@@ -52,39 +43,57 @@ export const searchTrips = async(searchQuery, limit, offset)=> {
 }
 
 
-
-export const getAllTripsFromDB = async (limit, offset) => {
+export const getAllTripsFromDB = async (limit, offset, orderBy = TRIP_REQUEST_DATE_COLUMN, orderDirection = 'DESC' ) => {
   try {
     
     const allTrips = await getTripsCustomersJoin(
-      tripTableName,
-      usersTable,
-      firstName,
-      lastName,
-      userIdUser,
-      userIdTrip,
-      tripId,
+      TRIP_TABLE_NAME,
+      USER_TABLE_NAME,
+      FIRST_NAME,
+      LAST_NAME,
+      USER_ID_USER,
+      USER_ID_TRIP,
+      TRIP_ID,
       limit,
       offset,
-      tripRequestDateColumn
-    );
+      orderBy,
+      orderDirection
+    ); 
     
-    return allTrips;
+    return allTrips; 
   } catch (err) {
     
     return errorHandler(
-      "Server Error Occurred in getting all trips from database at the model level",
+      "Server Error Occurred in getting all trips",
       `${err}`,
       500,
-      "Trip Model"
+      "Trip Model: All Trips"
     );
   }
 };
 
-export const getCurrentMonthTripsCount = async ()=> {
+//one week recent trips count 
+export const oneWeekTripsCount = async ()=> {
   try {
 
-    const currentMonthTripsCount = await getPreviousTwoMonthsCounts(tripTableName, 'trip_request_date', 'trip_status', 'trip_cost', 'payment_status');
+    const oneWeekTripsCount = await upToOneWeekTripCounts();
+    return oneWeekTripsCount;
+  } catch (err){
+    return errorHandler(
+      "Server Error Occurred in getting previous week trips count ",
+      `${err}`,
+      500,
+      "Trip Model: One Week Trips"
+    );
+  }
+
+}
+
+export const getCurrentMonthTripsCount = async ()=> {
+  try {
+    
+
+    const currentMonthTripsCount = await getPreviousTwoMonthsCounts(TRIP_TABLE_NAME, 'trip_request_date', 'trip_status', 'trip_cost', 'payment_status');
     return currentMonthTripsCount;
   } catch (err) {
 
@@ -103,10 +112,10 @@ export const getTripCountByMonth = async (dataColumn, condition, month)=> {
   try {
 
     const tripCount = await getCountByMonth(dataColumn, condition, month);
-    
+    return tripCount;
   } catch(err) {
     return errorHandler(
-      `Server Error Occurred in retrieving ${dataColumn} data`,
+      `Server Error Occurred in retrieving ${dataColumn ? dataColumn: 'trips'} data`,
       `${err}`,
       500,
       "Trip Model: Get Trip Count By Month"
@@ -117,10 +126,10 @@ export const getTripCountByMonth = async (dataColumn, condition, month)=> {
 
 export const getOneTripFromDB = async (trip_id, tripIdColumn) => {
   try {
-    const oneTrip = await getOne(tripTableName, tripIdColumn, trip_id);
+    const oneTrip = await getOne(TRIP_TABLE_NAME, tripIdColumn, trip_id);
 
     if (oneTrip.error) {
-      return oneTrip //Error details returned
+      return oneTrip //Error details returned 
     }
     return oneTrip[0];
   } catch (err) {
@@ -141,7 +150,7 @@ export const getUserTripsFromDB = async (
 ) => {
   try {
     const userTrips = await getSpecificDetailsUsingId(
-      tripTableName,
+      TRIP_TABLE_NAME,
       id,
       idColumn,
       tripFieldsToSelect,
@@ -169,7 +178,7 @@ export const getSpecificTripDetailsUsingIdFromDB = async (
 ) => {
   try {
     const specificTripDetail = await getSpecificDetailsUsingId(
-      tripTableName,
+      TRIP_TABLE_NAME,
       user_id,
       idColumn,
       returningColumn
@@ -191,7 +200,7 @@ export const addTripToDB = async (tripDetails) => {
     const tripFieldsToSelect = Object.keys(tripDetails).join(", ");
     const tripDetailsValues = Object.values(tripDetails);
     const newTrip = await addOne(
-      tripTableName,
+      TRIP_TABLE_NAME,
       tripFieldsToSelect,
       tripDetailsValues
     );
@@ -218,7 +227,7 @@ export const updateTripOnDB = async (tripDetails) => {
 
     try {
       const tripUpdate = await updateOne(
-        tripTableName,
+        TRIP_TABLE_NAME,
         tableColumns,
         trip_id,
         tripIdColumn,
@@ -247,7 +256,7 @@ export const updateTripOnDB = async (tripDetails) => {
 
 export const deleteTripFromDB = async (trip_id) => {
   try {
-    const tripDelete = await deleteOne(tripTableName, "trip_id", trip_id);
+    const tripDelete = await deleteOne(TRIP_TABLE_NAME, "trip_id", trip_id);
     return tripDelete;
     
   } catch (err) {

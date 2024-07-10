@@ -1,6 +1,6 @@
 import { paginatedRequest } from "../utils/paginatedRequest.js";
 import { errorHandler } from "../utils/errorHandler.js";
-
+import { GET_DRIVER_COLUMNS, ALLOWED_DRIVER_UPDATE_PROPERTIES } from "../constants/driverConstants.js";
 import {addDriverToDB, deleteDriverFromDB, getAllDriversFromDB, getOneDriverFromDB, updateDriverOnDB, getDriversCount} from "../model/driver.model.js";
 import { getOneVehicleFromDB } from "../model/vehicle.model.js";
 import {getSpecificUserDetailsUsingId} from "../model/user.model.js";
@@ -44,9 +44,9 @@ export  const getOneDriverService = async (driver_id, requester_user_id) => {
     //fetching driver name and related details
     const isAdmin = await userIsUserRole(requester_user_id, 'Admin');
 
-    const columns = ["first_name", "last_name", "phone_number"]
-    isAdmin ? columns.push("email") : '' 
-    const driverNamePhone = await getSpecificUserDetailsUsingId(user_id, columns);
+    
+    isAdmin ? GET_DRIVER_COLUMNS.push("email") : '' 
+    const driverNamePhone = await getSpecificUserDetailsUsingId(user_id, GET_DRIVER_COLUMNS);
     if(driverNamePhone.error) {
       return {error: driverNamePhone.error}
     }
@@ -74,16 +74,11 @@ export const addDriverService = async (user_id, vehicle_id) => {
 };
 
 export const updateDriverService = async (driverDetails) => {
-  const allowedProperties = [
-    "driver_id",
-    "vehicle_id",
-    "license_number",
-    "available",
-  ];
+
   try {
     const validDriverDetails = allowedPropertiesOnly(
       driverDetails,
-      allowedProperties
+      ALLOWED_DRIVER_UPDATE_PROPERTIES
     );
     const driverUpdate = await updateDriverOnDB(validDriverDetails);
     if (driverUpdate.error) {

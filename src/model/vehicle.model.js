@@ -2,23 +2,16 @@ import { addOne } from "./DB/addDbFunctions.js";
 import {deleteOne} from "./DB/deleteDbFunctions.js"
 import { getAll, getOne, getCountOnOneCondition } from "./DB/getDbFunctions.js";
 import {updateOne} from "./DB/updateDbFunctions.js"
+import { VEHICLE_TABLE_NAME, COLUMNS_FOR_UPDATE, VEHICLE_ID_COLUMN } from "../constants/vehicleConstants.js";
 
 
-const vehicleTableName = "vehicle";
-const columnsForUpdate = [
-  "vehicle_name",
-  "vehicle_model",
-  "plate_number",
-  "vehicle_type",
-];
-const columnsForAdding = ["vehicle_id", ...columnsForUpdate];
-const vehicleIdColumn = "vehicle_id";
+const COLUMNS_FOR_ADDING = ["vehicle_id", ...COLUMNS_FOR_UPDATE];
 
 export const getAllVehiclesFromDB = async (limit, offset, condition, conditionColumn) => {
 
   try {
     
-    const allVehicles = await getAll(vehicleTableName, limit, offset, condition, conditionColumn);
+    const allVehicles = await getAll(VEHICLE_TABLE_NAME, limit, offset, condition, conditionColumn);
     
     return allVehicles;
   } catch (err) {
@@ -28,7 +21,7 @@ export const getAllVehiclesFromDB = async (limit, offset, condition, conditionCo
 
 export const getVehiclesCount = async(countCondition, countConditionColumn)=> {
   try {
-    const vehiclesCount = await getCountOnOneCondition(vehicleTableName, countCondition, countConditionColumn );
+    const vehiclesCount = await getCountOnOneCondition(VEHICLE_TABLE_NAME, countCondition, countConditionColumn );
     
     
     return vehiclesCount;
@@ -40,7 +33,7 @@ export const getVehiclesCount = async(countCondition, countConditionColumn)=> {
 
 export const getOneVehicleFromDB = async (vehicle_id) => {
   try {
-    const getVehicle = await getOne(vehicleTableName, vehicleIdColumn, vehicle_id);
+    const getVehicle = await getOne(VEHICLE_TABLE_NAME, VEHICLE_ID_COLUMN, vehicle_id);
     if (getVehicle.error) {
       
       return errorHandler(
@@ -58,13 +51,13 @@ export const getOneVehicleFromDB = async (vehicle_id) => {
 };
 
 export const addVehicleToDB = async (completeVehicleDetails) => {
-  const columnsForAdding = Object.keys(completeVehicleDetails);
+  const COLUMNS_FOR_ADDING = Object.keys(completeVehicleDetails);
   const vehicleDetailsArray = Object.values(completeVehicleDetails);
   const plate_number_column = "plate_number";
   const { plate_number } = completeVehicleDetails;
   try {
     const vehicleExists = await dbFunctions.detailExists(
-      vehicleTableName,
+      VEHICLE_TABLE_NAME,
       plate_number_column,
       plate_number
     );
@@ -78,8 +71,8 @@ export const addVehicleToDB = async (completeVehicleDetails) => {
       );
     }
     const addVehicleResult = await addOne(
-      vehicleTableName,
-      columnsForAdding,
+      VEHICLE_TABLE_NAME,
+      COLUMNS_FOR_ADDING,
       vehicleDetailsArray
     );
 
@@ -96,14 +89,14 @@ export const addVehicleToDB = async (completeVehicleDetails) => {
 export const updateVehicleOnDB = async (vehicle_id, vehicleUpdateDetails) => {
   const validColumnsForUpdate = Object.keys(vehicleUpdateDetails);
   const vehicleDetails = Object.values(vehicleUpdateDetails);
-  const vehicleIdColumn = columnsForAdding[0];
+  const VEHICLE_ID_COLUMN = COLUMNS_FOR_ADDING[0];
 
   try {
     const vehicleUpdate = await updateOne(
-      vehicleTableName,
+      VEHICLE_TABLE_NAME,
       validColumnsForUpdate,
       vehicle_id,
-      vehicleIdColumn,
+      VEHICLE_ID_COLUMN,
       ...vehicleDetails
     );
     if (vehicleUpdate.error) {
@@ -119,12 +112,10 @@ export const updateVehicleOnDB = async (vehicle_id, vehicleUpdateDetails) => {
 export const deleteVehicleFromDB = async (vehicle_id) => {
   try {
     const vehicleDeletion = await deleteOne(
-      vehicleTableName,
-      vehicleIdColumn,
+      VEHICLE_TABLE_NAME,
+      VEHICLE_ID_COLUMN,
       vehicle_id
     );
-
-    
     return vehicleDeletion;
   } catch (err) {
     return errorHandler(`Error occurred`, `${err}`, 500, "Vehicle Model");

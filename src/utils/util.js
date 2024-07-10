@@ -4,6 +4,7 @@ import { isUserRole } from "../model/user.model.js";
 import { associatedWithTrip } from "../model/trip.model.js";
 import { getOneRiderFromDB } from "../model/rider.model.js";
 import {  getOneDriverFromDB } from "../model/driver.model.js";
+import { date } from 'drizzle-orm/mysql-core';
 
 
 
@@ -96,3 +97,14 @@ export const currencyFormatter = new Intl.NumberFormat('gh-GA', {
   minimumFractionDigits: 2, // Display at least 2 decimal places
   maximumFractionDigits: 2  // Limit to 2 decimal places
 });
+
+
+export const getDayFromDate = (dateString) => {
+  
+  const date = new Date(`${dateString}`);
+  const day = date.getDay();
+  const days = ['Sun.', 'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.'];
+  const dayName = days[day];
+  return dayName;
+
+}

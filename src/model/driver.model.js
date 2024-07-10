@@ -1,5 +1,14 @@
 import { v4 as uuid } from "uuid";
 import { errorHandler } from "../utils/errorHandler.js";
+import {
+  DRIVER_TABLE_NAME,
+  DRIVER_TABLE_COLUMNS,
+  DEFAULT_VEHICLE_ID, DRIVER_ID_COLUMN, DRIVER_VEHICLE_ID, EMAIL_COLUMN, PHONE_NUMBER, 
+  USER_FIRST_NAME, USER_ID_DRIVER, USER_ID_USERS, USER_LAST_NAME, VEHICLE_ID_COLUMN, VEHICLE_NAME_COLUMN,
+  VEHICLE_PLATE_COLUMN, VEHICLE_TABLE, 
+} from '../constants/driverConstants.js';
+import { USER_TABLE_NAME } from "../constants/usersConstants.js";
+import { USER_ID_COLUMN } from "../constants/usersConstants.js";
 
 import { addOne } from "./DB/addDbFunctions.js";
 import { deleteOne } from "./DB/deleteDbFunctions.js";
@@ -12,43 +21,24 @@ import {
 import { updateOne } from "./DB/updateDbFunctions.js";
 import { getDispatchersVehicleJoin } from "./DB/usersDbFunctions.js";
 
-
-
-
-const driverTableName = "driver";
-const driverTableColumns = ["driver_id", "user_id", "vehicle_id"];
-const defaultVehicleId = "04daa784-1dab-4b04-842c-a9a3ff8ae016";
-const firstName = "users.first_name";
-const lastName = "users.last_name";
-const usersTable = "users";
-const vehicleTable = "vehicle";
-const userIdDriver = "driver.user_id";
-const userIdUsers = "users.user_id";
-const emailColumn = "users.email";
-const vehicleNameColumn = "vehicle.vehicle_name";
-const vehiclePlateColumn = "vehicle.plate_number";
-const driverVehicleId = "driver.vehicle_id";
-const vehicleId = "vehicle.vehicle_id";
-const driverId = "driver_id";
-const phoneNumber = "users.phone_number";
-
 export const getAllDriversFromDB = async (limit, offset) => {
   try {
     const allDrivers = await getDispatchersVehicleJoin(
-      driverTableName,
-      usersTable,
-      vehicleTable,
-      firstName,
-      lastName,
-      phoneNumber,
-      emailColumn,
-      vehicleNameColumn,
-      vehiclePlateColumn,
-      userIdDriver,
-      userIdUsers,
-      driverVehicleId,
-      vehicleId,
-      driverId,
+      DRIVER_TABLE_NAME,
+      USER_TABLE_NAME,
+      VEHICLE_TABLE,
+
+      USER_FIRST_NAME,
+      USER_LAST_NAME,
+      PHONE_NUMBER,
+      EMAIL_COLUMN,
+      VEHICLE_NAME_COLUMN,
+      VEHICLE_PLATE_COLUMN,
+      USER_ID_DRIVER,
+      USER_ID_USERS, 
+      DRIVER_VEHICLE_ID,
+      VEHICLE_ID_COLUMN, 
+      DRIVER_ID_COLUMN,
       limit,
       offset
     );
@@ -64,7 +54,7 @@ export const getAllDriversFromDB = async (limit, offset) => {
 
 export const getDriversCount = async()=> {
   try {
-    const driversCount = await getCountOnOneCondition(driverTableName);
+    const driversCount = await getCountOnOneCondition(DRIVER_TABLE_NAME);
     
     return driversCount;
     
@@ -75,8 +65,8 @@ export const getDriversCount = async()=> {
 
 export const getOneDriverFromDB = async (driver_id) => {
   try {
-    const driverIdColumn = driverTableColumns[0];
-    const driver = await getOne(driverTableName, driverIdColumn, driver_id);
+    const driverIdColumn = DRIVER_TABLE_COLUMNS[0];
+    const driver = await getOne(DRIVER_TABLE_NAME, driverIdColumn, driver_id);
     if (driver.error) {
       return driver; //error details returned
     }
@@ -91,7 +81,7 @@ export const getOneDriverFromDB = async (driver_id) => {
 export const getDriverDetailOnCondition = async (columnName, condition) => {
   try {
     const driverDetails = await getOne(
-      driverTableName,
+      DRIVER_TABLE_NAME,
       columnName,
       condition
     );
@@ -107,7 +97,7 @@ export const getDriverDetailOnCondition = async (columnName, condition) => {
 export const getSpecificDriversFromDB = async (specificColumn, condition) => {
   try {
     const specificDrivers = await getSpecificDetails(
-      driverTableName,
+      DRIVER_TABLE_NAME,
       specificColumn,
       condition
     );
@@ -120,10 +110,10 @@ export const getSpecificDriversFromDB = async (specificColumn, condition) => {
 
 export const addDriverToDB = async (user_id, vehicle_id) => {
   const userIsDriver = await getSpecificDetailsUsingId(
-    driverTableName,
+    DRIVER_TABLE_NAME,
     user_id,
-    "user_id",
-    "driver_id"
+    USER_ID_COLUMN,
+    DRIVER_ID_COLUMN
   );
   if (userIsDriver.length >= 1) {
     return errorHandler("User is driver", "User already exists as driver", 400, "Driver Model");
@@ -131,15 +121,15 @@ export const addDriverToDB = async (user_id, vehicle_id) => {
   }
 
   const driver_id = uuid();
-  let driverVehicleId = "";
+  let DRIVER_VEHICLE_ID = "";
   vehicle_id
-    ? (driverVehicleId = vehicle_id)
-    : (driverVehicleId = defaultVehicleId);
-  const driverDetails = [driver_id, user_id, driverVehicleId];
+    ? (DRIVER_VEHICLE_ID = vehicle_id)
+    : (DRIVER_VEHICLE_ID = DEFAULT_VEHICLE_ID);
+  const driverDetails = [driver_id, user_id, DRIVER_VEHICLE_ID];
   try {
     const addedDriver = await addOne(
-      driverTableName,
-      driverTableColumns,
+      DRIVER_TABLE_NAME,
+      DRIVER_TABLE_COLUMNS,
       driverDetails
     );
     
@@ -153,13 +143,13 @@ export const addDriverToDB = async (user_id, vehicle_id) => {
 
 export const updateDriverOnDB = async (driverDetails) => {
   const { driver_id } = driverDetails;
-  const idColumn = driverTableColumns[0];
+  const idColumn = DRIVER_TABLE_COLUMNS[0];
   const tableColumns = Object.keys(driverDetails);
   const driverDetailsArray = Object.values(driverDetails);
 
   try {
     const driverUpdate = await updateOne(
-      driverTableName,
+      DRIVER_TABLE_NAME,
       tableColumns,
       driver_id,
       idColumn,
@@ -184,8 +174,8 @@ export const deleteDriverFromDB = async (driver_id) => {
   try {
 
     const driverDelete = await deleteOne(
-      driverTableName,
-      driverTableColumns[0],
+      DRIVER_TABLE_NAME,
+      DRIVER_TABLE_COLUMNS[0],
       driver_id
     );
     

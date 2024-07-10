@@ -1,26 +1,32 @@
 import { DB } from "./connectDb.js";
 import { errorHandler } from "../../utils/errorHandler.js";
 
-export const upToOneWeekTripCounts = async (
-  tableName,
-  condition,
-  conditionColumn
-) => {
+export const upToOneWeekTripCounts = async () => {
   try {
-    let queryText = `SELECT 
-    DATE(trip_request_date) AS trip_date,
-    COUNT(*) AS total_count
-FROM 
-    trips
-WHERE 
-    trip_request_date >= CURRENT_DATE - INTERVAL '7 days'
-GROUP BY 
-    trip_date
-ORDER BY 
-    trip_date;
+
+
+    let queryText = `with
+  date_series as (
+    select
+      current_date - interval '6 days' + i * interval '1 DAY' as trip_date
+    from
+      generate_series(0, 6) as s (i)
+  )
+select
+  ds.trip_date,
+  count(t.trip_request_date) as total_count
+from
+  date_series ds
+  left join trips t on DATE (t.trip_request_date) = ds.trip_date
+where
+  ds.trip_date >= current_date - interval '6 days'
+group by
+  ds.trip_date
+order by
+  ds.trip_date;
 `;
 
-    const data = await DB.query(queryText, values);
+    const data = await DB.query(queryText);
 
     return data.rows;
   } catch (err) {
@@ -49,27 +55,32 @@ export const getTripsMonths = async () => {
   }
 };
 export const getCountByMonth = async (dataColumn, condition, month) => {
-  let values = [condition];
+  const values = [];
   let queryText = `SELECT
-    TRIM(TO_CHAR(trip_request_date, 'Month')) AS month,
-    COUNT(*) AS trip_count
-  FROM trips
-  WHERE ${dataColumn} = $1
-  GROUP BY TRIM(TO_CHAR(trip_request_date, 'Month'))`;
-  if (month) {
-    values = [condition, month];
-    queryText = `SELECT
-    TRIM(TO_CHAR(trip_request_date, 'Month')) AS month,
-    COUNT(*) AS trip_count
-  FROM trips
-  WHERE ${dataColumn} = $1 AND TRIM(TO_CHAR(trip_request_date, 'Month')) = $2
-  GROUP BY TRIM(TO_CHAR(trip_request_date, 'Month'))
-  
-  `;
+      TRIM(TO_CHAR(trip_request_date, 'Month')) AS month,
+      COUNT(*) AS trip_count
+    FROM trips
+    GROUP BY TRIM(TO_CHAR(trip_request_date, 'Month'))`;
+  if(condition && dataColumn ) {
+    values.push(condition)
+     queryText = `SELECT
+      TRIM(TO_CHAR(trip_request_date, 'Month')) AS month,
+      COUNT(*) AS trip_count
+    FROM trips
+    WHERE ${dataColumn} = $1
+    GROUP BY TRIM(TO_CHAR(trip_request_date, 'Month'))`;
+  }
+  if (condition  && dataColumn && month) {
+    values.push(month)
+    
+    queryText = `SELECT TRIM(TO_CHAR(trip_request_date, 'Month')) AS month, COUNT(*) AS trip_count FROM trips WHERE ${dataColumn} = $1 AND TRIM(TO_CHAR(trip_request_date, 'Month')) = $2 GROUP BY TO_CHAR(trip_request_date, 'Month')`;
+
   }
 
-  const data = await DB.query(queryText, values);
+  
 
+  const data = await DB.query(queryText, values);
+  
   return data.rows;
 };
 
@@ -166,18 +177,19 @@ export const getTripsCustomersJoin = async (
   tripId,
   limit,
   offset = 0,
-  dateColumn
+  orderColumn,
+  orderDirection, 
 ) => {
   try {
-    let allTrips = await DB.query(
-      `SELECT ${tripTable}.*, ${firstName}, ${lastName} FROM ${tripTable} FULL OUTER JOIN ${usersTable} ON ${userIdTrip} = ${userIdUser} WHERE ${tripId} IS NOT NULL ORDER BY ${dateColumn} DESC`
+    const allTrips = await DB.query(
+      `SELECT ${tripTable}.*, ${firstName}, 
+      ${lastName} FROM ${tripTable} FULL OUTER JOIN 
+      ${usersTable} ON ${userIdTrip} = ${userIdUser} 
+      WHERE ${tripId} IS NOT NULL ORDER BY ${orderColumn} 
+      ${orderDirection} LIMIT ${limit} OFFSET ${offset};`
     );
     
-    if (limit) {
-      allTrips = await DB.query(
-        `SELECT ${tripTable}.*, ${firstName}, ${lastName} FROM ${tripTable} FULL OUTER JOIN ${usersTable} ON ${userIdTrip} = ${userIdUser} WHERE ${tripId} IS NOT NULL ORDER BY ${dateColumn} DESC LIMIT ${limit} OFFSET ${offset};`
-      );
-    }
+    
     
 
     const trips = allTrips.rows;

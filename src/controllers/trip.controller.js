@@ -10,6 +10,8 @@ import {
   rateTripService,
   updateTripService,
   getOneTripService,
+  currentWeekTrip,
+  tripsCountByMonth
 } from "../services/trip.service.js";
 
 export const getAllTrips = async (req, res) => {
@@ -192,6 +194,8 @@ export const searchTrips = async (req, res) => {
     return res.status(500).json({error:"Error Occurred; Trips not retrived", errorMessage: `${err}`, errorSource: "Trip Controller: Search Trips"});
   }
 };
+
+
 //TRIP STATS
 export const getTripMonths = async (req, res) => {
   try {
@@ -205,9 +209,45 @@ export const getTripMonths = async (req, res) => {
     return res.status(500).json({error:"Error Occurred; Trip Months Not Retrieved", errorMessage: err, errorSource: "Trip Controller. Trip Months"});
   }
 };
+
+//GET CURRENT WEEK TRIP COUNT
+export const currentWeekTripCount = async (req, res) => {
+  try {
+    const currentWeekTrips = await currentWeekTrip();
+    if (currentWeekTrips.error) {
+      
+      return res.status(currentWeekTrips.errorCode).json({error: currentWeekTrips.error, errorMessage: currentWeekTrips.errorMessage, errorSource: currentWeekTrips.errorSource})
+    } 
+    res.status(200).json({currentWeekTrips})
+  } catch (err) {
+    return res.status(500).json({error:"Error Occurred; Trip Months Not Retrieved", errorMessage: err, errorSource: "Trip Controller. Trip Months"});
+  }
+};
+
+//GET CURRENT MONTH TRIP COUNT
 export const getCurrentMonthTripCounts = async (req, res) => {
   try {
     const tripCounts = await currentMonthTripsCountService();
+    if (tripCounts.error) {
+      
+      return res.status(tripCounts.errorCode).json({error: tripCounts.error, errorMessage: tripCounts.errorMessage, errorSource: tripCounts.errorSource})
+    } 
+    res.status(200).json({...tripCounts})
+  } catch (err) {
+    
+    return res.status(500).json({error:"Error Occurred; Trip Months Not Retrieved", errorMessage: err, errorSource: "Trip Controller. Trip Months"});
+  }
+};
+
+//GET TRIPS COUNT BY MONTHS (CURRENT + PREVIOUS MONTHS)
+export const getTripsCountByMonth = async (req, res) => {
+  try {
+    const {trip_column, month, package_type, trip_area, trip_medium, trip_type, trip_status } =
+      req.query;
+
+      const tripProp = package_type || trip_area || trip_medium || trip_type || trip_status;
+      const tripDataColumn = trip_column;
+    const tripCounts = await tripsCountByMonth(tripDataColumn, tripProp, month );
     if (tripCounts.error) {
       
       return res.status(tripCounts.errorCode).json({error: tripCounts.error, errorMessage: tripCounts.errorMessage, errorSource: tripCounts.errorSource})

@@ -1,6 +1,16 @@
 import crypto from 'crypto';
 import { config } from 'dotenv';
-import { userIsUserRole } from '../utils/util.js';
+import { userIsUserRole, getDayFromDate } from '../utils/util.js';
+import {
+  ANONYMOUS_USER_PROPS,
+  ALLOWED_UPDATE_PROPERTIES,
+  ALLOWED_RATE_TRIP_PROPS,
+  MONTH_ORDER,
+  PACKAGE_TYPE,
+  TRIP_AREA, 
+  TRIP_STATUS,
+  ALLOWED_ADD_TRIP_PROPERTIES,
+} from "../constants/tripConstants.js";
 import {
   addTripToDB,
   deleteTripFromDB,
@@ -11,6 +21,8 @@ import {
   searchTrips,
   tripsMonths,
   updateTripOnDB,
+  getTripCountByMonth,
+  oneWeekTripsCount
 } from "../model/trip.model.js";
 import { getOneUserFromDB } from "../model/user.model.js";
 import { errorHandler } from '../utils/errorHandler.js';
@@ -19,7 +31,6 @@ import { allowedPropertiesOnly, currencyFormatter, userAssociatedWithTrip } from
 import { getOneDriverService } from "./driver.service.js";
 import { getOneRiderService } from "./rider.service.js";
 import {
-  allowedAddTripProperties,
   dispatcherTrips,
   getCustomerTrips,
   getDispatcherId,
@@ -30,13 +41,12 @@ import {
 
 config({ path: '../../../.env' });
 
-const DEFAULT_DISPATCHER_ID = 'ff-12-53';
-// const DEFAULT_USER_ID = '92e6ff67-a1d0-4f56-830c-60d23a63913d';
+
 
 //GET ALL TRIPS
-export const getAllTripsService = async (page) => {
+export const getAllTripsService = async (page, orderBy, orderDirection) => {
   try {
-    
+    await currentWeekTrip();
     const limit = 7;
     let offset = 0;
 
@@ -45,7 +55,7 @@ export const getAllTripsService = async (page) => {
     const trips = await getAllTripsFromDB(limit,offset);
     
     if(trips.error) {
-      return {error: trips.error}
+      return trips; //return with error message
     }
     const totalCount = await getTripCount();
     
@@ -82,27 +92,10 @@ export const searchTripService = async (search, page) => {
 //GET ONE TRIP
 
 export const getOneTripService = async (trip_id, requester_user_id) => {
-  const anonymousUserProps = [
-    "trip_id",
-    "trip_medium",
-    "trip_status",
-    "trip_type",
-    "package_type",
-    "package_value",
-    "pickup_location",
-    "drop_off_location",
-    "additional_information",
-    "trip_request_date",
-    "trip_commencement_date",
-    "trip_completion_date",
-    "payment_status",
-    "payment_method",
-    "dispatcher_id",
-    "trip_stage",
-    "trip_area",
-    "trip_cost"
-  ];
+  
   try {
+
+    
     //check if user is admin
     const isAdmin = await userIsUserRole(requester_user_id, "Admin");
 
@@ -114,7 +107,7 @@ export const getOneTripService = async (trip_id, requester_user_id) => {
     
     //exclude sender and recipient phone numbers from data sent
     if(!requester_user_id || (requester_user_id !== oneTrip.customer_id && !isAdmin)) {
-      oneTrip = allowedPropertiesOnly(oneTrip, anonymousUserProps) 
+      oneTrip = allowedPropertiesOnly(oneTrip, ANONYMOUS_USER_PROPS) 
     
       
     }
@@ -201,10 +194,13 @@ export const getUserTripsService = async (user_id) => {
 //ADD TRIP
 export const addTripService = async (user_id, tripDetails) => {
   try {
-    const trip_id = crypto.randomBytes(4).toString("hex");
-    const validTripDetails = allowedPropertiesOnly(tripDetails, allowedAddTripProperties);
-    
 
+    
+    const trip_id = crypto.randomBytes(4).toString("hex");
+    const validTripDetails = allowedPropertiesOnly(tripDetails, ALLOWED_ADD_TRIP_PROPERTIES);
+    
+  
+    
     const trip_cost = 85 - 45; // current destination - delivery destination [CHANGE TO LOCATION BASED CALCULATION]
     const dispatcher_id = await getDispatcherId(tripDetails.trip_medium);
 
@@ -216,13 +212,18 @@ export const addTripService = async (user_id, tripDetails) => {
       payment_status: false,
       payment_method: "Cash on Delivery",
     };
-
+    
+    
+    
     const finalTripDetails = {
       trip_id,
       customer_id: user_id,
       ...validTripDetails,
       ...tripStatusDetails,
     };
+    
+    
+    
     
     const newTrip = await addTripToDB(finalTripDetails);
     
@@ -237,31 +238,11 @@ export const addTripService = async (user_id, tripDetails) => {
 
 //UPDATE TRIP
 export const updateTripService = async (tripDetails) => {
-  const allowedProperties = [
-    "trip_id",
-    "trip_medium",
-    "trip_status",
-    "trip_type",
-    "package_type",
-    "package_value",
-    "pickup_location",
-    "drop_off_location",
-    "additional_information",
-    "trip_commencement_date",
-    "trip_completion_date",
-    "payment_status",
-    "payment_method",
-    "dispatcher_id",
-    "recipient_number",
-    "sender_number",
-    "trip_stage",
-    "trip_area"
-  ];
 
   try {
     const validTripDetails = allowedPropertiesOnly(
       tripDetails,
-      allowedProperties
+      ALLOWED_UPDATE_PROPERTIES
     );
     
 
@@ -278,8 +259,8 @@ export const updateTripService = async (tripDetails) => {
 export const rateTripService = async (ratingDetails) => {
   try {
     const ratingDetailsWithRatingStatus = { ...ratingDetails, rated: true };
-    const allowedProperties = ["dispatcher_rating", "trip_id", "dispatcher_id", "rated"];
-    const validTripDetails = allowedPropertiesOnly(ratingDetailsWithRatingStatus, allowedProperties);
+    
+    const validTripDetails = allowedPropertiesOnly(ratingDetailsWithRatingStatus, ALLOWED_RATE_TRIP_PROPS);
 
     const { trip_id, dispatcher_id } = validTripDetails;
     const updateTrip = await updateTripOnDB(validTripDetails);
@@ -330,13 +311,10 @@ export const getTripMonthsService = async ()=> {
       return tripMonthsData; //error message returned
     }
     const monthsArray = tripMonthsData.map(tripsMonth=>tripsMonth.month)
-      const monthOrder = [
-        'January', 'February', 'March', 'April', 'May', 'June', 
-        'July', 'August', 'September', 'October', 'November', 'December'
-      ];
+      
   
       
-      monthsArray.sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
+      monthsArray.sort((a, b) => MONTH_ORDER.indexOf(a) - MONTH_ORDER.indexOf(b));
   
       return monthsArray;
   }
@@ -367,9 +345,13 @@ export const currentMonthTripsCountService = async ()=> {
     const pending_previous_month = (+total_trips_previous_month) - (+delivered_previous_month + (+cancelled_previous_month));
 
     const pending_percentage_difference = percentageDifference(+pending_current_month, +pending_previous_month);
+
     const delivered_percentage_difference = percentageDifference(+delivered_current_month, +delivered_previous_month);
+
     const total_trips_percentage_difference = percentageDifference(total_trips_current_month, total_trips_previous_month)
+
     const revenue_percentage_difference = percentageDifference(+revenue_current_month, +revenue_previous_month);
+
     const cancelled_percentage_difference = percentageDifference(cancelled_current_month, cancelled_previous_month)
 
     const revenue_with_currency = currencyFormatter.format(revenue_current_month);
@@ -392,3 +374,67 @@ export const currentMonthTripsCountService = async ()=> {
     return errorHandler('Error occurred getting trips months', `${err}`, 500, 'Trips Months Service')
   }
 }
+
+//MONTH +ALLTIME TRIPS COUNT
+export const tripsCountByMonth = async (tripDataColumn, condition, month)=> {
+  try {
+    
+    const monthTripCount = await getTripCountByMonth(tripDataColumn, condition, month  );
+    
+    if(monthTripCount.error) {
+      return monthTripCount;//with error details
+    }
+    
+    const tripMonths = await getTripMonthsService();
+    const tripCounts = [];
+    
+    
+    monthTripCount.forEach(monthTripCount => {
+      
+      tripCounts.push(+monthTripCount.trip_count || 0)
+    });
+  
+    //ALL TIME - IS RETURNED BY EXCPLUDING THE CONDITIONS - tripDataColumn, condition, and month
+
+    // const sumOfCounts = (total, count) => total + +count
+    // const totalCount = tripCounts.reduce(sumOfCounts, 0);
+    // tripMonths.unshift('All Time')
+    // tripCounts.unshift(totalCount)
+    
+    return {tripMonths, tripCounts}
+    
+  } catch (err) {
+    return errorHandler('Error occurred current week trips count', `${err}`, 500, 'Trips Week Service')
+  }
+  
+}
+
+
+
+//WEEK TRIPS
+export const currentWeekTrip = async ()=> {
+  try {
+    
+    const weekTripsCount = await oneWeekTripsCount();
+    if(weekTripsCount.error) {
+      return weekTripsCount;//with error details
+    }
+    
+    const tripDates = [];
+    const tripCounts = [];
+    
+    weekTripsCount.forEach(weekTripCount => {
+      tripDates.push(weekTripCount.trip_date);
+      tripCounts.push(weekTripCount.total_count)
+    });
+  
+    const tripDays = tripDates.map(date=>getDayFromDate(date));
+     tripDays[tripDays.length-1] = "Today";
+     tripDays[tripDays.length-2] = "Yesterday"; 
+    return {tripDays, tripCounts}
+  } catch (err) {
+    return errorHandler('Error occurred current week trips count', `${err}`, 500, 'Trips Week Service')
+  }
+  
+}
+

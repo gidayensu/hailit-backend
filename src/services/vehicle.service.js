@@ -3,6 +3,7 @@ import { v4 as uuid } from "uuid";
 import { addVehicleToDB, deleteVehicleFromDB, getAllVehiclesFromDB, getOneVehicleFromDB, updateVehicleOnDB, getVehiclesCount } from '../model/vehicle.model.js';
 import { allowedPropertiesOnly } from "../utils//util.js";
 import { errorHandler } from "../utils/errorHandler.js";
+import { VEHICLE_TYPE_COLUMN, ALLOWED_VEHICLE_PROPERTIES } from "../constants/vehicleConstants.js";
 
 export const getAllVehiclesService = async (page,  vehicleType) => {
   try {
@@ -15,9 +16,9 @@ export const getAllVehiclesService = async (page,  vehicleType) => {
     const vehiclesArgs = [limit, offset] 
     const totalCountArgs = [];
     if(vehicleType === "car" || vehicleType === "motor") {
-      const vehicleTypeColumn = 'vehicle_type'
-      vehiclesArgs.push(vehicleType, vehicleTypeColumn)
-      totalCountArgs.push(vehicleType, vehicleTypeColumn)
+      
+      vehiclesArgs.push(vehicleType, VEHICLE_TYPE_COLUMN)
+      totalCountArgs.push(vehicleType, VEHICLE_TYPE_COLUMN)
     }
     
     const allVehicles = await getAllVehiclesFromDB(...vehiclesArgs);
@@ -48,13 +49,13 @@ export const getOneVehicleService = async (vehicle_id) => {
 
 export const addVehicleService = async (vehicleDetails) => {
   const vehicle_id =  uuid();
-  const allowedVehicleProperties = ["vehicle_name", "plate_number", "vehicle_type", "vehicle_model", "insurance_details", "road_worthy", "vehicle_id"]
+  
   const completeVehicleDetails = {
     vehicle_id,
     ...vehicleDetails,
   };
 
-  const validVehicleDetails = allowedPropertiesOnly(completeVehicleDetails, allowedVehicleProperties)
+  const validVehicleDetails = allowedPropertiesOnly(completeVehicleDetails, ALLOWED_VEHICLE_PROPERTIES)
 
   try {
     const addVehicleResult = await addVehicleToDB(

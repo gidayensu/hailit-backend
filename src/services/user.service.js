@@ -5,16 +5,9 @@ import { errorHandler } from "../utils/errorHandler.js";
 import { paginatedRequest } from "../utils/paginatedRequest.js";
 import { allowedPropertiesOnly } from "../utils/util.js";
 import { addDriverIfApplicable, addRiderIfApplicable, riderOrDriverDetails, updateDriverRole, updateRiderRole } from "./dispatcherRole.service.js";
+import { USER_ID_COLUMN, ALLOWED_PROPERTIES } from "../constants/usersConstants.js";
 
-let allowedProperties = [
-  "user_id",
-  "first_name",
-  "last_name",
-  "email",
-  "phone_number",
-  "user_role",
-  "onboard"
-];
+
 
 //GET ALL CUSTOMERS (USERS WITH CUSTOMER ROLE)
 export const getAllUsersService = async (page) => {
@@ -68,12 +61,12 @@ export const getUserIdUsingEmailService = async (userEmail) => {
 //ADD USER
 export const addUserService = async (userDetails) => {
   const user_id_property = "user_id";
-  allowedProperties.unshift(user_id_property);
+  ALLOWED_PROPERTIES.unshift(user_id_property);
   
   try {
     const user_id = userDetails.user_id;
     const userDetailsWithId = { user_id, ...userDetails };
-    const validUserDetailsWithId = allowedPropertiesOnly(userDetailsWithId, allowedProperties);
+    const validUserDetailsWithId = allowedPropertiesOnly(userDetailsWithId, ALLOWED_PROPERTIES);
 
     const addedUser = await addUserToDB(validUserDetailsWithId);
     
@@ -100,7 +93,7 @@ return errorHandler("Error occurred in adding user", `${err}`, 500, "User Servic
 //UPDATE USER
 export const updateUserService = async (userId, userDetails) => {
   try {
-    const validUserDetails = allowedPropertiesOnly(userDetails, allowedProperties);
+    const validUserDetails = allowedPropertiesOnly(userDetails, ALLOWED_PROPERTIES);
     const updatedDetails = await updateUserOnDB(userId, validUserDetails);
     
     if (validUserDetails.user_role) {
@@ -123,7 +116,7 @@ export const updateUserService = async (userId, userDetails) => {
 export const deleteUserService = async (userId) => {
   try {
     //user is rider, delete rider
-    const isRider =  await getRiderOnConditionFromDB('user_id', userId);
+    const isRider =  await getRiderOnConditionFromDB(USER_ID_COLUMN, userId);
         
         if(!isRider.error) {
           const {rider_id} = isRider.rows[0]
@@ -131,7 +124,7 @@ export const deleteUserService = async (userId) => {
         }
 
     //user is driver, delete driver
-    const isDriver =  await getDriverDetailOnCondition('user_id', userId);
+    const isDriver =  await getDriverDetailOnCondition(USER_ID_COLUMN, userId);
     
         if (!isDriver.error) {
           const { driver_id } = isDriver[0]
