@@ -32,7 +32,8 @@ import {
   getDispatcherId,
   increaseRatingCount,
   percentageDifference,
-  updateDispatcherRating
+  updateDispatcherRating,
+  dispatcherTrips
 } from "./tripServiceHelpers.js";
 
 config({ path: '../../../.env' });
@@ -166,26 +167,26 @@ export const getUserTripsService = async (user_id) => {
       return userData;
     }
 
-    let userTrips = [];
+    
     const { user_role } = userData;
     
     if (user_role === "Customer" || user_role === "Admin") {
       const customerTrips = await getCustomerTrips (user_id);
-      userTrips = customerTrips;
+      
       return customerTrips;
       
     }
     
     if (user_role === "Driver" || user_role === "Rider") {
       
-      const dispatcherTrips = await dispatcherTrips (user_role, user_id,);
-      userTrips = dispatcherTrips
-      return dispatcherTrips;
+      const tripsOfDispatcher = await dispatcherTrips (user_role, user_id,);
+      
+      return tripsOfDispatcher;
       
     }
   } catch (err) {
     
-    return errorHandler("Error occurred getting user trips details", `${err}`, 500, "Trip Service");
+    return errorHandler("Error occurred getting user trips details", `${err}`, 500, "Trip Service: Get User Trips");
   }
 };
  
