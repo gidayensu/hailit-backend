@@ -1,4 +1,5 @@
 import { errorHandler } from "../utils/errorHandler.js";
+import { DEFAULT_USER_ID } from "../constants/usersConstants.js";
 import {
   addTripService,
   getTripMonthsService,
@@ -80,9 +81,9 @@ export const addTrip = async (req, res) => {
   ///trip amount, trip_status, driver_id, trip_date, total amount, payment_status, delivery_time, payment_method, dispatcher_rating, rating_comment will be added in the service layer based on certain conditions
   
   try {
-    const reqBody = req.body;
     
-    const { trip_medium, trip_type, package_type, drop_off_location, pickup_location } =
+    
+    const { trip_medium, trip_type, package_type, drop_off_location, pickup_location,  } =
       req.body;
     if (!trip_medium || !trip_type || !package_type || !drop_off_location || !pickup_location) {
   
@@ -100,7 +101,7 @@ export const addTrip = async (req, res) => {
       }
     }
     const tripDetails = req.body;
-    const  user_id  = req.user?.sub || '92e6ff67-a1d0-4f56-830c-60d23a63913d';
+    const  user_id  = req.user?.sub || DEFAULT_USER_ID;
     
     const tripAdded = await addTripService(user_id, tripDetails);
     if (tripAdded.error) {

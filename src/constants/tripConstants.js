@@ -1,6 +1,6 @@
 export const DEFAULT_DISPATCHER_ID = 'ff-12-53';
 
-export const DEFAULT_USER_ID = '92e6ff67-a1d0-4f56-830c-60d23a63913d';
+
 
 export const ANONYMOUS_USER_PROPS = [
     "trip_id",
@@ -21,7 +21,7 @@ export const ANONYMOUS_USER_PROPS = [
     "trip_stage",
     "trip_area",
     "trip_cost"
-  ];
+  ]; 
 
   export const ALLOWED_ADD_TRIP_PROPERTIES = [
     "trip_medium",
@@ -32,7 +32,8 @@ export const ANONYMOUS_USER_PROPS = [
     "package_value", 
     "recipient_number", 
     "sender_number",
-    "trip_area"
+    "trip_area",
+    "trip_type"
   ];
 
   export const ALLOWED_UPDATE_PROPERTIES = [

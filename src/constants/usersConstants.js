@@ -1,3 +1,5 @@
+
+
 export const USER_ID_COLUMN = 'user_id';
 export const ALLOWED_PROPERTIES = [
     "user_id",
@@ -19,6 +21,8 @@ export const ALLOWED_PROPERTIES = [
     "phone_number",
     "user_role"
   ];
+
+  export const DEFAULT_USER_ID = '92e6ff67-a1d0-4f56-830c-60d23a63913d';
   
   export const USER_ROLE = "Customer"
   export const USER_ROLE_COLUMN = "user_role";
