@@ -6,7 +6,7 @@ import { addOne } from "./DB/addDbFunctions.js";
 import {deleteOne} from "./DB/deleteDbFunctions.js"
 import { selectOnCondition, getOne, getCountOnOneCondition, getSpecificDetailsUsingId } from "./DB/getDbFunctions.js";
 import {updateOne} from "./DB/updateDbFunctions.js"
-import {getPreviousTwoMonthsCounts, getTripsMonths, getTripsCustomersJoin, getCountByMonth, upToOneWeekTripCounts} from "./DB/tripsDbFunctions.js"
+import {getPreviousTwoMonthsCounts, getTripsMonths, getTripsCustomersJoin, getCountByMonth, upToOneWeekTripCounts, getRevenueByMonth} from "./DB/tripsDbFunctions.js"
 
 
 export const tripsMonths = async()=> {
@@ -72,57 +72,7 @@ export const getAllTripsFromDB = async (limit, offset, orderBy = TRIP_REQUEST_DA
   }
 };
 
-//one week recent trips count 
-export const oneWeekTripsCount = async ()=> {
-  try {
 
-    const oneWeekTripsCount = await upToOneWeekTripCounts();
-    return oneWeekTripsCount;
-  } catch (err){
-    return errorHandler(
-      "Server Error Occurred in getting previous week trips count ",
-      `${err}`,
-      500,
-      "Trip Model: One Week Trips"
-    );
-  }
-
-}
-
-export const getCurrentMonthTripsCount = async ()=> {
-  try {
-    
-
-    const currentMonthTripsCount = await getPreviousTwoMonthsCounts(TRIP_TABLE_NAME, 'trip_request_date', 'trip_status', 'trip_cost', 'payment_status');
-    return currentMonthTripsCount;
-  } catch (err) {
-
-    return errorHandler(
-      `Server Error Occurred in retrieving current month trips count`,
-      `${err}`,
-      500,
-      "Trip Model: get current months trips count"
-    );
-  }
-  
-  
-}
-
-export const getTripCountByMonth = async (dataColumn, condition, month)=> {
-  try {
-
-    const tripCount = await getCountByMonth(dataColumn, condition, month);
-    return tripCount;
-  } catch(err) {
-    return errorHandler(
-      `Server Error Occurred in retrieving ${dataColumn ? dataColumn: 'trips'} data`,
-      `${err}`,
-      500,
-      "Trip Model: Get Trip Count By Month"
-    );
-  }
-  
-}
 
 export const getOneTripFromDB = async (trip_id, tripIdColumn) => {
   try {
@@ -146,7 +96,9 @@ export const getUserTripsFromDB = async (
   id,
   idColumn,
   tripFieldsToSelect,
-  sortingColumn
+  sortingColumn,
+  limit,
+  offset
 ) => {
   try {
     const userTrips = await getSpecificDetailsUsingId(
@@ -154,7 +106,9 @@ export const getUserTripsFromDB = async (
       id,
       idColumn,
       tripFieldsToSelect,
-      sortingColumn
+      sortingColumn,
+      limit,
+      offset
     );
     
     if ( userTrips.length === 0) {
@@ -308,3 +262,68 @@ export const associatedWithTrip = async (trip_id, roleIdColumn) => {
     );
   }
 };
+//STATS
+//one week recent trips count 
+export const oneWeekTripsCount = async ()=> {
+  try {
+
+    const oneWeekTripsCount = await upToOneWeekTripCounts();
+    return oneWeekTripsCount;
+  } catch (err){
+    return errorHandler(
+      "Server Error Occurred in getting previous week trips count ",
+      `${err}`,
+      500,
+      "Trip Model: One Week Trips"
+    );
+  }
+
+}
+export const getCurrentMonthTripsCount = async ()=> {
+  try {
+    
+
+    const currentMonthTripsCount = await getPreviousTwoMonthsCounts(TRIP_TABLE_NAME, 'trip_request_date', 'trip_status', 'trip_cost', 'payment_status');
+    return currentMonthTripsCount;
+  } catch (err) {
+
+    return errorHandler(
+      `Server Error Occurred in retrieving current month trips count`,
+      `${err}`,
+      500,
+      "Trip Model: get current months trips count"
+    );
+  }
+  
+  
+}
+export const getTripCountByMonth = async (dataColumn, condition, month)=> {
+  try {
+
+    const tripCount = await getCountByMonth(dataColumn, condition, month);
+    return tripCount;
+  } catch(err) {
+    return errorHandler(
+      `Server Error Occurred in retrieving ${dataColumn ? dataColumn: 'trips'} data`,
+      `${err}`,
+      500,
+      "Trip Model: Get Trip Count By Month"
+    );
+  }
+  
+}
+export const revenueByMonth = async ()=> {
+  try {
+
+    const revenue = await getRevenueByMonth();
+    return revenue;
+  } catch(err) {
+    return errorHandler(
+      `Server Error Occurred in retrieving trips revenue data`,
+      `${err}`,
+      500,
+      "Trip Model: Get Trip Revenue By Month"
+    );
+  }
+  
+}

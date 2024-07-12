@@ -91,7 +91,8 @@ export const updateDispatcherRating = async (trip_medium, dispatcher_id, average
   };
   
   //CUSTOMER TRIPS (HELPER FUNCTION)
- export const getCustomerTrips = async (user_id) => {
+ export const getCustomerTrips = async (user_id, limit,
+  offset) => {
   
   try {
 
@@ -100,6 +101,8 @@ export const updateDispatcherRating = async (trip_medium, dispatcher_id, average
       CUSTOMER_ID_COLUMN,
       CUSTOMER_TRIP_FIELDS, 
       TRIP_REQUEST_DATE_COLUMN,
+      limit,
+      offset
     );
     
     

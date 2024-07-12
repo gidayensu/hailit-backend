@@ -1,7 +1,21 @@
 
 import express from 'express';
 import { isAdmin } from '../../auth/isAdmin.js';
-import {addTrip, deleteTrip, getAllTrips, getOneTrip, getUserTrips, getTripsCountByMonth, rateTrip, updateTrip, getTripMonths, getCurrentMonthTripCounts, searchTrips, currentWeekTripCount} from '../../controllers/trip.controller.js';
+import {
+  addTrip,
+  deleteTrip,
+  getAllTrips,
+  getOneTrip,
+  getUserTrips,
+  getTripsCountByMonth,
+  rateTrip,
+  updateTrip,
+  getTripMonths,
+  getCurrentMonthTripCounts,
+  searchTrips,
+  currentWeekTripCount,
+  getTripRevenueByMonth,
+} from "../../controllers/trip.controller.js";
 import {isAdminOrUserAuth} from '../../auth/user-auth/isAdminOrUser.js';
 import { isUserRole } from '../../auth/user-auth/isUserRole.js';
 import { tripAuth } from '../../auth/trip-auth/tripAuth.js';
@@ -31,7 +45,7 @@ tripRouter.delete('/user-trip/:trip_id', supaAuth, deleteTrip)
 
 //TRIP STATS
 tripRouter.get('/trip-months', supaAuth, isAdmin,  getTripMonths);
-tripRouter.get('/current-week-trip-count',  supaAuth, isAdmin, currentWeekTripCount);
-tripRouter.get('/trip-count-by-month', supaAuth, isAdmin, tripStatsColumnValidation,   getTripsCountByMonth);
-
+tripRouter.get('/current-week-trip-count', supaAuth, isAdmin, currentWeekTripCount);
+tripRouter.get('/trip-count-by-month', supaAuth, isAdmin,  tripStatsColumnValidation,   getTripsCountByMonth);
 tripRouter.get('/current-month-trip-count', supaAuth, isAdmin,  getCurrentMonthTripCounts);
+tripRouter.get('/trips-revenue', supaAuth, isAdmin,  getTripRevenueByMonth);

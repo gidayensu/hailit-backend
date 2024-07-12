@@ -87,6 +87,7 @@ export const ANONYMOUS_USER_PROPS = [
   export const CUSTOMER_ID_COLUMN = 'customer_id'
   export const DISPATCHER_ID_COLUMN = 'dispatcher_id';
   export const PACKAGE_TYPE = "package_type"
+  export const PAYMENT_STATUS = "payment_status"
   export const DISPATCHER_AVAILABLE_COLUMN = 'available';
 
   export const ALLOWED_PACKAGE_TYPES = [

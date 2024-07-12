@@ -143,15 +143,22 @@ export const getCountOnOneCondition = async (tableName, condition, conditionColu
     id,
     idColumn,
     columns,
-    sortingColumn
+    sortingColumn, 
+    limit,
+    offset
   ) => {
     try {
       await DB.query("BEGIN");
       let queryText = `SELECT ${columns} FROM ${tableName} WHERE ${idColumn} = $1`;
-  
-      if (sortingColumn) {
-        queryText = `SELECT ${columns} FROM ${tableName} WHERE ${idColumn} = $1 ORDER BY ${sortingColumn} DESC`;
+
+      if (limit !== undefined) {
+        queryText += ` LIMIT ${limit} OFFSET ${offset || 0}`;
       }
+      if (sortingColumn) {
+        queryText += ` ORDER BY ${sortingColumn} DESC`;
+      }
+
+
   
       const value = [id];
       const { rows } = await DB.query(queryText, value);

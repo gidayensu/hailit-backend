@@ -1,6 +1,6 @@
 import { DB } from "./connectDb.js";
 import { errorHandler } from "../../utils/errorHandler.js";
-
+import { TRIP_STATUS, PAYMENT_STATUS } from "../../constants/tripConstants.js";
 export const upToOneWeekTripCounts = async () => {
   try {
 
@@ -54,34 +54,69 @@ export const getTripsMonths = async () => {
     );
   }
 };
-export const getCountByMonth = async (dataColumn, condition, month) => {
-  const values = [];
-  let queryText = `SELECT
-      TRIM(TO_CHAR(trip_request_date, 'Month')) AS month,
-      COUNT(*) AS trip_count
-    FROM trips
-    GROUP BY TRIM(TO_CHAR(trip_request_date, 'Month'))`;
-  if(condition && dataColumn ) {
-    values.push(condition)
-     queryText = `SELECT
-      TRIM(TO_CHAR(trip_request_date, 'Month')) AS month,
-      COUNT(*) AS trip_count
-    FROM trips
-    WHERE ${dataColumn} = $1
-    GROUP BY TRIM(TO_CHAR(trip_request_date, 'Month'))`;
-  }
-  if (condition  && dataColumn && month) {
-    values.push(month)
+
+export const getRevenueByMonth = async () => {
+  try {
+
     
-    queryText = `SELECT TRIM(TO_CHAR(trip_request_date, 'Month')) AS month, COUNT(*) AS trip_count FROM trips WHERE ${dataColumn} = $1 AND TRIM(TO_CHAR(trip_request_date, 'Month')) = $2 GROUP BY TO_CHAR(trip_request_date, 'Month')`;
-
+    const values = [ true];
+    const queryText = `SELECT
+    TRIM(TO_CHAR(trip_request_date, 'Month')) AS month,
+    SUM(trip_cost) AS revenue
+  FROM trips WHERE
+   ${PAYMENT_STATUS} = $1
+  GROUP BY TRIM(TO_CHAR(trip_request_date, 'Month'))`;
+        
+    const data = await DB.query(queryText, values);
+    return data.rows;
+  }catch (err) {
+    return errorHandler(
+      "Error occurred getting revenue",
+      `${err}`,
+      500,
+      "DB Functions: Get Trip Revenue By Month"
+    );
   }
+};
 
+export const getCountByMonth = async (dataColumn, condition, month) => {
+  try {
+    
+    const values = [];
+    let queryText = `SELECT
+        TRIM(TO_CHAR(trip_request_date, 'Month')) AS month,
+        COUNT(*) AS trip_count
+      FROM trips
+      GROUP BY TRIM(TO_CHAR(trip_request_date, 'Month'))`;
+    if(condition && dataColumn ) {
+      values.push(condition)
+       queryText = `SELECT
+        TRIM(TO_CHAR(trip_request_date, 'Month')) AS month,
+        COUNT(*) AS trip_count
+      FROM trips
+      WHERE ${dataColumn} = $1
+      GROUP BY TRIM(TO_CHAR(trip_request_date, 'Month'))`;
+    }
+    if (condition  && dataColumn && month) {
+      values.push(month)
+      
+      queryText = `SELECT TRIM(TO_CHAR(trip_request_date, 'Month')) AS month, COUNT(*) AS trip_count FROM trips WHERE ${dataColumn} = $1 AND TRIM(TO_CHAR(trip_request_date, 'Month')) = $2 GROUP BY TO_CHAR(trip_request_date, 'Month')`;
   
-
-  const data = await DB.query(queryText, values);
+    }
   
-  return data.rows;
+    
+  
+    const data = await DB.query(queryText, values);
+    
+    return data.rows;
+  } catch (err) {
+  return errorHandler(
+    "Error occurred getting revenue",
+    `${err}`,
+    500,
+    "DB Functions: Get Trip Count By Month"
+  );
+}
 };
 
 export const getPreviousTwoMonthsCounts = async (

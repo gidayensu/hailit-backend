@@ -11,7 +11,8 @@ import {
   updateTripService,
   getOneTripService,
   currentWeekTrip,
-  tripsCountByMonth
+  tripsCountByMonth,
+  getRevenueByMonth
 } from "../services/trip.service.js";
 
 export const getAllTrips = async (req, res) => {
@@ -258,6 +259,22 @@ export const getTripsCountByMonth = async (req, res) => {
     return res.status(500).json({error:"Error Occurred; Trip Months Not Retrieved", errorMessage: err, errorSource: "Trip Controller. Trip Months"});
   }
 };
+
+export const getTripRevenueByMonth = async (req, res) => {
+  try {
+    
+    const tripRevenue= await getRevenueByMonth( );
+    if (tripRevenue.error) {
+      
+      return res.status(tripRevenue.errorCode).json({error: tripRevenue.error, errorMessage: tripRevenue.errorMessage, errorSource: tripRevenue.errorSource})
+    } 
+    res.status(200).json({...tripRevenue})
+  } catch (err) {
+    
+    return res.status(500).json({error:"Error Occurred; Trip Revenue Not Retrieved", errorMessage: err, errorSource: "Trip Controller: Trip Revenue"});
+  }
+};
+
 
 
 

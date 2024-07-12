@@ -1,15 +1,11 @@
 import crypto from 'crypto';
 import { config } from 'dotenv';
-import { userIsUserRole, getDayFromDate } from '../utils/util.js';
 import {
-  ANONYMOUS_USER_PROPS,
-  ALLOWED_UPDATE_PROPERTIES,
-  ALLOWED_RATE_TRIP_PROPS,
-  MONTH_ORDER,
-  PACKAGE_TYPE,
-  TRIP_AREA, 
-  TRIP_STATUS,
   ALLOWED_ADD_TRIP_PROPERTIES,
+  ALLOWED_RATE_TRIP_PROPS,
+  ALLOWED_UPDATE_PROPERTIES,
+  ANONYMOUS_USER_PROPS,
+  MONTH_ORDER
 } from "../constants/tripConstants.js";
 import {
   addTripToDB,
@@ -18,20 +14,20 @@ import {
   getCurrentMonthTripsCount,
   getOneTripFromDB,
   getTripCount,
+  getTripCountByMonth,
+  oneWeekTripsCount,
   searchTrips,
   tripsMonths,
   updateTripOnDB,
-  getTripCountByMonth,
-  oneWeekTripsCount
+  revenueByMonth
 } from "../model/trip.model.js";
 import { getOneUserFromDB } from "../model/user.model.js";
 import { errorHandler } from '../utils/errorHandler.js';
 import { paginatedRequest } from '../utils/paginatedRequest.js';
-import { allowedPropertiesOnly, currencyFormatter, userAssociatedWithTrip } from '../utils/util.js';
+import { allowedPropertiesOnly, currencyFormatter, getDayFromDate, userIsUserRole } from '../utils/util.js';
 import { getOneDriverService } from "./driver.service.js";
 import { getOneRiderService } from "./rider.service.js";
 import {
-  dispatcherTrips,
   getCustomerTrips,
   getDispatcherId,
   increaseRatingCount,
@@ -160,8 +156,11 @@ return { ...oneTrip, dispatcher: dispatcherDetails };
 
 // GET USER TRIPS
 
-export const getUserTripsService = async (user_id) => {
-  
+export const getUserTripsService = async (user_id, page) => {
+  const limit = 7;
+    let offset = 0;
+
+    page > 1 ? offset = (limit * page) - limit : page;
 
   try {
     const userData = await getOneUserFromDB(user_id);
@@ -169,20 +168,22 @@ export const getUserTripsService = async (user_id) => {
     if (userData.error ) {
       return userData;
     }
+
+    let userTrips = [];
     const { user_role } = userData;
     
     if (user_role === "Customer" || user_role === "Admin") {
-      const allCustomerTrips = await getCustomerTrips (user_id);
-      
-      return allCustomerTrips;
+      const customerTrips = await getCustomerTrips (user_id, limit, offset);
+      userTrips = customerTrips;
+      return customerTrips;
       
     }
     
     if (user_role === "Driver" || user_role === "Rider") {
       
-      const allDispatcherTrips = await dispatcherTrips (user_role, user_id);
-      
-      return allDispatcherTrips;
+      const dispatcherTrips = await dispatcherTrips (user_role, user_id, limit, offset);
+      userTrips = dispatcherTrips
+      return dispatcherTrips;
       
     }
   } catch (err) {
@@ -326,6 +327,7 @@ export const getTripMonthsService = async ()=> {
 //STATS - CURRENT MONTH TRIPS COUNTS
 export const currentMonthTripsCountService = async ()=> {
   try {
+    
       const currentMonthTripsCount = await getCurrentMonthTripsCount();
       
     const {
@@ -402,6 +404,41 @@ export const tripsCountByMonth = async (tripDataColumn, condition, month)=> {
     // tripCounts.unshift(totalCount)
     
     return {tripMonths, tripCounts}
+    
+  } catch (err) {
+    return errorHandler('Error occurred current week trips count', `${err}`, 500, 'Trips Week Service')
+  }
+  
+}
+
+
+export const getRevenueByMonth = async ()=> {
+  try {
+    
+    const monthsRevenue = await revenueByMonth( );
+    
+    if(monthsRevenue.error) {
+      return monthsRevenue;//with error details
+    }
+    
+    
+    const revenue = [];
+    
+    const tripMonths = []
+    monthsRevenue.forEach(monthRevenue => {
+      
+      revenue.push(+monthRevenue.revenue || 0)
+      tripMonths.push(monthRevenue.month)
+    });
+  
+    //ALL TIME - IS RETURNED BY EXCPLUDING THE CONDITIONS - tripDataColumn, condition, and month
+
+    // const sumOfCounts = (total, count) => total + +count
+    // const totalCount = tripCounts.reduce(sumOfCounts, 0);
+    // tripMonths.unshift('All Time')
+    // tripCounts.unshift(totalCount)
+    
+    return {tripMonths, revenue}
     
   } catch (err) {
     return errorHandler('Error occurred current week trips count', `${err}`, 500, 'Trips Week Service')
