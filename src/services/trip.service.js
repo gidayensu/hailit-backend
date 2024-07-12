@@ -156,11 +156,8 @@ return { ...oneTrip, dispatcher: dispatcherDetails };
 
 // GET USER TRIPS
 
-export const getUserTripsService = async (user_id, page) => {
-  const limit = 7;
-    let offset = 0;
-
-    page > 1 ? offset = (limit * page) - limit : page;
+export const getUserTripsService = async (user_id) => {
+  
 
   try {
     const userData = await getOneUserFromDB(user_id);
@@ -173,7 +170,7 @@ export const getUserTripsService = async (user_id, page) => {
     const { user_role } = userData;
     
     if (user_role === "Customer" || user_role === "Admin") {
-      const customerTrips = await getCustomerTrips (user_id, limit, offset);
+      const customerTrips = await getCustomerTrips (user_id);
       userTrips = customerTrips;
       return customerTrips;
       
@@ -181,7 +178,7 @@ export const getUserTripsService = async (user_id, page) => {
     
     if (user_role === "Driver" || user_role === "Rider") {
       
-      const dispatcherTrips = await dispatcherTrips (user_role, user_id, limit, offset);
+      const dispatcherTrips = await dispatcherTrips (user_role, user_id,);
       userTrips = dispatcherTrips
       return dispatcherTrips;
       

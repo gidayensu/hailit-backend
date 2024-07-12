@@ -133,7 +133,7 @@ export const getCountOnOneCondition = async (tableName, condition, conditionColu
         "Server Error occurred, data not retrieved",
         `${err}`,
         500,
-        "Database Functions"
+        "Database Functions: Get Specific Details"
       );
     }
   };
@@ -143,17 +143,14 @@ export const getCountOnOneCondition = async (tableName, condition, conditionColu
     id,
     idColumn,
     columns,
-    sortingColumn, 
-    limit,
-    offset
+    sortingColumn,  
+    
   ) => {
     try {
       await DB.query("BEGIN");
       let queryText = `SELECT ${columns} FROM ${tableName} WHERE ${idColumn} = $1`;
 
-      if (limit !== undefined) {
-        queryText += ` LIMIT ${limit} OFFSET ${offset || 0}`;
-      }
+      
       if (sortingColumn) {
         queryText += ` ORDER BY ${sortingColumn} DESC`;
       }
@@ -174,7 +171,7 @@ export const getCountOnOneCondition = async (tableName, condition, conditionColu
         "Server Error occurred, data not retrieved",
         `${err}`,
         500,
-        "Database Functions"
+        "Database Functions: Specific Details Using Id"
       );
     }
   };

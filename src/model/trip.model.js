@@ -97,8 +97,7 @@ export const getUserTripsFromDB = async (
   idColumn,
   tripFieldsToSelect,
   sortingColumn,
-  limit,
-  offset
+  
 ) => {
   try {
     const userTrips = await getSpecificDetailsUsingId(
@@ -107,8 +106,7 @@ export const getUserTripsFromDB = async (
       idColumn,
       tripFieldsToSelect,
       sortingColumn,
-      limit,
-      offset
+      
     );
     
     if ( userTrips.length === 0) {
