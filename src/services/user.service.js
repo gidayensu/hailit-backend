@@ -1,11 +1,12 @@
 import { deleteDriverFromDB, getDriverDetailOnCondition } from "../model/driver.model.js";
 import { deleteRiderFromDB, getRiderOnConditionFromDB } from "../model/rider.model.js";
-import { addUserToDB, deleteUserFromDB, getAllUsersFromDB, getCustomersCount, getOneUserFromDB, getUserIdUsingEmail, updateUserOnDB } from "../model/user.model.js";
+import { addUserToDB, deleteUserFromDB, getAllUsersFromDB, getCustomersCount, getOneUserFromDB, getUserIdUsingEmail, updateUserOnDB, userExists, emailExists, phoneNumberExists } from "../model/user.model.js";
 import { errorHandler } from "../utils/errorHandler.js";
 import { paginatedRequest } from "../utils/paginatedRequest.js";
 import { allowedPropertiesOnly } from "../utils/util.js";
 import { addDriverIfApplicable, addRiderIfApplicable, riderOrDriverDetails, updateDriverRole, updateRiderRole } from "./dispatcherRole.service.js";
 import { USER_ID_COLUMN, ALLOWED_PROPERTIES } from "../constants/usersConstants.js";
+
 
 
 
@@ -90,21 +91,59 @@ return errorHandler("Error occurred in adding user", `${err}`, 500, "User Servic
   }
 };
 
+
 //UPDATE USER
 export const updateUserService = async (userId, userDetails) => {
   try {
-    const validUserDetails = allowedPropertiesOnly(userDetails, ALLOWED_PROPERTIES);
-    const updatedDetails = await updateUserOnDB(userId, validUserDetails);
-    
-    if (validUserDetails.user_role) {
-      if (validUserDetails.user_role === "Rider") {
-        return await updateRiderRole(userId, updatedDetails);
-      } else if (validUserDetails.user_role === "Driver") {
-        return await updateDriverRole(userId, updatedDetails);
-      }
+    //VALIDATION - SHOULD BE MOVED TO A SEPARATE MIDDLEWARE
+    let validUserDetails = allowedPropertiesOnly(userDetails, ALLOWED_PROPERTIES);
+    if(validUserDetails.length <1) {
+      return errorHandler("No valid details added", null, 403, "User Service: Update User")
+    }
+    const date_updated = "now()";
+    validUserDetails = {...validUserDetails, date_updated}
+
+
+    //check if user exists
+    const userExist = await userExists(userId);
+    if(userExist.error || !userExist ) {
+      return userExist;  //returns with error message and code
     }
 
-    return updatedDetails;
+    //get user data to check for existing email/phone_number
+    const userData = await getOneUserFromDB(userId);
+    
+    const { email = "", phone_number = "" } = validUserDetails;
+    //check if email exists and it belongs to the user being updated
+    const emailExist = await detailExistsUserAssociation(email, "email", emailExists, userData);
+    
+    if(emailExist.error) {
+      return emailExist //with error message
+    }
+    
+    //check if phone number exists and it belongs to the user being updated
+    const numberExist = await detailExistsUserAssociation(phone_number, "phone_number", phoneNumberExists, userData);
+    if(numberExist.error) {
+      return numberExist;
+    }
+    
+    
+    const updatedDetails = await updateUserOnDB(userId, validUserDetails);
+    
+    //return data with driver/rider details
+    if (userData.user_role === "Rider") {
+      
+      return  await updateRiderRole(userId, updatedDetails);
+    }  
+    
+    if (userData.user_role === "Driver") {
+      return await updateDriverRole(userId, updatedDetails);
+    }
+    //return only user details
+    
+    return updatedDetails
+    
+    
   } catch (err) {
     
     return errorHandler("Error User not updated", `${err}`, 500, "Update User Service");
@@ -118,22 +157,46 @@ export const deleteUserService = async (userId) => {
     //user is rider, delete rider
     const isRider =  await getRiderOnConditionFromDB(USER_ID_COLUMN, userId);
         
-        if(!isRider.error) {
-          const {rider_id} = isRider.rows[0]
-          await deleteRiderFromDB(rider_id)
+        if(isRider.error) {
+          return isRider;
         }
+        //delete rider if no error
+        const {rider_id} = isRider.rows[0]
+        await deleteRiderFromDB(rider_id)
 
     //user is driver, delete driver
     const isDriver =  await getDriverDetailOnCondition(USER_ID_COLUMN, userId);
     
-        if (!isDriver.error) {
-          const { driver_id } = isDriver[0]
-          await deleteDriverFromDB(driver_id)
+        if (isDriver.error) {
+          return isDriver;
         }
-    const deleteUser = await deleteUserFromDB(userId);
+        //delete driver if no error
+        const { driver_id } = isDriver[0]
+        await deleteDriverFromDB(driver_id)
+    
+        const deleteUser = await deleteUserFromDB(userId);
     
     return deleteUser;
   } catch (err) { 
     return errorHandler("Error occurred deleting user", `${err}`, 500, "User Service: Delete user");
+  }
+};
+
+export const detailExistsUserAssociation = async (detail, detailProp, existChecker, userData) => {
+  try {
+    const detailExists = await existChecker(detail);
+    
+    const userDetail = userData[detailProp];
+    if (detail && detailExists && detail !== userDetail) {
+      return errorHandler(
+        `User not updated, use a different ${detailProp}`,
+        null,
+        400,
+        "User Service: Detail Exists"
+      );
+    }
+    return detailExists; 
+  } catch (err) {
+    return errorHandler(`Error checking ${detailProp} association`, `${err}`, 500, "User Service: Detail Exists");
   }
 };
