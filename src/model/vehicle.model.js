@@ -2,7 +2,7 @@ import { addOne } from "./DB/addDbFunctions.js";
 import {deleteOne} from "./DB/deleteDbFunctions.js"
 import { getAll, getOne, getCountOnOneCondition } from "./DB/getDbFunctions.js";
 import {updateOne} from "./DB/updateDbFunctions.js"
-import { VEHICLE_TABLE_NAME, COLUMNS_FOR_UPDATE, VEHICLE_ID_COLUMN } from "../constants/vehicleConstants.js";
+import { VEHICLE_TABLE_NAME, COLUMNS_FOR_UPDATE, VEHICLE_ID_COLUMN, PLATE_NUMBER_COLUMN } from "../constants/vehicleConstants.js";
 
 
 const COLUMNS_FOR_ADDING = ["vehicle_id", ...COLUMNS_FOR_UPDATE];
@@ -53,12 +53,12 @@ export const getOneVehicleFromDB = async (vehicle_id) => {
 export const addVehicleToDB = async (completeVehicleDetails) => {
   const COLUMNS_FOR_ADDING = Object.keys(completeVehicleDetails);
   const vehicleDetailsArray = Object.values(completeVehicleDetails);
-  const plate_number_column = "plate_number";
+  
   const { plate_number } = completeVehicleDetails;
   try {
     const vehicleExists = await dbFunctions.detailExists(
       VEHICLE_TABLE_NAME,
-      plate_number_column,
+      PLATE_NUMBER_COLUMN,
       plate_number
     );
 
@@ -89,7 +89,7 @@ export const addVehicleToDB = async (completeVehicleDetails) => {
 export const updateVehicleOnDB = async (vehicle_id, vehicleUpdateDetails) => {
   const validColumnsForUpdate = Object.keys(vehicleUpdateDetails);
   const vehicleDetails = Object.values(vehicleUpdateDetails);
-  const VEHICLE_ID_COLUMN = COLUMNS_FOR_ADDING[0];
+  
 
   try {
     const vehicleUpdate = await updateOne(

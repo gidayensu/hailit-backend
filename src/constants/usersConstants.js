@@ -23,7 +23,8 @@ export const ALLOWED_PROPERTIES = [
   ];
 
   export const DEFAULT_USER_ID = '92e6ff67-a1d0-4f56-830c-60d23a63913d';
-  
-  export const USER_ROLE = "Customer"
+  export const USER_EMAIL_COLUMN = "email";
+  export const USER_PHONE_NUMBER_COLUMN = "phone_number";
+  export const USER_ROLE = "Customer";
   export const USER_ROLE_COLUMN = "user_role";
   export const ALLOWED_USER_ROLES = ['Admin', 'Driver', 'Rider', 'Customer', 'Dispatcher'];

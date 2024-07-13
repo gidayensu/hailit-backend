@@ -65,8 +65,8 @@ export const getDriversCount = async()=> {
 
 export const getOneDriverFromDB = async (driver_id) => {
   try {
-    const driverIdColumn = DRIVER_TABLE_COLUMNS[0];
-    const driver = await getOne(DRIVER_TABLE_NAME, driverIdColumn, driver_id);
+    
+    const driver = await getOne(DRIVER_TABLE_NAME, DRIVER_ID_COLUMN, driver_id);
     if (driver.error) {
       return driver; //error details returned
     }
@@ -143,7 +143,7 @@ export const addDriverToDB = async (user_id, vehicle_id) => {
 
 export const updateDriverOnDB = async (driverDetails) => {
   const { driver_id } = driverDetails;
-  const idColumn = DRIVER_TABLE_COLUMNS[0];
+  
   const tableColumns = Object.keys(driverDetails);
   const driverDetailsArray = Object.values(driverDetails);
 
@@ -152,7 +152,7 @@ export const updateDriverOnDB = async (driverDetails) => {
       DRIVER_TABLE_NAME,
       tableColumns,
       driver_id,
-      idColumn,
+      DRIVER_ID_COLUMN,
       ...driverDetailsArray
     );
 
@@ -175,7 +175,7 @@ export const deleteDriverFromDB = async (driver_id) => {
 
     const driverDelete = await deleteOne(
       DRIVER_TABLE_NAME,
-      DRIVER_TABLE_COLUMNS[0],
+      DRIVER_ID_COLUMN,
       driver_id
     );
     

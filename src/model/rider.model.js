@@ -5,7 +5,22 @@ import {deleteOne} from "./DB/deleteDbFunctions.js"
 import { getDispatchersVehicleJoin } from "./DB/usersDbFunctions.js";
 import { VEHICLE_TABLE_NAME } from "../constants/vehicleConstants.js";
 import { USER_TABLE_NAME } from "../constants/usersConstants.js";
-import { RIDER_TABLE_NAME, RIDER_COLUMNS_FOR_ADDING, DEFAULT_VEHICLE_ID, USER_FIRST_NAME, USER_LAST_NAME, USER_ID_RIDER, VEHICLE_PLATE_COLUMN, RIDER_VEHICLE_ID, VEHICLE_ID, RIDER_ID_COLUMN, PHONE_NUMBER, VEHICLE_NAME_COLUMN, EMAIL_COLUMN, USER_ID_USERS,  } from "../constants/riderConstants.js";
+import {
+  RIDER_TABLE_NAME,
+  RIDER_COLUMNS_FOR_ADDING,
+  DEFAULT_VEHICLE_ID,
+  USER_FIRST_NAME,
+  USER_LAST_NAME,
+  USER_ID_RIDER,
+  VEHICLE_PLATE_COLUMN,
+  RIDER_VEHICLE_ID,
+  VEHICLE_ID,
+  RIDER_ID_COLUMN,
+  PHONE_NUMBER,
+  VEHICLE_NAME_COLUMN,
+  EMAIL_COLUMN,
+  USER_ID_USERS,
+} from "../constants/riderConstants.js";
 import { USER_ID_COLUMN } from "../constants/usersConstants.js";
 import {
   getSpecificDetails,
@@ -58,10 +73,10 @@ export const getRidersCount = async()=> {
 
 export const getOneRiderFromDB = async (rider_id) => {
   try {
-    const riderIdColumn = RIDER_COLUMNS_FOR_ADDING[0];
+    
     const rider = await getOne(
       RIDER_TABLE_NAME,
-      riderIdColumn,
+      RIDER_ID_COLUMN,
       rider_id
     );
     if (rider.error) {
@@ -123,7 +138,7 @@ export const addRiderToDB = async (user_id) => {
 
 export const updateRiderOnDB = async (riderDetails) => {
   const { rider_id } = riderDetails;
-  const idColumn = RIDER_COLUMNS_FOR_ADDING[0];
+  
   const tableColumns = Object.keys(riderDetails);
   const riderDetailsArray = Object.values(riderDetails);
 
@@ -132,7 +147,7 @@ export const updateRiderOnDB = async (riderDetails) => {
       RIDER_TABLE_NAME,
       tableColumns,
       rider_id,
-      idColumn,
+      RIDER_ID_COLUMN,
       ...riderDetailsArray
     );
     if (riderUpdate.error) {
@@ -151,7 +166,7 @@ export const deleteRiderFromDB = async (rider_id) => {
   try {
     const riderDelete = await deleteOne(
       RIDER_TABLE_NAME,
-      RIDER_COLUMNS_FOR_ADDING[0],
+      RIDER_ID_COLUMN,
       rider_id
     );
 
