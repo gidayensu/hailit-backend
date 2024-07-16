@@ -200,14 +200,14 @@ export const addTripService = async (user_id, tripDetails) => {
     
   
     
-    const trip_cost = 85 - 45; // current destination - delivery destination [CHANGE TO LOCATION BASED CALCULATION]
+    
     const dispatcher_id = await getDispatcherId(tripDetails.trip_medium);
 
     const tripStatusDetails = {
       trip_status: "Booked",
       trip_request_date: "now()",
       dispatcher_id,
-      trip_cost: trip_cost,
+    
       payment_status: false,
       payment_method: "Cash on Delivery",
     };
