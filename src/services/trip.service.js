@@ -220,6 +220,8 @@ export const addTripService = async (user_id, tripDetails) => {
       ...validTripDetails,
       ...tripStatusDetails,
     };
+
+    
     
     
     

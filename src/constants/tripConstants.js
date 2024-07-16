@@ -55,7 +55,8 @@ export const ANONYMOUS_USER_PROPS = [
     "recipient_number",
     "sender_number",
     "trip_stage",
-    "trip_area"
+    "trip_area",
+    "trip_cost"
   ];
 
   export const ALLOWED_RATE_TRIP_PROPS = ["dispatcher_rating", "trip_id", "dispatcher_id", "rated"];
