@@ -156,13 +156,14 @@ export const deleteUserFromDB = async (userId) => {
   try {
   
     //check if user exists
-    const userExists = await userExists(userId); //returns true/false or error
-    if(userExists.error || !userExists) {
-      userExists.error ? userExists : errorHandler("User does not exist", null, 404, "User Mode: Delete User")
+    const userExist = await userExists(userId); //returns true/false or error
+    console.log({userExist})
+    if(userExist.error || !userExist) {
+      userExist.error ? userExist : errorHandler("User does not exist", null, 404, "User Mode: Delete User")
     }
 
     //delete if user exists
-    if (userExists) {
+    if (userExist) {
       await deleteOne(USER_TABLE_NAME, USER_ID_COLUMN, userId);
       return { success: "user deleted" };
     } 

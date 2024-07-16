@@ -157,22 +157,30 @@ export const deleteUserService = async (userId) => {
     //user is rider, delete rider
     const isRider =  await getRiderOnConditionFromDB(USER_ID_COLUMN, userId);
         
-        if(isRider.error) {
+        if(isRider.error && isRider.errorCode !==404) {
           return isRider;
         }
         //delete rider if no error
-        const {rider_id} = isRider.rows[0]
-        await deleteRiderFromDB(rider_id)
+
+        if(!isRider.error){
+
+          const {rider_id} = isRider.rows[0]
+          await deleteRiderFromDB(rider_id)
+        }
 
     //user is driver, delete driver
+    
     const isDriver =  await getDriverDetailOnCondition(USER_ID_COLUMN, userId);
     
-        if (isDriver.error) {
+        if (isDriver.error && isDriver.errorCode !==404) {
           return isDriver;
         }
+        if(!isDriver.error) {
+
+          const { driver_id } = isDriver[0]
+          await deleteDriverFromDB(driver_id)
+        }
         //delete driver if no error
-        const { driver_id } = isDriver[0]
-        await deleteDriverFromDB(driver_id)
     
         const deleteUser = await deleteUserFromDB(userId);
     
