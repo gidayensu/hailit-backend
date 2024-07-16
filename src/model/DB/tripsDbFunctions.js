@@ -56,9 +56,7 @@ export const getTripsMonths = async () => {
 };
 
 export const getRevenueByMonth = async () => {
-  try {
-
-    
+  try {    
     const values = [ true];
     const queryText = `SELECT
     TRIM(TO_CHAR(trip_request_date, 'Month')) AS month,
@@ -99,13 +97,10 @@ export const getCountByMonth = async (dataColumn, condition, month) => {
     }
     if (condition  && dataColumn && month) {
       values.push(month)
-      
       queryText = `SELECT TRIM(TO_CHAR(trip_request_date, 'Month')) AS month, COUNT(*) AS trip_count FROM trips WHERE ${dataColumn} = $1 AND TRIM(TO_CHAR(trip_request_date, 'Month')) = $2 GROUP BY TO_CHAR(trip_request_date, 'Month')`;
   
     }
-  
-    
-  
+
     const data = await DB.query(queryText, values);
     
     return data.rows;

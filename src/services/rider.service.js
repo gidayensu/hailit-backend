@@ -96,9 +96,9 @@ try {
 
 export const deleteRiderService = async (rider_id) => {
   try {
-    const riderDelete = await deleteRiderFromDB(rider_id);
-    
-    return riderDelete;
+    const riderDelete = await deleteRiderFromDB(rider_id); //returns true/false or error
+
+      return riderDelete;
     
   } catch (err) {
     return errorHandler("Error occurred deleting rider", `${err}`, 500, "Rider Service");

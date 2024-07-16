@@ -388,18 +388,31 @@ export const tripsCountByMonth = async (tripDataColumn, condition, month)=> {
     const tripMonths = await getTripMonthsService();
     const tripCounts = [];
     
-    
-    monthTripCount.forEach(monthTripCount => {
+    function sortByCalendarMonths(monthCountData) {
+      // Define an array with the order of calendar months
+      const monthOrder = [
+          'January', 'February', 'March', 'April',
+          'May', 'June', 'July', 'August',
+          'September', 'October', 'November', 'December'
+      ];
+  
+      // Sort the data array based on the order of months in monthOrder
+      monthCountData.sort((a, b) => {
+          return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
+      });
+  
+      return monthCountData;
+  }
+
+  const sortedMonthsData = sortByCalendarMonths(monthTripCount);
+
+    sortedMonthsData.forEach(monthTripCount => {
       
+      //this is to make room for 0s
       tripCounts.push(+monthTripCount.trip_count || 0)
     });
   
-    //ALL TIME - IS RETURNED BY EXCPLUDING THE CONDITIONS - tripDataColumn, condition, and month
-
-    // const sumOfCounts = (total, count) => total + +count
-    // const totalCount = tripCounts.reduce(sumOfCounts, 0);
-    // tripMonths.unshift('All Time')
-    // tripCounts.unshift(totalCount)
+    
     
     return {tripMonths, tripCounts}
     
