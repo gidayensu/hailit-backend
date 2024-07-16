@@ -33,7 +33,8 @@ export const ANONYMOUS_USER_PROPS = [
     "recipient_number", 
     "sender_number",
     "trip_area",
-    "trip_type"
+    "trip_type",
+    "trip_cost"
   ];
 
   export const ALLOWED_UPDATE_PROPERTIES = [
