@@ -108,3 +108,12 @@ export const getDayFromDate = (dateString) => {
   return dayName;
 
 }
+
+
+
+export const isRightValue = (value, data)=> {
+  if(!data || !value) {
+    return null;
+  }
+    return data.includes(value)
+}

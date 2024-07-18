@@ -123,15 +123,10 @@ export const rateTrip = async (req, res) => {
   try {
     
     const ratingDetails = req.body;
+    const { dispatcher_rating } = req.body;
+    
     const { trip_id } = req.params;
     const detailsWithId = { trip_id, ...ratingDetails };
-    const { dispatcher_rating } = req.body;
-    if(typeof dispatcher_rating !== "number") {
-      return res.status(403).json({ error: "Rating must be a number" });
-    }
-    if (!dispatcher_rating ) {
-      return res.status(403).json({ error: "Driver/rider details missing" });
-    }
 
     const tripRating = await rateTripService(detailsWithId);
     if(tripRating.error) {

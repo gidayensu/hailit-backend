@@ -1,60 +1,104 @@
-import { allowedPropertiesOnly } from "../utils/util.js";
-import { ALLOWED_ADD_TRIP_PROPERTIES } from "../constants/tripConstants.js";
+import { allowedPropertiesOnly, isRightValue } from "../utils/util.js";
+import {
+  ALLOWED_ADD_TRIP_PROPERTIES,
+  ALLOWED_TRIP_MEDIUMS,
+  ALLOWED_PACKAGE_TYPES,
+  ALLOWED_TRIP_AREAS,
+  ALLOWED_TRIP_TYPES,
+  ALLOWED_TRIP_STATUS,
+} from "../constants/tripConstants.js";
 
-export const addTripValidation = async (req, res, next)=> {
+export const addTripValidation = async (req, res, next) => {
+
   const errors = [];
-    const { trip_medium, trip_type, package_type, drop_off_location, pickup_location, pick_lat, trip_cost, pick_long, drop_lat, drop_long, payment_method } =
-    req.body;
-
-    !trip_medium ? errors.push({error: `Trip medium not provided`}) : ''
-    !trip_type ? errors.push({error: `Trip type not provided`}): ''
-    !package_type ? errors.push({error: `Package type not provided`}): ''
-    !trip_cost ? errors.push({error: `Trip Cost not provided`}): ''
-    !payment_method ? errors.push({error: `Payment method not provided`}): ''
-    !drop_off_location ? errors.push({error: `Drop off location not provided`}): ''
-    !pickup_location ? errors.push({error: `Pickup location not provided`}): ''
-    !pick_lat ? errors.push({error: `Pickup latitude not provided`}): ''
-    !pick_long ? errors.push({error: `Pickup longitude not provided`}): ''
-    !drop_lat ? errors.push({error: `Dropoff latitude not provided`}): ''
-    !drop_long ? errors.push({error: `Dropoff longitude not provided`}): ''
+  const {
+    trip_medium,
+    trip_type,
+    package_type,
+    trip_area,
     
-  
-    if (
-      !trip_medium ||
-      !trip_type ||
-      !package_type ||
-      !drop_off_location ||
-      !pickup_location ||
-      !pick_lat ||
-      !pick_long ||
-      !drop_lat ||
-      !drop_long ||
-      !trip_cost ||
-      !payment_method
-    ) {
-      return res.status(400).json({
-        errors,
-      });
-    }
+    drop_off_location,
+    pickup_location,
+    pick_lat,
+    trip_cost,
+    pick_long,
+    drop_lat,
+    drop_long,
+    payment_method,
+  } = req.body;
 
-  if (trip_medium) {
-    const acceptedTripMediums = ["Motor", "Car", "Truck"];
-    const validTripMedium = acceptedTripMediums.includes(trip_medium);
-    if (!validTripMedium) {
-      return res.status(403).json({ error: "Trip Medium Invalid" });
-    }
+  const errorReturner = (errorMessage) => {
+    !errorMessage ? null : errors.push({ error: errorMessage });
+  };
+
+  //missing values
+  !trip_medium && errorReturner(errors, "Trip medium not provided");
+  !trip_type && errorReturner("Trip type not provided");
+  !package_type && errorReturner("Package type not provided");
+  !trip_area && errorReturner("Trip area not provided");
+  
+  !trip_cost && errorReturner("Trip Cost not provided");
+  !payment_method && errorReturner("Payment method not provided");
+  !drop_off_location && errorReturner("Drop off location not provided");
+  !pickup_location && errorReturner("Pickup location not provided");
+  !pick_lat && errorReturner("Pickup latitude not provided");
+  !pick_long && errorReturner("Pickup longitude not provided");
+  !drop_lat && errorReturner("Dropoff latitude not provided");
+  !drop_long && errorReturner("Dropoff longitude not provided");
+
+  if (
+    !trip_medium ||
+    !trip_type ||
+    !trip_area ||
+    
+    !package_type ||
+    !drop_off_location ||
+    !pickup_location ||
+    !pick_lat ||
+    !pick_long ||
+    !drop_lat ||
+    !drop_long ||
+    !trip_cost ||
+    !payment_method
+  ) {
+    return res.status(400).json({
+      errors,
+    });
+  }
+
+  //wrong values
+  const validTripMedium = isRightValue(trip_medium, ALLOWED_TRIP_MEDIUMS);
+  const validTripArea = isRightValue(trip_area, ALLOWED_TRIP_AREAS);
+  const validPackageType = isRightValue(package_type, ALLOWED_PACKAGE_TYPES);
+  const validTripType = isRightValue(trip_type, ALLOWED_TRIP_TYPES);
+  // const validTripStatus = isRightValue(trip_status, ALLOWED_TRIP_STATUS);
+
+  !validTripMedium && errorReturner(`Wrong trip medium provided. Trip medium should be one of these: ${[...ALLOWED_TRIP_MEDIUMS ]}`);
+  !validTripArea && errorReturner(`Wrong trip area provided. Trip area should be one of these: ${[...ALLOWED_TRIP_AREAS]}`);
+  !validPackageType && errorReturner(`Wrong package type provided. Package type should be one of these: ${[...ALLOWED_PACKAGE_TYPES]}`);
+  !validTripType && errorReturner(`Wrong trip type provided. Trip type should be one of these: ${[...ALLOWED_TRIP_TYPES]}`);
+  // !validTripStatus && errorReturner("Wrong trip status provided");
+
+  if (
+    !validTripMedium ||
+    !validPackageType ||
+    !validTripArea ||
+    !validTripType 
+    
+  ) {
+    return res.status(400).json({
+      errors,
+    });
   }
 
   const tripDetails = req.body;
 
-  const validTripDetails = allowedPropertiesOnly(tripDetails, ALLOWED_ADD_TRIP_PROPERTIES);
-  req.body = validTripDetails
-  const trip = req.body;
-  console.log({trip})
+  const validTripDetails = allowedPropertiesOnly(
+    tripDetails,
+    ALLOWED_ADD_TRIP_PROPERTIES
+  );
+  req.body = validTripDetails;
   
-
-    next();
-}
-
-
-
+    
+  next();
+};
