@@ -1,6 +1,44 @@
 import { DB } from "./connectDb.js";
 import { errorHandler } from "../../utils/errorHandler.js";
 import { TRIP_STATUS, PAYMENT_STATUS } from "../../constants/tripConstants.js";
+
+
+
+export const getOneTrip = async (tripTableName, locationTableName, columnName, condition) => {
+  try {
+    const value = [condition]
+    const  queryText = `SELECT 
+    t.*, 
+    tl.*
+FROM 
+    trips t
+FULL OUTER JOIN 
+    trip_locations tl 
+ON 
+    t.trip_id = tl.trip_id
+WHERE 
+    t.trip_id = $1;
+`
+
+    const result = await DB.query(queryText, value);
+
+    if (result.rowCount > 0) {
+      console.log(result.rows)
+      return result.rows;
+    } else {
+      return errorHandler(
+        "detail does not exist",
+        null,
+        404,
+        "Database Functions"
+      );
+    }
+  } catch (err) {
+    console.log({err})
+    return errorHandler("Error occurred getting one Trip", `${err}`, 500, " Database Trip Functions: Get One Trip");
+  }
+};
+
 export const upToOneWeekTripCounts = async () => {
   try {
 
@@ -31,7 +69,7 @@ order by
     return data.rows;
   } catch (err) {
     return errorHandler(
-      "Error occurred",
+      "Error occurred getting one week trip counts",
       `${err}`,
       500,
       "Database Functions: One Week Trip Counts"
@@ -163,7 +201,7 @@ export const getPreviousTwoMonthsCounts = async (
     return selectedTrips.rows[0];
   } catch (err) {
     return errorHandler(
-      "Error occurred",
+      "Error occurred getting previous two months trip counts",
       `${err}`,
       500,
       "Database Functions (Two Months Trips)"
@@ -173,7 +211,7 @@ export const getPreviousTwoMonthsCounts = async (
 
 export const getTwoMonthsTrip = async (tripTable, requestDateColumn) => {
   try {
-    const queryTexta = `SELECT
+    const queryText = `SELECT
     COUNT(*) FILTER (
       WHERE
         TO_CHAR(${requestDateColumn}, 'Month') = TO_CHAR(CURRENT_DATE, 'Month')
@@ -189,7 +227,7 @@ export const getTwoMonthsTrip = async (tripTable, requestDateColumn) => {
     return selectedTrips.rows;
   } catch (err) {
     return errorHandler(
-      "Error occurred",
+      "Error occurred getting two Months Trip",
       `${err}`,
       500,
       "Database Functions (Two Months Trips)"
@@ -225,6 +263,6 @@ export const getTripsCustomersJoin = async (
     const trips = allTrips.rows;
     return trips;
   } catch (err) {
-    return errorHandler("Error occurred", `${err}`, 500, "Database Functions");
+    return errorHandler("Error occurred getting customer trips", `${err}`, 500, "Database Functions");
   }
 };

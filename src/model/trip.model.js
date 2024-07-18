@@ -1,12 +1,20 @@
 import { errorHandler } from "../utils/errorHandler.js";
 import { increaseByValue } from "./DB/helperDbFunctions.js";
 import { USER_TABLE_NAME } from "../constants/usersConstants.js";
-import {TRIP_TABLE_NAME, TRIP_ID, TRIP_REQUEST_DATE_COLUMN, USER_ID_TRIP, FIRST_NAME, LAST_NAME, USER_ID_USER,} from '../constants/tripConstants.js'
+import {TRIP_TABLE_NAME, TRIP_ID, TRIP_REQUEST_DATE_COLUMN, USER_ID_TRIP, FIRST_NAME, LAST_NAME, USER_ID_USER, LOCATION_TABLE_NAME,} from '../constants/tripConstants.js'
 import { addOne } from "./DB/addDbFunctions.js";
 import {deleteOne} from "./DB/deleteDbFunctions.js"
 import { selectOnCondition, getOne, getCountOnOneCondition, getSpecificDetailsUsingId } from "./DB/getDbFunctions.js";
 import {updateOne} from "./DB/updateDbFunctions.js"
-import {getPreviousTwoMonthsCounts, getTripsMonths, getTripsCustomersJoin, getCountByMonth, upToOneWeekTripCounts, getRevenueByMonth} from "./DB/tripsDbFunctions.js"
+import {
+  getPreviousTwoMonthsCounts,
+  getTripsMonths,
+  getTripsCustomersJoin,
+  getCountByMonth,
+  upToOneWeekTripCounts,
+  getRevenueByMonth,
+  getOneTrip
+} from "./DB/tripsDbFunctions.js";
 
 
 export const tripsMonths = async()=> {
@@ -76,7 +84,7 @@ export const getAllTripsFromDB = async (limit, offset, orderBy = TRIP_REQUEST_DA
 
 export const getOneTripFromDB = async (trip_id, tripIdColumn) => {
   try {
-    const oneTrip = await getOne(TRIP_TABLE_NAME, tripIdColumn, trip_id);
+    const oneTrip = await getOneTrip(TRIP_TABLE_NAME, LOCATION_TABLE_NAME, tripIdColumn, trip_id);
 
     if (oneTrip.error) {
       return oneTrip //Error details returned 
@@ -147,10 +155,10 @@ export const getSpecificTripDetailsUsingIdFromDB = async (
   }
 };
 
-export const addTripToDB = async (tripDetails) => {
-  try {    
-    const tripFieldsToSelect = Object.keys(tripDetails).join(", ");
-    const tripDetailsValues = Object.values(tripDetails);
+export const addTripToDB = async (tripDetailsWithoutLocation, locationDetails) => {
+  try {
+    const tripFieldsToSelect = Object.keys(tripDetailsWithoutLocation).join(", ");
+    const tripDetailsValues = Object.values(tripDetailsWithoutLocation);
     const newTrip = await addOne(
       TRIP_TABLE_NAME,
       tripFieldsToSelect,
@@ -159,7 +167,20 @@ export const addTripToDB = async (tripDetails) => {
     if (newTrip.error) {
       return newTrip //Error details returned
     }
-    return newTrip[0];
+
+    const trip = newTrip[0]
+    
+    const locationFieldsToSelect = Object.keys(locationDetails).join(", ");
+    const locationValues = Object.values(locationDetails);
+    const tripLocation = await addOne(
+      LOCATION_TABLE_NAME,
+      locationFieldsToSelect,
+      locationValues
+    )
+    const location = tripLocation[0];
+
+    return {...trip, location} //if there is an error adding tripLocation, it will be included
+
   } catch (err) {
     return errorHandler(
       "Server Error Occurred in adding trip to DB",

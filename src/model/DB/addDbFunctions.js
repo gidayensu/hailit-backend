@@ -9,7 +9,7 @@ export const addOne = async (tableName, columns, values) => {
     if (typeof values === "string") {
       valuesArray = [values];
     }
-  
+  console.log({columns, values})
     const placeholders = valuesArray
       .map((_, index) => "$" + (index + 1))
       .join(", ");
@@ -24,7 +24,7 @@ export const addOne = async (tableName, columns, values) => {
           "Error occurred adding detail",
           null,
           500,
-          "Database Functions"
+          "Database Functions: Add One"
         );
       }
       return result.rows;
@@ -34,7 +34,7 @@ export const addOne = async (tableName, columns, values) => {
         `Server Error occurred`,
         `${err}`,
         500,
-        "Database Functions"
+        "Database Functions: Add One"
       );
     }
   };

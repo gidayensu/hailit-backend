@@ -2,6 +2,8 @@ import crypto from 'crypto';
 import { config } from 'dotenv';
 import {
   ALLOWED_ADD_TRIP_PROPERTIES,
+  TRIP_ID,
+  NO_LOCATION_PROPS,
   ALLOWED_RATE_TRIP_PROPS,
   ALLOWED_UPDATE_PROPERTIES,
   ANONYMOUS_USER_PROPS,
@@ -74,10 +76,7 @@ export const searchTripService = async (search, page) => {
     page > 1 ? offset = (limit * page) - limit : page;
     const searchLowerCase = search.toLowerCase();    
     const searchResults = await searchTrips(searchLowerCase, limit,offset);
-    //ONLY ALLOW USERS TO SEARCH THEIR TRIPS
-    //  const validSearchResults = searchResults.map(async (result)=> {
-    //   return await userAssociatedWithTrip(user_id, result.trip_id, )
-    //  } )
+    
     return searchResults
     
   } catch (err) {
@@ -96,8 +95,8 @@ export const getOneTripService = async (trip_id, requester_user_id) => {
     //check if user is admin
     const isAdmin = await userIsUserRole(requester_user_id, "Admin");
 
-    const tripIdColumn = "trip_id";
-    let oneTrip = await getOneTripFromDB(trip_id, tripIdColumn, );
+    
+    let oneTrip = await getOneTripFromDB(trip_id, TRIP_ID, );
     if(oneTrip.error) {
       return {error: oneTrip.error}
     }
@@ -105,8 +104,6 @@ export const getOneTripService = async (trip_id, requester_user_id) => {
     //exclude sender and recipient phone numbers from data sent
     if(!requester_user_id || (requester_user_id !== oneTrip.customer_id && !isAdmin)) {
       oneTrip = allowedPropertiesOnly(oneTrip, ANONYMOUS_USER_PROPS) 
-    
-      
     }
     const { dispatcher_id, trip_medium } = oneTrip;
 
@@ -194,9 +191,11 @@ export const getUserTripsService = async (user_id) => {
 export const addTripService = async (user_id, tripDetails) => {
   try {
 
+    const {pick_lat, pick_long, drop_lat, drop_long} = tripDetails;
     
     const trip_id = crypto.randomBytes(4).toString("hex");
-    const validTripDetails = allowedPropertiesOnly(tripDetails, ALLOWED_ADD_TRIP_PROPERTIES);
+    const locationDetails = {trip_id, pick_lat, pick_long, drop_lat, drop_long};
+    const tripDetailsWithoutLocation = allowedPropertiesOnly(tripDetails, NO_LOCATION_PROPS);
     
   
     
@@ -206,10 +205,8 @@ export const addTripService = async (user_id, tripDetails) => {
     const tripStatusDetails = {
       trip_status: "Booked",
       trip_request_date: "now()",
-      dispatcher_id,
-    
+      dispatcher_id,  
       payment_status: false,
-      payment_method: "Cash on Delivery",
     };
     
     
@@ -217,7 +214,7 @@ export const addTripService = async (user_id, tripDetails) => {
     const finalTripDetails = {
       trip_id,
       customer_id: user_id,
-      ...validTripDetails,
+      ...tripDetailsWithoutLocation,
       ...tripStatusDetails,
     };
 
@@ -226,7 +223,7 @@ export const addTripService = async (user_id, tripDetails) => {
     
     
     
-    const newTrip = await addTripToDB(finalTripDetails);
+    const newTrip = await addTripToDB(finalTripDetails, locationDetails);
     
 
     return newTrip;

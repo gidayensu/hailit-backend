@@ -32,6 +32,25 @@ export const ANONYMOUS_USER_PROPS = [
     "package_value", 
     "recipient_number", 
     "sender_number",
+    "payment_method",
+    "trip_area",
+    "trip_type",
+    "trip_cost",
+    "pick_lat",
+    "pick_long",
+    "drop_lat",
+    "drop_long"
+  ];
+  export const NO_LOCATION_PROPS = [
+    "trip_medium",
+    "package_type",
+    "pickup_location",
+    "drop_off_location",
+    "additional_information",
+    "package_value", 
+    "recipient_number", 
+    "payment_method",
+    "sender_number",
     "trip_area",
     "trip_type",
     "trip_cost"
@@ -77,7 +96,7 @@ export const ANONYMOUS_USER_PROPS = [
 
   export const ALLOWED_TRIP_STATS_COLUMNS = ['trip_status', 'trip_area', 'trip_type', 'package_type', 'trip_medium'];
 
-//DATABASE TABLE AND COLUMNS
+  //TRIPS TABLE AND COLUMNS
   export const TRIP_TABLE_NAME = "trips";
   export const TRIP_ID = "trips.trip_id";
   export const TRIP_REQUEST_DATE_COLUMN = "trips.trip_request_date";
@@ -92,7 +111,10 @@ export const ANONYMOUS_USER_PROPS = [
   export const PACKAGE_TYPE = "package_type"
   export const PAYMENT_STATUS = "payment_status"
   export const DISPATCHER_AVAILABLE_COLUMN = 'available';
-
+  
+  
+  
+  
   export const ALLOWED_PACKAGE_TYPES = [
     "Electronics",
     "Documents",
@@ -102,26 +124,33 @@ export const ANONYMOUS_USER_PROPS = [
     "Others",
   ];
   
-export const ALLOWED_TRIP_TYPES = [
-  "Same Day",
-  "Next Day", 
-  "Scheduled"
-]
-export const ALLOWED_TRIP_AREAS = [
-  "Kumasi",
-  "Accra", 
-  "Inter City"
-]
-export const ALLOWED_TRIP_MEDIUMS = [
-  "Motor",
-  "Car", 
-  "Truck"
-]
-
-export const ALLOWED_TRIP_STATUS = [
-  "Booked",
-  "Picked Up",
-  "In Transit",
+  export const ALLOWED_TRIP_TYPES = [
+    "Same Day",
+    "Next Day", 
+    "Scheduled"
+  ]
+  export const ALLOWED_TRIP_AREAS = [
+    "Kumasi",
+    "Accra", 
+    "Inter City"
+  ]
+  export const ALLOWED_TRIP_MEDIUMS = [
+    "Motor",
+    "Car", 
+    "Truck"
+  ]
+  
+  export const ALLOWED_TRIP_STATUS = [
+    "Booked",
+    "Picked Up",
+    "In Transit",
   "Delivered",
   "Cancelled",
 ];
+
+//TRIP LOCATIONS TABLE
+export const LOCATION_TABLE_NAME = "trip_locations";
+export const PICKUP_LATITUDE = "pick_lat";
+export const DROP_OFF_LATITUDE = "drop_lat";
+export const PICKUP_LONGITUDE = "pick_long";
+export const DROP_OFF_LONGITUDE = "drop_long";
