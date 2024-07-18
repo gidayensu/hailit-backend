@@ -27,7 +27,7 @@ export const increaseRatingCount = async (trip_medium, dispatcher_id) => {
       idColumn = DRIVER_ID_COLUMN;
       
     } else {
-      return errorHandler("Error occurred", "Invalid trip medium", 400, "service");
+      return errorHandler("Error occurred increasing rating count", "Invalid trip medium", 400, "service");
     }
   
     const countIncrease = await ratingCountIncrease(tableName, dispatcher_id, idColumn, RATING_COUNT_COLUMN);

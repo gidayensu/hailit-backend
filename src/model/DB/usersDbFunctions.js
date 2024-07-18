@@ -9,7 +9,7 @@ export const getAllCustomers = async (tableName) => {
       const data = allItems.rows;
       return data;
     } catch (err) {
-      return errorHandler("Error occurred", `${err}`, 500, "Database Functions");
+      return errorHandler("Error occurred getting all customers", `${err}`, 500, "Database Functions: Get All Customers");
     }
   };
   
@@ -47,7 +47,7 @@ export const getAllCustomers = async (tableName) => {
       const dispatchers = allDispatchers.rows;
       return dispatchers;
     } catch (err) {
-      return errorHandler("Error occurred", `${err}`, 500, "Database Functions");
+      return errorHandler("Error occurred getting dispatcher vehicle data", `${err}`, 500, "Database Functions");
     }
   };
   

@@ -12,7 +12,7 @@ export const detailExists = async (tableName, columnName, detail) => {
       return results.rowCount > 0 ? true : false;
       
     } catch (err) {
-      return errorHandler("Error occurred", `${err}`, 500, "Database Functions: Detail Exists")
+      return errorHandler("Error occurred checking if detail exists", `${err}`, 500, "Database Functions: Detail Exists")
       
     }
   };

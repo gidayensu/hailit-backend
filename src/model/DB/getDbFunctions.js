@@ -19,7 +19,7 @@ export const getAll = async (tableName, limit, offset, condition, conditionColum
 
     return data;
   } catch (err) {
-    return errorHandler("Error occurred", `${err}`, 500, "Database Functions");
+    return errorHandler("Error occurred getting all details", `${err}`, 500, "Database Functions: Get All");
   }
 };
 
@@ -39,7 +39,7 @@ export const getCountOnOneCondition = async (tableName, condition, conditionColu
       return data.rows[0];
   
     } catch (err) {
-      return errorHandler("Error occurred", `${err}`, 500, "Database Functions: One Condition Count");    
+      return errorHandler("Error occurred getting count on one condition", `${err}`, 500, "Database Functions: One Condition Count");    
     }
   }
 
@@ -56,7 +56,7 @@ export const getCountOnOneCondition = async (tableName, condition, conditionColu
       const data = allItems.rows;
       return data;
     } catch (err) {
-      return errorHandler("Error occurred", `${err}`, 500, "Database Functions");
+      return errorHandler("Error occurred getting all date sort", `${err}`, 500, "Database Functions: Get All Date Sort");
     }
   };
   
@@ -88,7 +88,7 @@ export const getCountOnOneCondition = async (tableName, condition, conditionColu
   
       return result.rows;
     } catch (err) {
-      return errorHandler("Error occurred", `${err}`, 500, "Database Functions: Select On Condition");
+      return errorHandler("Error occurred selecting on condition", `${err}`, 500, "Database Functions: Select On Condition");
     }
   };
   
@@ -111,9 +111,10 @@ export const getCountOnOneCondition = async (tableName, condition, conditionColu
         );
       }
     } catch (err) {
-      return errorHandler("Error occurred", `${err}`, 500, "getOne Database Functions");
+      return errorHandler("Error occurred getting one detail", `${err}`, 500, "getOne Database Functions");
     }
   };
+  
 
   export const getSpecificDetails = async (
     tableName,
