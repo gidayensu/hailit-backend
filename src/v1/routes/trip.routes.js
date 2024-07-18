@@ -20,6 +20,7 @@ import {isAdminOrUserAuth} from '../../auth/user-auth/isAdminOrUser.js';
 import { isUserRole } from '../../auth/user-auth/isUserRole.js';
 import { tripAuth } from '../../auth/trip-auth/tripAuth.js';
 import { supaAuth } from '../../auth/supaAuth.js'
+import {addTripValidation} from '../../validation/addTripValidation.js'
 import { tripSupaAuth } from '../../auth/trip-auth/tripSupaAuth.js';
 import { tripStatsColumnValidation } from '../../validation/tripStatsColumnValidation.js';
 
@@ -35,7 +36,7 @@ tripRouter.get('/user-trip/:trip_id', tripSupaAuth,  getOneTrip);
 
 tripRouter.get('/user-trips/:user_id', supaAuth, getUserTrips)
 
-tripRouter.post('/add-trip/', tripSupaAuth, addTrip)
+tripRouter.post('/add-trip/', tripSupaAuth, addTripValidation, addTrip)
 
 tripRouter.put('/user-trip/:trip_id', supaAuth, updateTrip)
 

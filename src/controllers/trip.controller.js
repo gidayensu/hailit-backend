@@ -83,23 +83,7 @@ export const addTrip = async (req, res) => {
   try {
     
     
-    const { trip_medium, trip_type, package_type, drop_off_location, pickup_location,  } =
-      req.body;
-    if (!trip_medium || !trip_type || !package_type || !drop_off_location || !pickup_location) {
-  
-      return res.status(400).json({
-        error:
-          "Provide all details: trip type, trip medium, sender number, recipient number, and package type",
-      });
-    }
-  
-    if (trip_medium) {
-      const acceptedTripMediums = ["Motor", "Car", "Truck"];
-      const validTripMedium = acceptedTripMediums.includes(trip_medium);
-      if (!validTripMedium) {
-        return res.status(403).json({ error: "Trip Medium Invalid" });
-      }
-    }
+    
     const tripDetails = req.body;
     const  user_id  = req.user?.sub || DEFAULT_USER_ID;
     
