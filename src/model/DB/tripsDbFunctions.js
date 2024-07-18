@@ -9,11 +9,11 @@ export const getOneTrip = async (tripTableName, locationTableName, columnName, c
     const value = [condition]
     const  queryText = `SELECT 
     t.*, 
-    tl.*
+    tl.pick_lat, tl.pick_long, tl.drop_lat, tl.drop_long
 FROM 
-    trips t
+    ${tripTableName} t
 FULL OUTER JOIN 
-    trip_locations tl 
+    ${locationTableName} tl 
 ON 
     t.trip_id = tl.trip_id
 WHERE 
@@ -23,7 +23,7 @@ WHERE
     const result = await DB.query(queryText, value);
 
     if (result.rowCount > 0) {
-      console.log(result.rows)
+      
       return result.rows;
     } else {
       return errorHandler(
