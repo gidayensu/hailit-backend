@@ -1,8 +1,8 @@
+import { COLUMNS_FOR_UPDATE, PLATE_NUMBER_COLUMN, VEHICLE_ID_COLUMN, VEHICLE_TABLE_NAME } from "../constants/vehicleConstants.js";
 import { addOne } from "./DB/addDbFunctions.js";
-import {deleteOne} from "./DB/deleteDbFunctions.js"
-import { getAll, getOne, getCountOnOneCondition } from "./DB/getDbFunctions.js";
-import {updateOne} from "./DB/updateDbFunctions.js"
-import { VEHICLE_TABLE_NAME, COLUMNS_FOR_UPDATE, VEHICLE_ID_COLUMN, PLATE_NUMBER_COLUMN } from "../constants/vehicleConstants.js";
+import { deleteOne } from "./DB/deleteDbFunctions.js";
+import { getAll, getCountOnOneCondition, getOne } from "./DB/getDbFunctions.js";
+import { updateOne } from "./DB/updateDbFunctions.js";
 
 
 const COLUMNS_FOR_ADDING = ["vehicle_id", ...COLUMNS_FOR_UPDATE];

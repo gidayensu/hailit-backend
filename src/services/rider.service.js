@@ -1,96 +1,112 @@
-import { paginatedRequest } from "../utils/paginatedRequest.js";
-import {addRiderToDB, deleteRiderFromDB, getAllRiders, getOneRiderFromDB, updateRiderOnDB, getRidersCount} from "../model/rider.model.js";
-import { getOneVehicleFromDB } from "../model/vehicle.model.js";
+import {
+  ALLOWED_UPDATE_RIDER_PROPERTIES,
+  RIDER_DETAILS,
+} from "../constants/riderConstants.js";
+import {
+  addRiderToDB,
+  deleteRiderFromDB,
+  getAllRiders,
+  getOneRiderFromDB,
+  getRidersCount,
+  updateRiderOnDB,
+} from "../model/rider.model.js";
 import { getSpecificUserDetailsUsingId } from "../model/user.model.js";
-import { userIsUserRole } from "../utils/util.js";
-import { ALLOWED_UPDATE_RIDER_PROPERTIES, RIDER_DETAILS } from "../constants/riderConstants.js";
-import { allowedPropertiesOnly } from "../utils/util.js";
+import { getOneVehicleFromDB } from "../model/vehicle.model.js";
 import { errorHandler } from "../utils/errorHandler.js";
-
-
+import { paginatedRequest } from "../utils/paginatedRequest.js";
+import { allowedPropertiesOnly, userIsUserRole } from "../utils/util.js";
 
 export const getAllRidersService = async (page) => {
   try {
     const limit = 7;
     let offset = 0;
 
-    page > 1 ? offset = (limit * page) - limit : page;
+    page > 1 ? (offset = limit * page - limit) : page;
     const riders = await getAllRiders(limit, offset);
-    if(riders.error) {
+    if (riders.error) {
       return riders;
     }
     const totalCount = await getRidersCount();
 
-    return await paginatedRequest(totalCount, riders, offset, limit, "riders")
-
-    
+    return await paginatedRequest(totalCount, riders, offset, limit, "riders");
   } catch (err) {
-    return errorHandler("Error occurred getting all riders", `${err}`, 500, "Rider Service");
+    return errorHandler(
+      "Error occurred getting all riders",
+      `${err}`,
+      500,
+      "Rider Service"
+    );
   }
 };
 
 export const getOneRiderService = async (rider_id, requester_user_id) => {
-  
   try {
     const rider = await getOneRiderFromDB(rider_id);
     if (rider.error) {
-      return {error: rider.error};
-    } 
-    let riderDetails = {...rider}
-    const {user_id} = rider;
+      return { error: rider.error };
+    }
+    let riderDetails = { ...rider };
+    const { user_id } = rider;
     //fetching rider name and related details
-    const isAdmin = await userIsUserRole(requester_user_id, 'Admin');
+    const isAdmin = await userIsUserRole(requester_user_id, "Admin");
 
-    
-    isAdmin ? RIDER_DETAILS.push("email") : '' 
-    const riderOtherDetails = await getSpecificUserDetailsUsingId(user_id, RIDER_DETAILS);
-    if(riderOtherDetails.error) {
-      return {error: riderOtherDetails.error}
+    isAdmin ? RIDER_DETAILS.push("email") : "";
+    const riderOtherDetails = await getSpecificUserDetailsUsingId(
+      user_id,
+      RIDER_DETAILS
+    );
+    if (riderOtherDetails.error) {
+      return { error: riderOtherDetails.error };
     }
-    riderDetails = {...rider, ...riderOtherDetails[0]}
+    riderDetails = { ...rider, ...riderOtherDetails[0] };
 
-    
-    const {vehicle_id} = rider;
+    const { vehicle_id } = rider;
     const vehicleDetails = await getOneVehicleFromDB(vehicle_id);
-    if(vehicleDetails.error) {
-      return {...rider, vehicle: "No vehicle assigned"}
+    if (vehicleDetails.error) {
+      return { ...rider, vehicle: "No vehicle assigned" };
     }
-      return {...riderDetails, vehicle: vehicleDetails};
-    
+    return { ...riderDetails, vehicle: vehicleDetails };
   } catch (err) {
-    return errorHandler("Error occurred getting rider", `${err}`, 500, "Rider Service");
+    return errorHandler(
+      "Error occurred getting rider",
+      `${err}`,
+      500,
+      "Rider Service"
+    );
   }
 };
 
 export const addRiderService = async (user_id, vehicle_id) => {
   try {
-
     const riderAdd = await addRiderToDB(user_id, vehicle_id);
     return riderAdd;
   } catch (err) {
-    return errorHandler("Server error occurred", `${err}`, 500, "Rider Service")
+    return errorHandler(
+      "Server error occurred",
+      `${err}`,
+      500,
+      "Rider Service"
+    );
   }
-
 };
 
 export const updateRiderService = async (riderDetails) => {
-  
-  
+  try {
+    const validRiderDetails = allowedPropertiesOnly(
+      riderDetails,
+      ALLOWED_UPDATE_RIDER_PROPERTIES
+    );
 
-try {
-  const validRiderDetails = allowedPropertiesOnly(
-    riderDetails,
-    ALLOWED_UPDATE_RIDER_PROPERTIES
-  );
-
-
-    
     const riderUpdate = await updateRiderOnDB(validRiderDetails);
-    
+
     return riderUpdate;
-    
   } catch (err) {
-    return errorHandler("Error occurred updating rider details", `${err}`, 500, "Rider Service");
+    return errorHandler(
+      "Error occurred updating rider details",
+      `${err}`,
+      500,
+      "Rider Service"
+    );
   }
 };
 
@@ -98,10 +114,13 @@ export const deleteRiderService = async (rider_id) => {
   try {
     const riderDelete = await deleteRiderFromDB(rider_id); //returns true/false or error
 
-      return riderDelete;
-    
+    return riderDelete;
   } catch (err) {
-    return errorHandler("Error occurred deleting rider", `${err}`, 500, "Rider Service");
+    return errorHandler(
+      "Error occurred deleting rider",
+      `${err}`,
+      500,
+      "Rider Service"
+    );
   }
 };
-

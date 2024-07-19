@@ -1,20 +1,20 @@
-import { errorHandler } from "../utils/errorHandler.js";
-import { increaseByValue } from "./DB/helperDbFunctions.js";
+import { FIRST_NAME, LAST_NAME, LOCATION_TABLE_NAME, TRIP_ID, TRIP_REQUEST_DATE_COLUMN, TRIP_TABLE_NAME, USER_ID_TRIP, USER_ID_USER, } from '../constants/tripConstants.js';
 import { USER_TABLE_NAME } from "../constants/usersConstants.js";
-import {TRIP_TABLE_NAME, TRIP_ID, TRIP_REQUEST_DATE_COLUMN, USER_ID_TRIP, FIRST_NAME, LAST_NAME, USER_ID_USER, LOCATION_TABLE_NAME,} from '../constants/tripConstants.js'
+import { errorHandler } from "../utils/errorHandler.js";
 import { addOne } from "./DB/addDbFunctions.js";
-import {deleteOne} from "./DB/deleteDbFunctions.js"
-import { selectOnCondition, getOne, getCountOnOneCondition, getSpecificDetailsUsingId } from "./DB/getDbFunctions.js";
-import {updateOne} from "./DB/updateDbFunctions.js"
+import { deleteOne } from "./DB/deleteDbFunctions.js";
+import { getCountOnOneCondition, getSpecificDetailsUsingId, selectOnCondition } from "./DB/getDbFunctions.js";
+import { increaseByValue } from "./DB/helperDbFunctions.js";
 import {
-  getPreviousTwoMonthsCounts,
-  getTripsMonths,
-  getTripsCustomersJoin,
   getCountByMonth,
-  upToOneWeekTripCounts,
+  getOneTrip,
+  getPreviousTwoMonthsCounts,
   getRevenueByMonth,
-  getOneTrip
+  getTripsCustomersJoin,
+  getTripsMonths,
+  upToOneWeekTripCounts
 } from "./DB/tripsDbFunctions.js";
+import { updateOne } from "./DB/updateDbFunctions.js";
 
 
 export const tripsMonths = async()=> {

@@ -1,14 +1,14 @@
 import { v4 as uuid } from "uuid";
-import { errorHandler } from "../utils/errorHandler.js";
 import {
-  DRIVER_TABLE_NAME,
+  DEFAULT_VEHICLE_ID, DRIVER_ID_COLUMN,
   DRIVER_TABLE_COLUMNS,
-  DEFAULT_VEHICLE_ID, DRIVER_ID_COLUMN, DRIVER_VEHICLE_ID, EMAIL_COLUMN, PHONE_NUMBER, 
+  DRIVER_TABLE_NAME,
+  DRIVER_VEHICLE_ID, EMAIL_COLUMN, PHONE_NUMBER,
   USER_FIRST_NAME, USER_ID_DRIVER, USER_ID_USERS, USER_LAST_NAME, VEHICLE_ID_COLUMN, VEHICLE_NAME_COLUMN,
-  VEHICLE_PLATE_COLUMN, VEHICLE_TABLE, 
+  VEHICLE_PLATE_COLUMN, VEHICLE_TABLE,
 } from '../constants/driverConstants.js';
-import { USER_TABLE_NAME } from "../constants/usersConstants.js";
-import { USER_ID_COLUMN } from "../constants/usersConstants.js";
+import { USER_ID_COLUMN, USER_TABLE_NAME } from "../constants/usersConstants.js";
+import { errorHandler } from "../utils/errorHandler.js";
 
 import { addOne } from "./DB/addDbFunctions.js";
 import { deleteOne } from "./DB/deleteDbFunctions.js";

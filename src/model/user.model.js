@@ -1,23 +1,22 @@
+import {
+  USER_COLUMNS_FOR_ADDING,
+  USER_EMAIL_COLUMN,
+  USER_ID_COLUMN,
+  USER_ROLE,
+  USER_ROLE_COLUMN,
+  USER_TABLE_NAME
+} from "../constants/usersConstants.js";
 import { errorHandler } from "../utils/errorHandler.js";
-import { detailExists } from "./DB/helperDbFunctions.js";
 import { addOne } from "./DB/addDbFunctions.js";
 import { deleteOne } from "./DB/deleteDbFunctions.js";
 import {
-  selectOnCondition,
-  getOne,
   getCountOnOneCondition,
+  getOne,
   getSpecificDetailsUsingId,
+  selectOnCondition,
 } from "./DB/getDbFunctions.js";
+import { detailExists } from "./DB/helperDbFunctions.js";
 import { updateOne } from "./DB/updateDbFunctions.js";
-import {
-  USER_TABLE_NAME,
-  USER_COLUMNS_FOR_ADDING,
-  USER_ROLE,
-  USER_ROLE_COLUMN,
-  USER_ID_COLUMN,
-  USER_EMAIL_COLUMN,
-  USER_PHONE_NUMBER_COLUMN
-} from "../constants/usersConstants.js";
 
 export const getAllUsersFromDB = async (limit, offset) => {
   try {

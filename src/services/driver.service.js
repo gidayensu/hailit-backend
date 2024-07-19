@@ -1,67 +1,88 @@
-import { paginatedRequest } from "../utils/paginatedRequest.js";
-import { errorHandler } from "../utils/errorHandler.js";
-import { GET_DRIVER_COLUMNS, ALLOWED_DRIVER_UPDATE_PROPERTIES } from "../constants/driverConstants.js";
-import {addDriverToDB, deleteDriverFromDB, getAllDriversFromDB, getOneDriverFromDB, updateDriverOnDB, getDriversCount} from "../model/driver.model.js";
+import {
+  ALLOWED_DRIVER_UPDATE_PROPERTIES,
+  GET_DRIVER_COLUMNS,
+} from "../constants/driverConstants.js";
+import {
+  addDriverToDB,
+  deleteDriverFromDB,
+  getAllDriversFromDB,
+  getDriversCount,
+  getOneDriverFromDB,
+  updateDriverOnDB,
+} from "../model/driver.model.js";
+import { getSpecificUserDetailsUsingId } from "../model/user.model.js";
 import { getOneVehicleFromDB } from "../model/vehicle.model.js";
-import {getSpecificUserDetailsUsingId} from "../model/user.model.js";
+import { errorHandler } from "../utils/errorHandler.js";
+import { paginatedRequest } from "../utils/paginatedRequest.js";
 import { allowedPropertiesOnly, userIsUserRole } from "../utils/util.js";
-
 
 export const getAllDriversService = async (page) => {
   try {
     const limit = 7;
     let offset = 0;
 
-    page > 1 ? offset = (limit * page) - limit : page;
+    page > 1 ? (offset = limit * page - limit) : page;
     const drivers = await getAllDriversFromDB(limit, offset);
-    
-    if(drivers.error) {
-      
-      return {error: drivers.error}
-    };
+
+    if (drivers.error) {
+      return { error: drivers.error };
+    }
     const totalCount = await getDriversCount();
-    
-    
-    return await paginatedRequest(totalCount, drivers, offset, limit, "drivers")
-    
-    
+
+    return await paginatedRequest(
+      totalCount,
+      drivers,
+      offset,
+      limit,
+      "drivers"
+    );
   } catch (err) {
-    return errorHandler("server error occurred getting drivers", `${err}`, 500, "get all drivers service");
+    return errorHandler(
+      "server error occurred getting drivers",
+      `${err}`,
+      500,
+      "get all drivers service"
+    );
   }
 };
 
-export  const getOneDriverService = async (driver_id, requester_user_id) => {
+export const getOneDriverService = async (driver_id, requester_user_id) => {
   try {
     const driver = await getOneDriverFromDB(driver_id);
     if (driver.error) {
-      return {error: driver.error}
-    
+      return { error: driver.error };
     }
 
-    let driverDetails = {...driver}
-    const {user_id} = driver;
-    
+    let driverDetails = { ...driver };
+    const { user_id } = driver;
+
     //fetching driver name and related details
-    const isAdmin = await userIsUserRole(requester_user_id, 'Admin');
+    const isAdmin = await userIsUserRole(requester_user_id, "Admin");
 
-    
-    isAdmin ? GET_DRIVER_COLUMNS.push("email") : '' 
-    const driverNamePhone = await getSpecificUserDetailsUsingId(user_id, GET_DRIVER_COLUMNS);
-    if(driverNamePhone.error) {
-      return {error: driverNamePhone.error}
+    isAdmin ? GET_DRIVER_COLUMNS.push("email") : "";
+    const driverNamePhone = await getSpecificUserDetailsUsingId(
+      user_id,
+      GET_DRIVER_COLUMNS
+    );
+    if (driverNamePhone.error) {
+      return { error: driverNamePhone.error };
     }
-    driverDetails = {...driver, ...driverNamePhone[0]}
-    
+    driverDetails = { ...driver, ...driverNamePhone[0] };
+
     const vehicle_id = driver.vehicle_id;
-    
+
     const vehicleDetails = await getOneVehicleFromDB(vehicle_id);
-    if(vehicleDetails.error) {
-    
-      return {...driver, vehicle: "No vehicle assigned"}
+    if (vehicleDetails.error) {
+      return { ...driver, vehicle: "No vehicle assigned" };
     }
-      return {...driverDetails, vehicle: vehicleDetails};
+    return { ...driverDetails, vehicle: vehicleDetails };
   } catch (err) {
-    return errorHandler("Error occurred getting one driver", `${err}`, 500, "service");
+    return errorHandler(
+      "Error occurred getting one driver",
+      `${err}`,
+      500,
+      "service"
+    );
   }
 };
 
@@ -70,11 +91,10 @@ export const addDriverService = async (user_id, vehicle_id) => {
   if (driverAdd.error) {
     return driverAdd.error;
   }
-  return driverAdd
+  return driverAdd;
 };
 
 export const updateDriverService = async (driverDetails) => {
-
   try {
     const validDriverDetails = allowedPropertiesOnly(
       driverDetails,
@@ -83,24 +103,31 @@ export const updateDriverService = async (driverDetails) => {
     const driverUpdate = await updateDriverOnDB(validDriverDetails);
     if (driverUpdate.error) {
       return { error: driverUpdate.error };
-    } 
+    }
     return driverUpdate;
   } catch (err) {
-    return errorHandler("Error occurred updating driver details", `${err}`, 500, "service");
+    return errorHandler(
+      "Error occurred updating driver details",
+      `${err}`,
+      500,
+      "service"
+    );
   }
 };
 
 export const deleteDriverService = async (driver_id) => {
   try {
-
     const driverDelete = await deleteDriverFromDB(driver_id);
     if (driverDelete.error) {
       return driverDelete.error;
-    } 
+    }
     return driverDelete;
   } catch (err) {
-    return errorHandler('Server Error occurred deleting driver', `${err}`, 500, "Driver Service" )
+    return errorHandler(
+      "Server Error occurred deleting driver",
+      `${err}`,
+      500,
+      "Driver Service"
+    );
   }
 };
-
-

@@ -1,33 +1,28 @@
-import parsePhoneNumberFromString from 'libphonenumber-js';
+import parsePhoneNumberFromString from "libphonenumber-js";
 
-import { isUserRole } from "../model/user.model.js";
-import { associatedWithTrip } from "../model/trip.model.js";
+import { getOneDriverFromDB } from "../model/driver.model.js";
 import { getOneRiderFromDB } from "../model/rider.model.js";
-import {  getOneDriverFromDB } from "../model/driver.model.js";
-import { date } from 'drizzle-orm/mysql-core';
+import { associatedWithTrip } from "../model/trip.model.js";
+import { isUserRole } from "../model/user.model.js";
 
+const EMAIL_REGEX =
+  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
+export const emailValidator = (email) =>
+  !EMAIL_REGEX.test(email) ? false : true;
 
-const EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-
-
-
-export const emailValidator = (email) => (!EMAIL_REGEX.test(email) ? false : true);
-
-export const phoneValidator = (phone_number)=> {
-
-const phoneNumber = parsePhoneNumberFromString(phone_number, {
-  defaultCountry: "GH",
-  extract: false
-});
+export const phoneValidator = (phone_number) => {
+  const phoneNumber = parsePhoneNumberFromString(phone_number, {
+    defaultCountry: "GH",
+    extract: false,
+  });
 
   // VALID PHONE NUMBER
   if (phoneNumber && phoneNumber.isValid()) {
-    
-    return true
+    return true;
   }
   return false;
-}
+};
 
 export const excludeNonMatchingElements = (firstArray, secondArray) => {
   return secondArray.filter((element) => firstArray.includes(element));
@@ -45,11 +40,10 @@ export const allowedPropertiesOnly = (data, allowedProperties) => {
         return obj;
       }, {});
   } catch (err) {
-    console.error('An error occurred:', err);
+    console.error("An error occurred:", err);
     return {};
   }
 };
-
 
 export const excludeProperties = (data, propertiesToExclude) => {
   return Object.keys(data)
@@ -87,33 +81,28 @@ export const riderUserId = async (rider_id) => {
   return riderData.user_id;
 };
 export const driverUserId = async (driver_id) => {
-  const driverData = await getOneDriverFromDB (driver_id);
+  const driverData = await getOneDriverFromDB(driver_id);
   return driverData.user_id;
 };
 
-export const currencyFormatter = new Intl.NumberFormat('gh-GA', {
-  style: 'currency',
-  currency: 'GHS',  // Specify Ghanaian Cedis
-  minimumFractionDigits: 2, // Display at least 2 decimal places
-  maximumFractionDigits: 2  // Limit to 2 decimal places
+export const currencyFormatter = new Intl.NumberFormat("gh-GA", {
+  style: "currency",
+  currency: "GHS", 
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 });
 
-
 export const getDayFromDate = (dateString) => {
-  
   const date = new Date(`${dateString}`);
   const day = date.getDay();
-  const days = ['Sun.', 'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.'];
+  const days = ["Sun.", "Mon.", "Tue.", "Wed.", "Thu.", "Fri.", "Sat."];
   const dayName = days[day];
   return dayName;
+};
 
-}
-
-
-
-export const isRightValue = (value, data)=> {
-  if(!data || !value) {
+export const isRightValue = (value, data) => {
+  if (!data || !value) {
     return null;
   }
-    return data.includes(value)
-}
+  return data.includes(value);
+};

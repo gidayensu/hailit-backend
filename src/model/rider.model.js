@@ -1,34 +1,33 @@
-import { errorHandler } from "../utils/errorHandler.js";
 import { v4 as uuid } from "uuid";
-import { addOne } from "./DB/addDbFunctions.js";
-import {deleteOne} from "./DB/deleteDbFunctions.js"
-import { getDispatchersVehicleJoin } from "./DB/usersDbFunctions.js";
-import { VEHICLE_TABLE_NAME } from "../constants/vehicleConstants.js";
-import { USER_TABLE_NAME } from "../constants/usersConstants.js";
 import {
-  RIDER_TABLE_NAME,
-  RIDER_COLUMNS_FOR_ADDING,
   DEFAULT_VEHICLE_ID,
-  USER_FIRST_NAME,
-  USER_LAST_NAME,
-  USER_ID_RIDER,
-  VEHICLE_PLATE_COLUMN,
-  RIDER_VEHICLE_ID,
-  VEHICLE_ID,
-  RIDER_ID_COLUMN,
-  PHONE_NUMBER,
-  VEHICLE_NAME_COLUMN,
   EMAIL_COLUMN,
+  PHONE_NUMBER,
+  RIDER_COLUMNS_FOR_ADDING,
+  RIDER_ID_COLUMN,
+  RIDER_TABLE_NAME,
+  RIDER_VEHICLE_ID,
+  USER_FIRST_NAME,
+  USER_ID_RIDER,
   USER_ID_USERS,
+  USER_LAST_NAME,
+  VEHICLE_ID,
+  VEHICLE_NAME_COLUMN,
+  VEHICLE_PLATE_COLUMN,
 } from "../constants/riderConstants.js";
-import { USER_ID_COLUMN } from "../constants/usersConstants.js";
+import { USER_ID_COLUMN, USER_TABLE_NAME } from "../constants/usersConstants.js";
+import { VEHICLE_TABLE_NAME } from "../constants/vehicleConstants.js";
+import { errorHandler } from "../utils/errorHandler.js";
+import { addOne } from "./DB/addDbFunctions.js";
+import { deleteOne } from "./DB/deleteDbFunctions.js";
 import {
-  getSpecificDetails,
-  getOne,
   getCountOnOneCondition,
+  getOne,
+  getSpecificDetails,
   getSpecificDetailsUsingId,
 } from "./DB/getDbFunctions.js";
-import {updateOne} from "./DB/updateDbFunctions.js"
+import { updateOne } from "./DB/updateDbFunctions.js";
+import { getDispatchersVehicleJoin } from "./DB/usersDbFunctions.js";
 
 
 export const getAllRiders = async (limit, offset) => {

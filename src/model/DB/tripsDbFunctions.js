@@ -1,13 +1,16 @@
-import { DB } from "./connectDb.js";
+import { PAYMENT_STATUS } from "../../constants/tripConstants.js";
 import { errorHandler } from "../../utils/errorHandler.js";
-import { TRIP_STATUS, PAYMENT_STATUS } from "../../constants/tripConstants.js";
+import { DB } from "./connectDb.js";
 
-
-
-export const getOneTrip = async (tripTableName, locationTableName, columnName, condition) => {
+export const getOneTrip = async (
+  tripTableName,
+  locationTableName,
+  columnName,
+  condition
+) => {
   try {
-    const value = [condition]
-    const  queryText = `SELECT 
+    const value = [condition];
+    const queryText = `SELECT 
     t.*, 
     tl.pick_lat, tl.pick_long, tl.drop_lat, tl.drop_long
 FROM 
@@ -18,12 +21,11 @@ ON
     t.trip_id = tl.trip_id
 WHERE 
     t.trip_id = $1;
-`
+`;
 
     const result = await DB.query(queryText, value);
 
     if (result.rowCount > 0) {
-      
       return result.rows;
     } else {
       return errorHandler(
@@ -34,15 +36,18 @@ WHERE
       );
     }
   } catch (err) {
-    console.log({err})
-    return errorHandler("Error occurred getting one Trip", `${err}`, 500, " Database Trip Functions: Get One Trip");
+    console.log({ err });
+    return errorHandler(
+      "Error occurred getting one Trip",
+      `${err}`,
+      500,
+      " Database Trip Functions: Get One Trip"
+    );
   }
 };
 
 export const upToOneWeekTripCounts = async () => {
   try {
-
-
     let queryText = `with
   date_series as (
     select
@@ -94,18 +99,18 @@ export const getTripsMonths = async () => {
 };
 
 export const getRevenueByMonth = async () => {
-  try {    
-    const values = [ true];
+  try {
+    const values = [true];
     const queryText = `SELECT
     TRIM(TO_CHAR(trip_request_date, 'Month')) AS month,
     SUM(trip_cost) AS revenue
   FROM trips WHERE
    ${PAYMENT_STATUS} = $1
   GROUP BY TRIM(TO_CHAR(trip_request_date, 'Month'))`;
-        
+
     const data = await DB.query(queryText, values);
     return data.rows;
-  }catch (err) {
+  } catch (err) {
     return errorHandler(
       "Error occurred getting revenue",
       `${err}`,
@@ -117,39 +122,37 @@ export const getRevenueByMonth = async () => {
 
 export const getCountByMonth = async (dataColumn, condition, month) => {
   try {
-    
     const values = [];
     let queryText = `SELECT
         TRIM(TO_CHAR(trip_request_date, 'Month')) AS month,
         COUNT(*) AS trip_count
       FROM trips
       GROUP BY TRIM(TO_CHAR(trip_request_date, 'Month'))`;
-    if(condition && dataColumn ) {
-      values.push(condition)
-       queryText = `SELECT
+    if (condition && dataColumn) {
+      values.push(condition);
+      queryText = `SELECT
         TRIM(TO_CHAR(trip_request_date, 'Month')) AS month,
         COUNT(*) AS trip_count
       FROM trips
       WHERE ${dataColumn} = $1
       GROUP BY TRIM(TO_CHAR(trip_request_date, 'Month'))`;
     }
-    if (condition  && dataColumn && month) {
-      values.push(month)
+    if (condition && dataColumn && month) {
+      values.push(month);
       queryText = `SELECT TRIM(TO_CHAR(trip_request_date, 'Month')) AS month, COUNT(*) AS trip_count FROM trips WHERE ${dataColumn} = $1 AND TRIM(TO_CHAR(trip_request_date, 'Month')) = $2 GROUP BY TO_CHAR(trip_request_date, 'Month')`;
-  
     }
 
     const data = await DB.query(queryText, values);
-    
+
     return data.rows;
   } catch (err) {
-  return errorHandler(
-    "Error occurred getting revenue",
-    `${err}`,
-    500,
-    "DB Functions: Get Trip Count By Month"
-  );
-}
+    return errorHandler(
+      "Error occurred getting revenue",
+      `${err}`,
+      500,
+      "DB Functions: Get Trip Count By Month"
+    );
+  }
 };
 
 export const getPreviousTwoMonthsCounts = async (
@@ -246,7 +249,7 @@ export const getTripsCustomersJoin = async (
   limit,
   offset = 0,
   orderColumn,
-  orderDirection, 
+  orderDirection
 ) => {
   try {
     const allTrips = await DB.query(
@@ -256,13 +259,15 @@ export const getTripsCustomersJoin = async (
       WHERE ${tripId} IS NOT NULL ORDER BY ${orderColumn} 
       ${orderDirection} LIMIT ${limit} OFFSET ${offset};`
     );
-    
-    
-    
 
     const trips = allTrips.rows;
     return trips;
   } catch (err) {
-    return errorHandler("Error occurred getting customer trips", `${err}`, 500, "Database Functions");
+    return errorHandler(
+      "Error occurred getting customer trips",
+      `${err}`,
+      500,
+      "Database Functions"
+    );
   }
 };

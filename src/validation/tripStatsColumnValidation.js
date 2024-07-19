@@ -1,17 +1,14 @@
 import {
-  ALLOWED_TRIP_STATS_COLUMNS,
-  MONTH_ORDER,
   ALLOWED_PACKAGE_TYPES,
   ALLOWED_TRIP_AREAS,
   ALLOWED_TRIP_MEDIUMS,
-  ALLOWED_TRIP_TYPES,
+  ALLOWED_TRIP_STATS_COLUMNS,
   ALLOWED_TRIP_STATUS,
+  ALLOWED_TRIP_TYPES,
+  MONTH_ORDER,
 } from "../constants/tripConstants.js";
 
-
-
 //validated requested property
-
 
 export const tripStatsColumnValidation = async (req, res, next) => {
   const {
