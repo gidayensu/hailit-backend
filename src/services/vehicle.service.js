@@ -1,7 +1,9 @@
 import { v4 as uuid } from "uuid";
+
 import {
   ALLOWED_VEHICLE_PROPERTIES,
   VEHICLE_TYPE_COLUMN,
+  VEHICLE_TABLE_NAME
 } from "../constants/vehicleConstants.js";
 import {
   addVehicleToDB,
@@ -38,7 +40,7 @@ export const getAllVehiclesService = async (page, vehicleType) => {
       allVehicles,
       offset,
       limit,
-      "vehicles"
+      VEHICLE_TABLE_NAME
     );
   } catch (err) {
     return errorHandler(
