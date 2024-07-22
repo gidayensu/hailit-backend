@@ -31,7 +31,7 @@ export const getAllVehicles = async (req, res) => {
 };
 
 export const getOneVehicle = async (req, res) => {
-  const vehicle_id = req.params;
+  const {vehicle_id} = req.params;
   const getVehicle = await getOneVehicleService(vehicle_id);
   if (getVehicle.error) {
     return res

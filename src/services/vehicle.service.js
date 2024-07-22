@@ -40,7 +40,7 @@ export const getAllVehiclesService = async (page, vehicleType) => {
       allVehicles,
       offset,
       limit,
-      VEHICLE_TABLE_NAME
+      "vehicles"
     );
   } catch (err) {
     return errorHandler(

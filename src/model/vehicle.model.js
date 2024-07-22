@@ -1,11 +1,11 @@
-import { COLUMNS_FOR_UPDATE, PLATE_NUMBER_COLUMN, VEHICLE_ID_COLUMN, VEHICLE_TABLE_NAME } from "../constants/vehicleConstants.js";
+import {  PLATE_NUMBER_COLUMN, VEHICLE_ID_COLUMN, VEHICLE_TABLE_NAME } from "../constants/vehicleConstants.js";
 import { addOne } from "./DB/addDbFunctions.js";
 import { deleteOne } from "./DB/deleteDbFunctions.js";
-import { getAll, getCountOnOneCondition, getOne } from "./DB/getDbFunctions.js";
+import { getAll, getCountOnOneCondition, getOne,  } from "./DB/getDbFunctions.js";
 import { updateOne } from "./DB/updateDbFunctions.js";
+import { errorHandler } from "../utils/errorHandler.js";
 
 
-const COLUMNS_FOR_ADDING = ["vehicle_id", ...COLUMNS_FOR_UPDATE];
 
 export const getAllVehiclesFromDB = async (limit, offset, condition, conditionColumn) => {
 
@@ -33,15 +33,11 @@ export const getVehiclesCount = async(countCondition, countConditionColumn)=> {
 
 export const getOneVehicleFromDB = async (vehicle_id) => {
   try {
+    
     const getVehicle = await getOne(VEHICLE_TABLE_NAME, VEHICLE_ID_COLUMN, vehicle_id);
     if (getVehicle.error) {
       
-      return errorHandler(
-        "Vehicle does not exist",
-        getVehicle.error,
-        404,
-        "Vehicle Model"
-      );
+      return getVehicle
     }
 
     return getVehicle[0];
