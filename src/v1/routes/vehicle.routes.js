@@ -10,7 +10,7 @@ import { supaAuth } from '../../auth/supaAuth.js';
 export const vehicleRouter = express.Router()
 
 
-vehicleRouter.get('/',  getAllVehicles)
+vehicleRouter.get('/', supaAuth, isAdmin,  getAllVehicles)
 
 vehicleRouter.get('/:vehicle_id', supaAuth, isAdmin, getOneVehicle)
 
