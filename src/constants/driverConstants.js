@@ -24,3 +24,25 @@ export const ALLOWED_DRIVER_UPDATE_PROPERTIES = [
     "license_number",
     "available",
   ];
+
+  export const CLIENT_SORT_COLUMNS = [
+    "Full Name",
+    "Email",
+    "Phone Number",
+    "License Number",
+    "Rating",
+    "Vehicle Name",
+    "Vehicle Number",
+    "Availability",
+  ]
+  
+  export const CLIENT_COLS_DB_COLS_MAP = {
+      "Full Name": "users.first_name, users.last_name",
+      "Email": "users.email",
+      "Phone Number": "users.phone_number",
+      "License Number": "driver.license_number",
+      "Rating": "driver.cumulative_rating",
+      "Vehicle Name": "vehicle.vehicle_name",
+      "Vehicle Number": "vehicle.plate_number",
+      "Availability": "driver.available",
+    };

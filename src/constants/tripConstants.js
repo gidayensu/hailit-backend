@@ -113,6 +113,20 @@ export const ANONYMOUS_USER_PROPS = [
   export const DISPATCHER_AVAILABLE_COLUMN = 'available';
   
   
+  export const CLIENT_SORT_COLUMNS = [
+    "Trip id",
+    "Ordered by",
+    "Booked On",
+    "Pickup",
+    "Pickup Contact",
+    "Drop off",
+    "Drop off Contact",
+    "Delivered On",
+    "Medium",
+    "Amount",
+    "Payment Status",
+    "Delivery Status",
+  ];
   
   
   export const ALLOWED_PACKAGE_TYPES = [
@@ -154,3 +168,20 @@ export const PICKUP_LATITUDE = "pick_lat";
 export const DROP_OFF_LATITUDE = "drop_lat";
 export const PICKUP_LONGITUDE = "pick_long";
 export const DROP_OFF_LONGITUDE = "drop_long";
+
+
+
+export const CLIENT_COLS_DB_COLS_MAP = {
+  "Trip id": "trips.trip_id",
+  "Ordered by": FIRST_NAME,
+  "Booked On": "trips.trip_request_date",
+  "Pickup": "trips.pickup_location",
+  "Pickup Contact": "trips.sender_number",
+  "Drop off": "trips.drop_off_location",
+  "Drop off Contact": "trips.recipient_number",
+  "Delivered On": "trips.trip_completion_date",
+  "Medium": "trips.trip_medium",
+  "Amount": "trips.trip_cost",
+  "Payment Status": "trips.payment_status",
+  "Delivery Status": "trips.trip_status",
+};

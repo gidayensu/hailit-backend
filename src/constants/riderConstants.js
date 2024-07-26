@@ -17,3 +17,25 @@ export const RIDER_ID_COLUMN = "rider_id";
 export const PHONE_NUMBER = "users.phone_number";
 
 export const RATING_COUNT_COLUMN = 'rating_count';
+
+export const CLIENT_SORT_COLUMNS = [
+  "Full Name",
+  "Email",
+  "Phone Number",
+  "License Number",
+  "Rating",
+  "Vehicle Name",
+  "Vehicle Number",
+  "Availability",
+]
+
+export const CLIENT_COLS_DB_COLS_MAP = {
+    "Full Name": "users.first_name, users.last_name",
+    "Email": "users.email",
+    "Phone Number": "users.phone_number",
+    "License Number": "rider.license_number",
+    "Rating": "rider.cumulative_rating",
+    "Vehicle Name": "vehicle.vehicle_name",
+    "Vehicle Number": "vehicle.plate_number",
+    "Availability": "rider.available",
+  };
