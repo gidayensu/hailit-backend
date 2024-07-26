@@ -4,8 +4,8 @@ import {
   ALLOWED_TRIP_AREAS,
   ALLOWED_TRIP_MEDIUMS,
   ALLOWED_TRIP_TYPES
-} from "../constants/tripConstants.js";
-import { allowedPropertiesOnly, isRightValue } from "../utils/util.js";
+} from "../../constants/tripConstants.js";
+import { allowedPropertiesOnly, isRightValue } from "../../utils/util.js";
 
 export const addTripValidation = async (req, res, next) => {
 
@@ -15,7 +15,6 @@ export const addTripValidation = async (req, res, next) => {
     trip_type,
     package_type,
     trip_area,
-    
     drop_off_location,
     pickup_location,
     pick_lat,
@@ -46,19 +45,7 @@ export const addTripValidation = async (req, res, next) => {
   !drop_long && errorReturner("Dropoff longitude not provided");
 
   if (
-    !trip_medium ||
-    !trip_type ||
-    !trip_area ||
-    
-    !package_type ||
-    !drop_off_location ||
-    !pickup_location ||
-    !pick_lat ||
-    !pick_long ||
-    !drop_lat ||
-    !drop_long ||
-    !trip_cost ||
-    !payment_method
+    errors.length > 0
   ) {
     return res.status(400).json({
       errors,
@@ -79,10 +66,7 @@ export const addTripValidation = async (req, res, next) => {
   // !validTripStatus && errorReturner("Wrong trip status provided");
 
   if (
-    !validTripMedium ||
-    !validPackageType ||
-    !validTripArea ||
-    !validTripType 
+    errors.length > 0 
     
   ) {
     return res.status(400).json({

@@ -5,8 +5,8 @@ import {
   ALLOWED_TRIP_STATUS,
   ALLOWED_TRIP_TYPES,
   ALLOWED_UPDATE_PROPERTIES,
-} from "../constants/tripConstants.js";
-import { allowedPropertiesOnly, isRightValue } from "../utils/util.js";
+} from "../../constants/tripConstants.js";
+import { allowedPropertiesOnly, isRightValue } from "../../utils/util.js";
 
 export const updateTripValidation = async (req, res, next) => {
 

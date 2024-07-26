@@ -6,7 +6,7 @@ import {
   ALLOWED_TRIP_STATUS,
   ALLOWED_TRIP_TYPES,
   MONTH_ORDER,
-} from "../constants/tripConstants.js";
+} from "../../constants/tripConstants.js";
 
 //validated requested property
 
