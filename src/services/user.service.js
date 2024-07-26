@@ -1,3 +1,4 @@
+import { DEFAULT_LIMIT } from "../constants/sharedConstants.js";
 import {
   ALLOWED_PROPERTIES,
   USER_ID_COLUMN,
@@ -15,12 +16,12 @@ import {
   deleteUserFromDB,
   emailExists,
   getAllUsersFromDB,
-  getCustomersCount,
+  getCustomerCount,
   getOneUserFromDB,
   getUserIdUsingEmail,
   phoneNumberExists,
   updateUserOnDB,
-  userExists,
+  userExists
 } from "../model/user.model.js";
 import { errorHandler } from "../utils/errorHandler.js";
 import { paginatedRequest } from "../utils/paginatedRequest.js";
@@ -34,15 +35,33 @@ import {
 } from "./dispatcherRole.service.js";
 
 //GET ALL CUSTOMERS (USERS WITH CUSTOMER ROLE)
-export const getAllUsersService = async (page) => {
+export const getAllUsersService = async (
+  page,
+  limit = DEFAULT_LIMIT,
+  sortColumn,
+  sortDirection,
+  search
+) => {
   try {
-    const limit = 7;
     let offset = 0;
 
     page > 1 ? (offset = limit * page - limit) : page;
 
-    const users = await getAllUsersFromDB(limit, offset);
-    const totalCount = await getCustomersCount();
+    const users = await getAllUsersFromDB(
+      limit,
+      offset,
+      sortColumn,
+      sortDirection,
+      search
+    );
+    if(users.error) {
+      return users; //with error details
+    }
+    const totalCount = await getCustomerCount(search);
+
+    if(totalCount.error) {
+      return totalCount //with error details
+    }
 
     return await paginatedRequest(totalCount, users, offset, limit, "users");
   } catch (err) {

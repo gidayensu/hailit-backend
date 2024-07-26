@@ -14,6 +14,7 @@ import {
   getTripsMonths,
   upToOneWeekTripCounts
 } from "./DB/tripsDbFunctions.js";
+import { tripsCount } from './DB/tripsDbFunctions.js';
 import { updateOne } from "./DB/updateDbFunctions.js";
 
 
@@ -28,10 +29,10 @@ export const tripsMonths = async()=> {
   }
 }
 
-export const getTripCount = async()=> {
+export const getTripCount = async(search)=> {
   try {
-    const tripCounts = await getCountOnOneCondition(TRIP_TABLE_NAME);
-    
+    const tripCounts = await tripsCount(TRIP_TABLE_NAME, search);
+    console.log({tripCounts})
     return tripCounts;
     
   } catch(err) {
@@ -51,7 +52,8 @@ export const searchTrips = async(searchQuery, limit, offset)=> {
 }
 
 
-export const getAllTripsFromDB = async (limit, offset, orderBy = TRIP_REQUEST_DATE_COLUMN, orderDirection = 'DESC' ) => {
+export const getAllTripsFromDB = async (limit, offset, sortColumn,
+  sortDirection, search ) => {
   try {
     
     const allTrips = await getTripsCustomersJoin(
@@ -64,8 +66,9 @@ export const getAllTripsFromDB = async (limit, offset, orderBy = TRIP_REQUEST_DA
       TRIP_ID,
       limit,
       offset,
-      orderBy,
-      orderDirection
+      sortColumn,
+      sortDirection,
+      search
     ); 
     
     return allTrips; 

@@ -14,10 +14,20 @@ import { config } from "dotenv";
 config({ path: "../../../.env" });
 
 export const getAllUsers = async (req, res) => {
-  const page = req.query.page;
-
+  
+  const {
+    page,
+    itemsPerPage: limit,
+    sortColumn,
+    sortDirection,
+    search
+  } = req?.query;
   try {
-    const allUsers = await getAllUsersService(page);
+    const allUsers = await getAllUsersService(page,
+      limit,
+      sortColumn,
+      sortDirection,
+      search);
     if (allUsers.error) {
       return res
         .status(allUsers.errorCode)

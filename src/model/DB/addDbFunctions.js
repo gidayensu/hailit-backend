@@ -7,7 +7,7 @@ export const addOne = async (tableName, columns, values) => {
   if (typeof values === "string") {
     valuesArray = [values];
   }
-  console.log({ columns, values });
+  
   const placeholders = valuesArray
     .map((_, index) => "$" + (index + 1))
     .join(", ");

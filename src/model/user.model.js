@@ -12,20 +12,26 @@ import { deleteOne } from "./DB/deleteDbFunctions.js";
 import {
   getCountOnOneCondition,
   getOne,
-  getSpecificDetailsUsingId,
-  selectOnCondition,
+  getSpecificDetailsUsingId
 } from "./DB/getDbFunctions.js";
 import { detailExists } from "./DB/helperDbFunctions.js";
 import { updateOne } from "./DB/updateDbFunctions.js";
+import { getAllCustomers } from "./DB/usersDbFunctions.js";
+import { customersCount } from "./DB/usersDbFunctions.js";
 
-export const getAllUsersFromDB = async (limit, offset) => {
+export const getAllUsersFromDB = async (limit,
+  offset,
+  sortColumn,
+  sortDirection,
+  search) => {
   try {
-    const allUsers = await selectOnCondition(
+    const allUsers = await getAllCustomers(
       USER_TABLE_NAME,
-      USER_ROLE_COLUMN,
-      USER_ROLE,
       limit,
-      offset
+      offset,
+      sortColumn,
+      sortDirection,
+      search
     );
 
     if (!allUsers) {
@@ -42,6 +48,27 @@ export const getAllUsersFromDB = async (limit, offset) => {
     );
   }
 };
+
+export const getCustomerCount = async (search) => {
+  try {
+    const customerCount = await customersCount(
+      USER_TABLE_NAME,
+      search
+    );
+
+    
+
+    return customerCount;
+  } catch (err) {
+    return errorHandler(
+      "Server error occurred getting customer count",
+      err,
+      500,
+      "User Model: Customer Count"
+    );
+  }
+};
+
 
 
 export const getOneUserFromDB = async (userId) => {
@@ -156,7 +183,7 @@ export const deleteUserFromDB = async (userId) => {
   
     //check if user exists
     const userExist = await userExists(userId); //returns true/false or error
-    console.log({userExist})
+    
     if(userExist.error || !userExist) {
       userExist.error ? userExist : errorHandler("User does not exist", null, 404, "User Mode: Delete User")
     }

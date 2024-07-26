@@ -1,3 +1,4 @@
+import { DEFAULT_LIMIT } from "../constants/sharedConstants.js";
 import {
   ALLOWED_DRIVER_UPDATE_PROPERTIES,
   GET_DRIVER_COLUMNS,
@@ -16,9 +17,9 @@ import { errorHandler } from "../utils/errorHandler.js";
 import { paginatedRequest } from "../utils/paginatedRequest.js";
 import { allowedPropertiesOnly, userIsUserRole } from "../utils/util.js";
 
-export const getAllDriversService = async (page) => {
+export const getAllDriversService = async (page, limit = DEFAULT_LIMIT) => {
   try {
-    const limit = 7;
+    
     let offset = 0;
 
     page > 1 ? (offset = limit * page - limit) : page;

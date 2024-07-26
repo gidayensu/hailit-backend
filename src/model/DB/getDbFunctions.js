@@ -1,22 +1,90 @@
 import { errorHandler } from "../../utils/errorHandler.js";
 import { DB } from "./connectDb.js";
 
+
+
+
 export const getAll = async (
   tableName,
+  columns,
   limit,
   offset,
-  condition,
-  conditionColumn
+  sortColumn,
+  sortDirection = "ASC",
+  search
 ) => {
+  
   try {
     let queryText = `SELECT * FROM ${tableName}`;
     const values = [];
-    if (limit && condition) {
-      queryText = `SELECT * FROM ${tableName} WHERE ${conditionColumn} =$1 LIMIT ${limit} OFFSET ${offset}`;
-      values.push(condition);
-    } else if (limit) {
-      queryText = `SELECT * FROM ${tableName} LIMIT ${limit} OFFSET ${offset}`;
+
+    if (limit) {
+        queryText += ` LIMIT ${limit} OFFSET ${offset}`;
     }
+
+    if (sortColumn && sortDirection) {
+        queryText += ` ORDER BY ${sortColumn} ${sortDirection.toUpperCase()} LIMIT ${limit} OFFSET ${offset}`;
+    }
+
+    if (search) {
+        values.push(`%${search}%`);
+        const searchConditions = columns.map(field => `${field} ILIKE $1`).join(' OR ');
+        queryText = `
+            SELECT * FROM ${tableName}
+            WHERE ${searchConditions}
+            ORDER BY ${sortColumn} ${sortDirection.toUpperCase()}
+            LIMIT ${limit} OFFSET ${offset}
+        `;
+    }
+
+    const allItems = await DB.query(queryText, values);
+    return allItems.rows; 
+  
+  } catch (err) {
+    return errorHandler(
+      "Error occurred getting all details",
+      `${err}`,
+      500,
+      "Database Functions: Get All"
+    );
+  }
+};
+export const getAllVehicles = async (
+  tableName,
+  limit,
+  offset,
+  sortColumn,
+  sortDirection = "ASC",
+  search
+) => {
+  
+  try {
+    let queryText = `SELECT * FROM ${tableName}`;
+    const values = [];
+    if (limit) {
+      queryText = `SELECT * FROM ${tableName} LIMIT ${limit} OFFSET ${offset}`;
+      
+    } 
+
+    if(sortColumn && sortDirection) {
+      queryText = `SELECT * FROM ${tableName} ORDER BY ${sortColumn} ${sortDirection.toUpperCase()} LIMIT ${limit} OFFSET ${offset} `;
+    }
+
+    if(search) {
+      values.push(`%${search}%`)
+      queryText = `
+    SELECT * FROM ${tableName}
+    WHERE vehicle_name ILIKE $1
+      OR plate_number ILIKE $1
+      OR vehicle_type ILIKE $1
+      OR vehicle_model ILIKE $1
+      OR insurance_details ILIKE $1
+      OR road_worthy ILIKE $1
+    ORDER BY ${sortColumn} ${sortDirection.toUpperCase()}
+    LIMIT ${limit} OFFSET ${offset}
+  `;
+    }
+    
     const allItems = await DB.query(queryText, values);
     const data = allItems.rows;
 
@@ -27,6 +95,44 @@ export const getAll = async (
       `${err}`,
       500,
       "Database Functions: Get All"
+    );
+  }
+};
+export const vehiclesCount = async (
+  tableName,
+  search
+) => {
+  
+  
+  try {
+    let queryText = `SELECT COUNT(*) AS total_count FROM ${tableName}`;
+    const values = [];
+    
+
+    
+    if(search) {
+      values.push(`%${search}%`)
+      queryText = `
+    SELECT COUNT(*) AS total_count FROM ${tableName}
+    WHERE vehicle_name ILIKE $1
+      OR plate_number ILIKE $1
+      OR vehicle_type ILIKE $1
+      OR vehicle_model ILIKE $1
+      OR insurance_details ILIKE $1
+      OR road_worthy ILIKE $1
+  `;
+    }
+    
+    const vehiclesCount = await DB.query(queryText, values);
+    const data = vehiclesCount.rows;
+    
+    return data[0];
+  } catch (err) {
+    return errorHandler(
+      "Error occurred getting vehicle count",
+      `${err}`,
+      500,
+      "Database Functions: Getting vehicle count"
     );
   }
 };

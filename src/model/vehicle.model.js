@@ -1,30 +1,46 @@
 import {  PLATE_NUMBER_COLUMN, VEHICLE_ID_COLUMN, VEHICLE_TABLE_NAME } from "../constants/vehicleConstants.js";
 import { addOne } from "./DB/addDbFunctions.js";
 import { deleteOne } from "./DB/deleteDbFunctions.js";
-import { getAll, getCountOnOneCondition, getOne,  } from "./DB/getDbFunctions.js";
+import { getAllVehicles, getCountOnOneCondition, getOne, vehiclesCount  } from "./DB/getDbFunctions.js";
 import { updateOne } from "./DB/updateDbFunctions.js";
 import { errorHandler } from "../utils/errorHandler.js";
 
 
 
-export const getAllVehiclesFromDB = async (limit, offset, condition, conditionColumn) => {
-
+export const getAllVehiclesFromDB = async (
+  limit,
+  offset,
+  sortColumn,
+  sortDirection,
+  search
+) => {
   try {
-    
-    const allVehicles = await getAll(VEHICLE_TABLE_NAME, limit, offset, condition, conditionColumn);
-    
+    const allVehicles = await getAllVehicles(
+      VEHICLE_TABLE_NAME,
+      limit,
+      offset,
+      sortColumn,
+      sortDirection,
+      search
+    );
+
     return allVehicles;
   } catch (err) {
-    return errorHandler(`Error occurred getting all vehicles`, `${err}`, 500, "Vehicle Model");
+    return errorHandler(
+      `Error occurred getting all vehicles`,
+      `${err}`,
+      500,
+      "Vehicle Model"
+    );
   }
 };
 
-export const getVehiclesCount = async(countCondition, countConditionColumn)=> {
+export const getVehiclesCount = async(search)=> {
   try {
-    const vehiclesCount = await getCountOnOneCondition(VEHICLE_TABLE_NAME, countCondition, countConditionColumn );
+    const count = await vehiclesCount(VEHICLE_TABLE_NAME, search );
     
     
-    return vehiclesCount;
+    return count;
     
   } catch(err) {
     return errorHandler("Error occurred getting vehicles count", `${err}`, 500, "Vehicle Model: Vehicles Count")

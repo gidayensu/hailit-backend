@@ -1,9 +1,8 @@
 import { v4 as uuid } from "uuid";
-
+import {DEFAULT_LIMIT} from "../constants/sharedConstants.js"
 import {
   ALLOWED_VEHICLE_PROPERTIES,
-  VEHICLE_TYPE_COLUMN,
-  VEHICLE_TABLE_NAME
+  VEHICLE_TYPE_COLUMN
 } from "../constants/vehicleConstants.js";
 import {
   addVehicleToDB,
@@ -17,23 +16,31 @@ import { allowedPropertiesOnly } from "../utils//util.js";
 import { errorHandler } from "../utils/errorHandler.js";
 import { paginatedRequest } from "../utils/paginatedRequest.js";
 
-export const getAllVehiclesService = async (page, vehicleType) => {
+export const getAllVehiclesService = async (
+  page,
+  limit = DEFAULT_LIMIT,
+  sortColumn,
+  sortDirection,
+  search
+) => {
   try {
-    const limit = 7;
     let offset = 0;
 
     page > 1 ? (offset = limit * page - limit) : page;
 
-    const vehiclesArgs = [limit, offset];
-    const totalCountArgs = [];
-    if (vehicleType === "car" || vehicleType === "motor") {
-      vehiclesArgs.push(vehicleType, VEHICLE_TYPE_COLUMN);
-      totalCountArgs.push(vehicleType, VEHICLE_TYPE_COLUMN);
+    const allVehicles = await getAllVehiclesFromDB(
+      limit,
+      offset,
+      sortColumn,
+      sortDirection,
+      search
+    );
+
+    if (allVehicles.error) {
+      return allVehicles;
     }
 
-    const allVehicles = await getAllVehiclesFromDB(...vehiclesArgs);
-
-    const totalCount = await getVehiclesCount(...totalCountArgs);
+    const totalCount = await getVehiclesCount(search);
 
     return await paginatedRequest(
       totalCount,

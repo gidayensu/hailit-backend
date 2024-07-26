@@ -8,16 +8,22 @@ import {
 
 export const getAllVehicles = async (req, res) => {
   try {
-    const vehicleType = req.query?.vehicle_type;
-    const page = req.query?.page;
-
-    const allVehicles = await getAllVehiclesService(page, vehicleType);
+    const {
+      page,
+      itemsPerPage: limit,
+      sortColumn,
+      sortDirection,
+      search
+    } = req?.query;
+    const allVehicles = await getAllVehiclesService(page, limit, sortColumn,
+      sortDirection, search);
+      
     if (allVehicles.error) {
-      return {
+      return res.status(allVehicles.errorCode).json( {
         error: allVehicles.error,
         errorMessage: allVehicles.errorMessage,
         errorSource: allVehicles.errorSource,
-      };
+      })
     }
 
     res.status(200).json({ ...allVehicles });
@@ -32,6 +38,8 @@ export const getAllVehicles = async (req, res) => {
 
 export const getOneVehicle = async (req, res) => {
   const {vehicle_id} = req.params;
+  
+
   const getVehicle = await getOneVehicleService(vehicle_id);
   if (getVehicle.error) {
     return res

@@ -17,9 +17,21 @@ import {
 
 export const getAllTrips = async (req, res) => {
   try {
-    const page = req.query.page;
+    const {
+      page,
+      itemsPerPage: limit,
+      sortColumn,
+      sortDirection,
+      search
+    } = req?.query;
 
-    const allTrips = await getAllTripsService(page);
+    const allTrips = await getAllTripsService(
+      page,
+      limit,
+      sortColumn,
+      sortDirection,
+      search
+    );
 
     if (allTrips.error) {
       return res

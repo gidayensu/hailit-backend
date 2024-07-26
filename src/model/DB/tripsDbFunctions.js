@@ -1,4 +1,5 @@
-import { PAYMENT_STATUS } from "../../constants/tripConstants.js";
+import { PAYMENT_STATUS, USER_ID_TRIP, USER_ID_USER, FIRST_NAME, LAST_NAME, TRIP_ID } from "../../constants/tripConstants.js";
+import { USERS_TABLE } from "../../constants/riderConstants.js";
 import { errorHandler } from "../../utils/errorHandler.js";
 import { DB } from "./connectDb.js";
 
@@ -36,12 +37,64 @@ WHERE
       );
     }
   } catch (err) {
-    console.log({ err });
+    
     return errorHandler(
       "Error occurred getting one Trip",
       `${err}`,
       500,
       " Database Trip Functions: Get One Trip"
+    );
+  }
+};
+
+export const tripsCount = async (tripTable, search) => {
+  try {
+    let queryText = `SELECT COUNT(*) AS total_count
+FROM ${tripTable} 
+FULL OUTER JOIN ${USERS_TABLE} 
+ON ${USER_ID_TRIP} = ${USER_ID_USER} 
+WHERE ${TRIP_ID} IS NOT NULL;
+`;
+
+
+    const values = [];
+
+    if (search) {
+      values.push(`%${search}%`);
+      queryText = `
+    SELECT COUNT(*) AS total_count
+FROM ${tripTable} 
+FULL OUTER JOIN ${USERS_TABLE} 
+ON ${USER_ID_TRIP} = ${USER_ID_USER} 
+WHERE ${TRIP_ID} IS NOT NULL AND ( 
+    ${FIRST_NAME} ILIKE $1 OR
+    ${LAST_NAME} ILIKE $1 OR
+    trips.trip_id ILIKE $1 OR
+    trips.trip_medium ILIKE $1 OR
+    trips.trip_status ILIKE $1 OR
+    trips.trip_type ILIKE $1 OR
+    trips.package_type ILIKE $1 OR
+    trips.pickup_location ILIKE $1 OR
+    trips.drop_off_location ILIKE $1 OR
+    trips.additional_information ILIKE $1 OR    
+    trips.payment_method ILIKE $1 OR
+    trips.dispatcher_id ILIKE $1 OR
+    trips.trip_area ILIKE $1 OR
+    trips.recipient_number ILIKE $1 OR
+    trips.sender_number ILIKE $1)
+  `;
+    }
+
+    const tripsCount = await DB.query(queryText, values);
+    const data = tripsCount.rows;
+
+    return data[0];
+  } catch (err) {
+    return errorHandler(
+      "Error occurred getting trip count",
+      `${err}`,
+      500,
+      "Trips Database Functions: Getting trips count"
     );
   }
 };
@@ -247,19 +300,46 @@ export const getTripsCustomersJoin = async (
   userIdTrip,
   tripId,
   limit,
-  offset = 0,
-  orderColumn,
-  orderDirection
+  offset,
+  sortColumn,
+  sortDirection = "ASC",
+  search
 ) => {
   try {
-    const allTrips = await DB.query(
-      `SELECT ${tripTable}.*, ${firstName}, 
+    const values = [];
+    let queryText = `SELECT ${tripTable}.*, ${firstName}, 
       ${lastName} FROM ${tripTable} FULL OUTER JOIN 
       ${usersTable} ON ${userIdTrip} = ${userIdUser} 
-      WHERE ${tripId} IS NOT NULL ORDER BY ${orderColumn} 
-      ${orderDirection} LIMIT ${limit} OFFSET ${offset};`
-    );
+      WHERE ${tripId} IS NOT NULL ORDER BY ${sortColumn} 
+      ${sortDirection} LIMIT ${limit} OFFSET ${offset};`;
 
+    if (search) {
+      values.push(`%${search}%`);
+      queryText = `
+    SELECT ${tripTable}.*, ${firstName}, 
+      ${lastName} FROM ${tripTable} FULL OUTER JOIN 
+      ${usersTable} ON ${userIdTrip} = ${userIdUser} 
+      WHERE ${tripId} IS NOT NULL AND ( 
+    trip_id ILIKE $1 OR
+    ${firstName} ILIKE $1 OR
+    ${lastName} ILIKE $1 OR
+    trips.trip_medium ILIKE $1 OR
+    trips.trip_status ILIKE $1 OR
+    trips.trip_type ILIKE $1 OR
+    trips.package_type ILIKE $1 OR
+    trips.pickup_location ILIKE $1 OR
+    trips.drop_off_location ILIKE $1 OR
+    trips.additional_information ILIKE $1 OR
+    trips.payment_method ILIKE $1 OR
+    trips.dispatcher_id ILIKE $1 OR
+    trips.trip_area ILIKE $1 OR
+    trips.recipient_number ILIKE $1 OR
+    trips.sender_number ILIKE $1)
+ORDER BY ${sortColumn} ${sortDirection.toUpperCase()}
+LIMIT ${limit} OFFSET ${offset};`;
+    }
+
+    const allTrips = await DB.query(queryText, values);
     const trips = allTrips.rows;
     return trips;
   } catch (err) {

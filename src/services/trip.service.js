@@ -1,4 +1,6 @@
+
 import crypto from "crypto";
+import { DEFAULT_LIMIT } from "../constants/sharedConstants.js";
 import { config } from "dotenv";
 import {
   ALLOWED_RATE_TRIP_PROPS,
@@ -45,20 +47,32 @@ import {
 config({ path: "../../../.env" });
 
 //GET ALL TRIPS
-export const getAllTripsService = async (page, orderBy, orderDirection) => {
+export const getAllTripsService = async (
+  page,
+  limit = DEFAULT_LIMIT,
+  sortColumn,
+  sortDirection,
+  search
+) => {
   try {
     await currentWeekTrip();
-    const limit = 7;
+
     let offset = 0;
 
     page > 1 ? (offset = limit * page - limit) : page;
 
-    const trips = await getAllTripsFromDB(limit, offset);
+    const trips = await getAllTripsFromDB(
+      limit,
+      offset,
+      sortColumn,
+      sortDirection,
+      search
+    );
 
     if (trips.error) {
       return trips; //return with error message
     }
-    const totalCount = await getTripCount();
+    const totalCount = await getTripCount(search);
 
     return await paginatedRequest(totalCount, trips, offset, limit, "trips");
   } catch (err) {
@@ -72,9 +86,9 @@ export const getAllTripsService = async (page, orderBy, orderDirection) => {
 };
 
 //SEARCH TRIPS
-export const searchTripService = async (search, page) => {
+export const searchTripService = async (search, page, limit = DEFAULT_LIMIT) => {
   try {
-    const limit = 7;
+    
     let offset = 0;
 
     page > 1 ? (offset = limit * page - limit) : page;
