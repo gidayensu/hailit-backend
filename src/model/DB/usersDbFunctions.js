@@ -23,18 +23,18 @@ export const customersCount = async (
 ) => {
   
   try {
-    let queryText = `SELECT COUNT(*) AS total_count FROM ${tableName}`;
+    let queryText = `SELECT COUNT(*) AS total_count FROM ${tableName} WHERE user_role = 'Customer'`;
     const values = [];
 
     if(search) {
       values.push(`%${search}%`)
       queryText = `
     SELECT COUNT(*) AS total_count FROM ${tableName}
-    WHERE first_name ILIKE $1
+    WHERE user_role = 'Customer' AND (first_name ILIKE $1
       OR last_name ILIKE $1
       OR email ILIKE $1
       OR phone_number ILIKE $1
-      OR user_role ILIKE $1
+      OR user_role ILIKE $1)
       
   `;
     }
@@ -69,18 +69,18 @@ export const getAllCustomers = async (
     } 
 
     if(sortColumn && sortDirection) {
-      queryText = `SELECT * FROM ${tableName} ORDER BY ${sortColumn} ${sortDirection.toUpperCase()} LIMIT ${limit} OFFSET ${offset} `;
+      queryText = `SELECT * FROM ${tableName} WHERE user_role = 'Customer' ORDER BY ${sortColumn} ${sortDirection.toUpperCase()} LIMIT ${limit} OFFSET ${offset} `;
     }
 
     if(search) {
       values.push(`%${search}%`)
       queryText = `
     SELECT * FROM ${tableName}
-    WHERE first_name ILIKE $1
+    WHERE user_role = 'Customer' AND (first_name ILIKE $1
       OR last_name ILIKE $1
       OR email ILIKE $1
       OR phone_number ILIKE $1
-      OR user_role ILIKE $1
+      OR user_role ILIKE $1)
       
     ORDER BY ${sortColumn} ${sortDirection.toUpperCase()}
     LIMIT ${limit} OFFSET ${offset}
