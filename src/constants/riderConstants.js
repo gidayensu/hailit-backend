@@ -30,7 +30,7 @@ export const CLIENT_SORT_COLUMNS = [
 ]
 
 export const CLIENT_COLS_DB_COLS_MAP = {
-    "Full Name": "users.first_name, users.last_name",
+    "Full Name": "users.first_name",
     "Email": "users.email",
     "Phone Number": "users.phone_number",
     "License Number": "rider.license_number",

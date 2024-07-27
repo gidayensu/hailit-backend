@@ -37,7 +37,7 @@ export const ALLOWED_DRIVER_UPDATE_PROPERTIES = [
   ]
   
   export const CLIENT_COLS_DB_COLS_MAP = {
-      "Full Name": "users.first_name, users.last_name",
+      "Full Name": "users.first_name",
       "Email": "users.email",
       "Phone Number": "users.phone_number",
       "License Number": "driver.license_number",
