@@ -26,7 +26,7 @@ export const getAllVehiclesService = async (
 ) => {
   try {
     
-
+    
     const allVehicles = await getAllEntitiesService(
       page,
       limit,
@@ -42,7 +42,7 @@ export const getAllVehiclesService = async (
       return allVehicles;
     }
 
-    
+    return allVehicles;
 
   } catch (err) {
     return errorHandler(
