@@ -57,5 +57,6 @@ export const SORTABLE_PROPERTIES = [
     "Email": "email",
     "Phone Number": "phone_number",
     "User Role": "user_role",
+    "Onboard Status": "onboard",
     "Date Joined": "date_created",
   };
