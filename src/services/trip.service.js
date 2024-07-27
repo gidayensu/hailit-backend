@@ -1,7 +1,7 @@
 
 import crypto from "crypto";
-import { DEFAULT_LIMIT } from "../constants/sharedConstants.js";
 import { config } from "dotenv";
+import { DEFAULT_LIMIT } from "../constants/sharedConstants.js";
 import {
   ALLOWED_RATE_TRIP_PROPS,
   ALLOWED_UPDATE_PROPERTIES,
@@ -26,7 +26,6 @@ import {
 } from "../model/trip.model.js";
 import { getOneUserFromDB } from "../model/user.model.js";
 import { errorHandler } from "../utils/errorHandler.js";
-import { paginatedRequest } from "../utils/paginatedRequest.js";
 import {
   allowedPropertiesOnly,
   currencyFormatter,
@@ -34,6 +33,7 @@ import {
   userIsUserRole,
 } from "../utils/util.js";
 import { getOneDriverService } from "./driver.service.js";
+import { getAllEntitiesService } from "./helpers.service.js";
 import { getOneRiderService } from "./rider.service.js";
 import {
   dispatcherTrips,
@@ -42,6 +42,7 @@ import {
   increaseRatingCount,
   percentageDifference,
   updateDispatcherRating,
+  sortByCalendarMonths
 } from "./tripServiceHelpers.js";
 
 config({ path: "../../../.env" });
@@ -55,26 +56,19 @@ export const getAllTripsService = async (
   search
 ) => {
   try {
-    await currentWeekTrip();
-
-    let offset = 0;
-
-    page > 1 ? (offset = limit * page - limit) : page;
-
-    const trips = await getAllTripsFromDB(
+    const trips = await getAllEntitiesService(
+      page,
       limit,
-      offset,
       sortColumn,
       sortDirection,
-      search
+      search,
+      getAllTripsFromDB,
+      getTripCount,
+      "trips"
     );
 
-    if (trips.error) {
-      return trips; //return with error message
-    }
-    const totalCount = await getTripCount(search);
-
-    return await paginatedRequest(totalCount, trips, offset, limit, "trips");
+    return trips;
+    
   } catch (err) {
     return errorHandler(
       "Error Occurred in getting Trips Detail",
@@ -465,30 +459,6 @@ export const tripsCountByMonth = async (tripDataColumn, condition, month) => {
     const tripMonths = await getTripMonthsService();
     const tripCounts = [];
 
-    function sortByCalendarMonths(monthCountData) {
-      // Define an array with the order of calendar months
-      const monthOrder = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-      ];
-
-      // Sort the data array based on the order of months in monthOrder
-      monthCountData.sort((a, b) => {
-        return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
-      });
-
-      return monthCountData;
-    }
 
     const sortedMonthsData = sortByCalendarMonths(monthTripCount);
 
@@ -524,12 +494,6 @@ export const getRevenueByMonth = async () => {
       tripMonths.push(monthRevenue.month);
     });
 
-    //ALL TIME - IS RETURNED BY EXCPLUDING THE CONDITIONS - tripDataColumn, condition, and month
-
-    // const sumOfCounts = (total, count) => total + +count
-    // const totalCount = tripCounts.reduce(sumOfCounts, 0);
-    // tripMonths.unshift('All Time')
-    // tripCounts.unshift(totalCount)
 
     return { tripMonths, revenue };
   } catch (err) {

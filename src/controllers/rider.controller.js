@@ -7,9 +7,21 @@ import {
 
 export const getAllRiders = async (req, res) => {
   try {
-    const page = req.query.page;
+    const {
+      page,
+      itemsPerPage: limit,
+      sortColumn,
+      sortDirection,
+      search
+    } = req?.query;
 
-    const allRiders = await getAllRidersService(page);
+    const allRiders = await getAllRidersService(
+      page,
+      limit,
+      sortColumn,
+      sortDirection,
+      search
+    );
     if (allRiders.error) {
       return res
         .status(allRiders.errorCode)

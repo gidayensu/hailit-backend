@@ -1,5 +1,6 @@
 import { v4 as uuid } from "uuid";
 import {DEFAULT_LIMIT} from "../constants/sharedConstants.js"
+import { getAllEntitiesService } from "./helpers.service.js";
 import {
   ALLOWED_VEHICLE_PROPERTIES,
   VEHICLE_TYPE_COLUMN
@@ -24,31 +25,25 @@ export const getAllVehiclesService = async (
   search
 ) => {
   try {
-    let offset = 0;
+    
 
-    page > 1 ? (offset = limit * page - limit) : page;
-
-    const allVehicles = await getAllVehiclesFromDB(
+    const allVehicles = await getAllEntitiesService(
+      page,
       limit,
-      offset,
       sortColumn,
       sortDirection,
-      search
+      search,
+      getAllVehiclesFromDB,
+      getVehiclesCount,
+      "vehicles"
     );
 
     if (allVehicles.error) {
       return allVehicles;
     }
 
-    const totalCount = await getVehiclesCount(search);
+    
 
-    return await paginatedRequest(
-      totalCount,
-      allVehicles,
-      offset,
-      limit,
-      "vehicles"
-    );
   } catch (err) {
     return errorHandler(
       "Server error occurred getting all vehicles",
@@ -68,7 +63,7 @@ export const getOneVehicleService = async (vehicle_id) => {
       "Server error occurred",
       `${err}`,
       500,
-      "Vehicle Service"
+      "Vehicle Service" 
     );
   }
 };

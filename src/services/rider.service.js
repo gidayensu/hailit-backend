@@ -1,8 +1,8 @@
-import { DEFAULT_LIMIT } from "../constants/sharedConstants.js";
 import {
   ALLOWED_UPDATE_RIDER_PROPERTIES,
   RIDER_DETAILS,
 } from "../constants/riderConstants.js";
+import { DEFAULT_LIMIT } from "../constants/sharedConstants.js";
 import {
   addRiderToDB,
   deleteRiderFromDB,
@@ -14,28 +14,34 @@ import {
 import { getSpecificUserDetailsUsingId } from "../model/user.model.js";
 import { getOneVehicleFromDB } from "../model/vehicle.model.js";
 import { errorHandler } from "../utils/errorHandler.js";
-import { paginatedRequest } from "../utils/paginatedRequest.js";
 import { allowedPropertiesOnly, userIsUserRole } from "../utils/util.js";
+import { getAllEntitiesService } from "./helpers.service.js";
 
-export const getAllRidersService = async (page, limit = DEFAULT_LIMIT) => {
+export const getAllRidersService = async (
+  page,
+  limit = DEFAULT_LIMIT,
+  sortColumn,
+  sortDirection,
+  search
+) => {
   try {
-    
-    let offset = 0;
-
-    page > 1 ? (offset = limit * page - limit) : page;
-    const riders = await getAllRiders(limit, offset);
-    if (riders.error) {
-      return riders;
-    }
-    const totalCount = await getRidersCount();
-
-    return await paginatedRequest(totalCount, riders, offset, limit, "riders");
+    const riders = await getAllEntitiesService(
+      page,
+      limit = DEFAULT_LIMIT,
+      sortColumn,
+      sortDirection,
+      search,
+      getAllRiders,
+      getRidersCount,
+      "riders"
+    );
+    return riders;
   } catch (err) {
     return errorHandler(
       "Error occurred getting all riders",
       `${err}`,
       500,
-      "Rider Service"
+      "Rider Service: Get All Riders"
     );
   }
 };

@@ -1,8 +1,8 @@
-import { DEFAULT_LIMIT } from "../constants/sharedConstants.js";
 import {
   ALLOWED_DRIVER_UPDATE_PROPERTIES,
   GET_DRIVER_COLUMNS,
 } from "../constants/driverConstants.js";
+import { DEFAULT_LIMIT } from "../constants/sharedConstants.js";
 import {
   addDriverToDB,
   deleteDriverFromDB,
@@ -14,30 +14,31 @@ import {
 import { getSpecificUserDetailsUsingId } from "../model/user.model.js";
 import { getOneVehicleFromDB } from "../model/vehicle.model.js";
 import { errorHandler } from "../utils/errorHandler.js";
-import { paginatedRequest } from "../utils/paginatedRequest.js";
 import { allowedPropertiesOnly, userIsUserRole } from "../utils/util.js";
+import { getAllEntitiesService } from "./helpers.service.js";
 
-export const getAllDriversService = async (page, limit = DEFAULT_LIMIT) => {
+export const getAllDriversService = async (
+  page,
+  limit = DEFAULT_LIMIT,
+  sortColumn,
+  sortDirection,
+  search
+) => {
+  
   try {
-    
-    let offset = 0;
-
-    page > 1 ? (offset = limit * page - limit) : page;
-    const drivers = await getAllDriversFromDB(limit, offset);
-
-    if (drivers.error) {
-      return { error: drivers.error };
-    }
-    const totalCount = await getDriversCount();
-
-    return await paginatedRequest(
-      totalCount,
-      drivers,
-      offset,
-      limit,
+    const drivers = await getAllEntitiesService(
+      page,
+      limit ,
+      sortColumn,
+      sortDirection,
+      search,
+      getAllDriversFromDB,
+      getDriversCount,
       "drivers"
     );
+    return drivers;
   } catch (err) {
+    
     return errorHandler(
       "server error occurred getting drivers",
       `${err}`,
@@ -90,7 +91,7 @@ export const getOneDriverService = async (driver_id, requester_user_id) => {
 export const addDriverService = async (user_id, vehicle_id) => {
   const driverAdd = await addDriverToDB(user_id, vehicle_id);
   if (driverAdd.error) {
-    return driverAdd.error;
+    return driverAdd.error; 
   }
   return driverAdd;
 };

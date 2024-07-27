@@ -24,7 +24,6 @@ import {
   userExists
 } from "../model/user.model.js";
 import { errorHandler } from "../utils/errorHandler.js";
-import { paginatedRequest } from "../utils/paginatedRequest.js";
 import { allowedPropertiesOnly } from "../utils/util.js";
 import {
   addDriverIfApplicable,
@@ -33,6 +32,7 @@ import {
   updateDriverRole,
   updateRiderRole,
 } from "./dispatcherRole.service.js";
+import { getAllEntitiesService } from "./helpers.service.js";
 
 //GET ALL CUSTOMERS (USERS WITH CUSTOMER ROLE)
 export const getAllUsersService = async (
@@ -43,27 +43,17 @@ export const getAllUsersService = async (
   search
 ) => {
   try {
-    let offset = 0;
-
-    page > 1 ? (offset = limit * page - limit) : page;
-
-    const users = await getAllUsersFromDB(
+    const users = await getAllEntitiesService(
+      page,
       limit,
-      offset,
       sortColumn,
       sortDirection,
-      search
+      search,
+      getAllUsersFromDB,
+      getCustomerCount,
+      "users"
     );
-    if(users.error) {
-      return users; //with error details
-    }
-    const totalCount = await getCustomerCount(search);
-
-    if(totalCount.error) {
-      return totalCount //with error details
-    }
-
-    return await paginatedRequest(totalCount, users, offset, limit, "users");
+    return users;
   } catch (err) {
     return errorHandler(
       "Error occurred getting all users",

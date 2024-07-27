@@ -13,21 +13,23 @@ import { errorHandler } from "../utils/errorHandler.js";
 import { addOne } from "./DB/addDbFunctions.js";
 import { deleteOne } from "./DB/deleteDbFunctions.js";
 import {
-  getCountOnOneCondition,
   getOne,
   getSpecificDetails,
   getSpecificDetailsUsingId
 } from "./DB/getDbFunctions.js";
 import { updateOne } from "./DB/updateDbFunctions.js";
-import { getDispatchersVehicleJoin } from "./DB/usersDbFunctions.js";
+import { getDispatcherCount, getDispatchersVehicleJoin } from "./DB/usersDbFunctions.js";
 
-export const getAllDriversFromDB = async (limit, offset) => {
+export const getAllDriversFromDB = async (limit,
+  offset,
+  sortColumn,
+  sortDirection,
+  search) => {
   try {
     const allDrivers = await getDispatchersVehicleJoin(
       DRIVER_TABLE_NAME,
       USER_TABLE_NAME,
       VEHICLE_TABLE,
-
       USER_FIRST_NAME,
       USER_LAST_NAME,
       PHONE_NUMBER,
@@ -35,12 +37,15 @@ export const getAllDriversFromDB = async (limit, offset) => {
       VEHICLE_NAME_COLUMN,
       VEHICLE_PLATE_COLUMN,
       USER_ID_DRIVER,
-      USER_ID_USERS, 
+      USER_ID_USERS,
       DRIVER_VEHICLE_ID,
-      VEHICLE_ID_COLUMN, 
+      VEHICLE_ID_COLUMN,
       DRIVER_ID_COLUMN,
       limit,
-      offset
+      offset,
+      sortColumn,
+      sortDirection,
+      search
     );
     
     return allDrivers;
@@ -52,13 +57,30 @@ export const getAllDriversFromDB = async (limit, offset) => {
 };
 
 
-export const getDriversCount = async()=> {
+export const getDriversCount = async(search)=> {
   try {
-    const driversCount = await getCountOnOneCondition(DRIVER_TABLE_NAME);
+    const driversCount = await getDispatcherCount(
+      DRIVER_TABLE_NAME,
+      USER_TABLE_NAME,
+      VEHICLE_TABLE,
+      USER_FIRST_NAME,
+      USER_LAST_NAME,
+      PHONE_NUMBER,
+      EMAIL_COLUMN,
+      VEHICLE_NAME_COLUMN,
+      VEHICLE_PLATE_COLUMN,
+      USER_ID_DRIVER,
+      USER_ID_USERS,
+      DRIVER_VEHICLE_ID,
+      VEHICLE_ID_COLUMN,
+      DRIVER_ID_COLUMN,
+      search
+    );
     
     return driversCount;
     
   } catch(err) {
+    
     return errorHandler("Error occurred getting drivers count", `${err}`, 500, "Driver Model: Drivers Count")
   }
 }

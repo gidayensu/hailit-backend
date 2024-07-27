@@ -6,12 +6,25 @@ import {
 } from "../services/driver.service.js";
 
 export const getAllDrivers = async (req, res) => {
-  const page = req.query.page;
+  const {
+    page,
+    itemsPerPage: limit,
+    sortColumn,
+    sortDirection,
+    search
+  } = req?.query;
 
   try {
-    const allDrivers = await getAllDriversService(page);
+    const allDrivers = await getAllDriversService(
+      page,
+      limit,
+      sortColumn,
+      sortDirection,
+      search
+    );
     if (res && res.status) {
       if (allDrivers.error) {
+        
         return res
           .status(allDrivers.errorCode)
           .json({
@@ -24,6 +37,7 @@ export const getAllDrivers = async (req, res) => {
       res.status(200).json({ ...allDrivers });
     }
   } catch (err) {
+    
     if (res && res.status) {
       return res
         .status(500)

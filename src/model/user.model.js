@@ -19,11 +19,13 @@ import { updateOne } from "./DB/updateDbFunctions.js";
 import { getAllCustomers } from "./DB/usersDbFunctions.js";
 import { customersCount } from "./DB/usersDbFunctions.js";
 
-export const getAllUsersFromDB = async (limit,
+export const getAllUsersFromDB = async (
+  limit,
   offset,
   sortColumn,
   sortDirection,
-  search) => {
+  search
+) => {
   try {
     const allUsers = await getAllCustomers(
       USER_TABLE_NAME,

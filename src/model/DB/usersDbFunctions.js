@@ -81,7 +81,6 @@ export const getAllCustomers = async (
       OR email ILIKE $1
       OR phone_number ILIKE $1
       OR user_role ILIKE $1)
-      
     ORDER BY ${sortColumn} ${sortDirection.toUpperCase()}
     LIMIT ${limit} OFFSET ${offset}
   `;
@@ -119,26 +118,94 @@ export const getDispatchersVehicleJoin = async (
   vehicleId,
   dispatcherId,
   limit,
-  offset = 0
+  offset,
+  sortColumn = firstName,
+  sortDirection = "ASC",
+  search
 ) => {
+
+  
   try {
-    let allDispatchers = await DB.query(
-      `select ${dispatcherTable}.*, ${firstName}, ${lastName}, ${phoneNumber}, ${email}, ${vehicleName}, ${vehiclePlate} from ${dispatcherTable} full outer join ${usersTable} on ${userIdDispatcher} = ${userIdUsers} full outer join ${vehicleTable} on ${dispatcherVehicleId} = ${vehicleId} where ${dispatcherId} is not null`
-    );
-    if (limit) {
-      allDispatchers = await DB.query(
-        `select ${dispatcherTable}.*, ${firstName}, ${lastName}, ${phoneNumber}, ${email}, ${vehicleName}, ${vehiclePlate} from ${dispatcherTable} full outer join ${usersTable} on ${userIdDispatcher} = ${userIdUsers} full outer join ${vehicleTable} on ${dispatcherVehicleId} = ${vehicleId} where ${dispatcherId} is not null limit ${limit} offset ${offset};`
-      );
+    const values = [];
+    let queryText = `SELECT ${dispatcherTable}.*, ${firstName}, ${lastName}, ${phoneNumber}, ${email}, ${vehicleName}, ${vehiclePlate} FROM ${dispatcherTable} FULL OUTER JOIN ${usersTable} on ${userIdDispatcher} = ${userIdUsers} FULL OUTER JOIN ${vehicleTable} on ${dispatcherVehicleId} = ${vehicleId} WHERE ${dispatcherId} IS NOT NULL ORDER BY ${sortColumn} ${sortDirection.toUpperCase()} LIMIT ${limit} OFFSET ${offset};`;
+    
+    if(search) {
+      values.push(`%${search}%`)
+      queryText = `SELECT ${dispatcherTable}.*, ${firstName}, ${lastName}, ${phoneNumber}, ${email}, ${vehicleName}, ${vehiclePlate} FROM ${dispatcherTable} FULL OUTER JOIN ${usersTable} on ${userIdDispatcher} = ${userIdUsers} FULL OUTER JOIN ${vehicleTable} on ${dispatcherVehicleId} = ${vehicleId} WHERE ${dispatcherId} IS NOT NULL AND (
+        ${firstName} ILIKE $1
+        OR ${lastName} ILIKE $1
+        OR ${phoneNumber} ILIKE $1
+        OR ${email} ILIKE $1
+        OR ${vehicleName} ILIKE $1
+        OR ${vehiclePlate} ILIKE $1
+        OR ${dispatcherTable}.license_number ILIKE $1       
+      )
+      ORDER BY ${sortColumn} ${sortDirection.toUpperCase()} LIMIT ${limit} OFFSET ${offset};`;
     }
 
+    console.log({queryText})
+    
+  const allDispatchers = await DB.query(queryText, values)
+    
     const dispatchers = allDispatchers.rows;
     return dispatchers;
   } catch (err) {
+    
     return errorHandler(
       "Error occurred getting dispatcher vehicle data",
       `${err}`,
       500,
       "Database Functions"
+    );
+  }
+};
+
+export const getDispatcherCount = async (
+  dispatcherTable,
+  usersTable,
+  vehicleTable,
+  firstName,
+  lastName,
+  phoneNumber,
+  email,
+  vehicleName,
+  vehiclePlate,
+  userIdDispatcher,
+  userIdUsers,
+  dispatcherVehicleId,
+  vehicleId,
+  dispatcherId,
+  search
+) => {
+  try {
+    const values = [];
+    let queryText = `SELECT COUNT(*) AS total_count FROM ${dispatcherTable} FULL OUTER JOIN ${usersTable} on ${userIdDispatcher} = ${userIdUsers} FULL OUTER JOIN ${vehicleTable} on ${dispatcherVehicleId} = ${vehicleId} WHERE ${dispatcherId} IS NOT NULL;`;
+    
+    if(search) {
+      values.push(`%${search}%`)
+      queryText = `SELECT COUNT(*) AS total_count FROM ${dispatcherTable} FULL OUTER JOIN ${usersTable} on ${userIdDispatcher} = ${userIdUsers} FULL OUTER JOIN ${vehicleTable} on ${dispatcherVehicleId} = ${vehicleId} WHERE ${dispatcherId} IS NOT NULL AND (
+        ${firstName} ILIKE $1
+        OR ${lastName} ILIKE $1
+        OR ${phoneNumber} ILIKE $1
+        OR ${email} ILIKE $1
+        OR ${vehicleName} ILIKE $1
+        OR ${vehiclePlate} ILIKE $1
+        OR ${dispatcherTable}.license_number ILIKE $1       
+      )
+      ;`;
+    }
+    
+    const dispatcherCount = await DB.query(queryText, values);
+    const data = dispatcherCount.rows;
+
+    return data[0];
+  } catch (err) {
+    
+    return errorHandler(
+      "Error occurred getting dispatcher count",
+      `${err}`,
+      500,
+      "User Database Functions: dispatcher count"
     );
   }
 };

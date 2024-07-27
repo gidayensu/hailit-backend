@@ -9,9 +9,10 @@ import {
   updateRider,
 } from "../../controllers/rider.controller.js";
 
+import { getAllRidersValidation } from "../../validation/getAllRidersValidation.js";
 export const riderRouter = express.Router();
 
-riderRouter.get("/", supaAuth, isAdmin, getAllRiders);
+riderRouter.get("/", supaAuth, isAdmin, getAllRidersValidation, getAllRiders);
 
 riderRouter.get("/:rider_id", supaAuth, isUserRole, getOneRider);
 

@@ -137,6 +137,7 @@ export const vehiclesCount = async (
   }
 };
 
+
 export const getCountOnOneCondition = async (
   tableName,
   condition,

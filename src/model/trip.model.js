@@ -32,7 +32,7 @@ export const tripsMonths = async()=> {
 export const getTripCount = async(search)=> {
   try {
     const tripCounts = await tripsCount(TRIP_TABLE_NAME, search);
-    console.log({tripCounts})
+
     return tripCounts;
     
   } catch(err) {

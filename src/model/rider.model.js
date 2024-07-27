@@ -21,16 +21,20 @@ import { errorHandler } from "../utils/errorHandler.js";
 import { addOne } from "./DB/addDbFunctions.js";
 import { deleteOne } from "./DB/deleteDbFunctions.js";
 import {
-  getCountOnOneCondition,
+  
   getOne,
   getSpecificDetails,
   getSpecificDetailsUsingId,
 } from "./DB/getDbFunctions.js";
 import { updateOne } from "./DB/updateDbFunctions.js";
-import { getDispatchersVehicleJoin } from "./DB/usersDbFunctions.js";
+import { getDispatchersVehicleJoin, getDispatcherCount } from "./DB/usersDbFunctions.js";
 
 
-export const getAllRiders = async (limit, offset) => {
+export const getAllRiders = async (limit,
+  offset,
+  sortColumn,
+  sortDirection,
+  search) => {
   try {
     const allRiders = await getDispatchersVehicleJoin(
       RIDER_TABLE_NAME,
@@ -48,7 +52,10 @@ export const getAllRiders = async (limit, offset) => {
       VEHICLE_ID,
       RIDER_ID_COLUMN,
       limit,
-      offset
+      offset,
+      sortColumn,
+      sortDirection,
+      search
     );
     if (allRiders.error) {
       return errorHandler(allRiders.error, null, 500, "All Riders Model");
@@ -59,9 +66,25 @@ export const getAllRiders = async (limit, offset) => {
   }
 };
 
-export const getRidersCount = async()=> {
+export const getRidersCount = async(search)=> {
   try {
-    const ridersCount = await getCountOnOneCondition(RIDER_TABLE_NAME);
+    const ridersCount = await getDispatcherCount(
+      RIDER_TABLE_NAME,
+      USER_TABLE_NAME,
+      VEHICLE_TABLE_NAME,
+      USER_FIRST_NAME,
+      USER_LAST_NAME,
+      PHONE_NUMBER,
+      EMAIL_COLUMN,
+      VEHICLE_NAME_COLUMN,
+      VEHICLE_PLATE_COLUMN,
+      USER_ID_RIDER,
+      USER_ID_USERS,
+      RIDER_VEHICLE_ID,
+      VEHICLE_ID,
+      RIDER_ID_COLUMN,
+      search
+    );
     
     return ridersCount;
     

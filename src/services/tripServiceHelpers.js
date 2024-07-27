@@ -5,8 +5,9 @@ import {
 import {
   RATING_COUNT_COLUMN,
   RIDER_ID_COLUMN,
-  RIDER_TABLE_NAME,
+  RIDER_TABLE_NAME
 } from "../constants/riderConstants.js";
+
 import {
   CUSTOMER_ID_COLUMN,
   CUSTOMER_TRIP_FIELDS,
@@ -31,7 +32,7 @@ import {
 } from "../model/trip.model.js";
 import { currencyFormatter } from "../utils/util.js";
 
-// const allowedTripStatus = ['booked', 'in progress', 'completed', 'cancelled'];
+
 
 //CALCULATE TRIPS == breaks away from camel case to match the database case
 
@@ -255,3 +256,30 @@ export const getDispatcherId = async (trip_medium) => {
 
   return dispatcher_id;
 };
+
+
+
+export const sortByCalendarMonths= (monthCountData) => {
+  
+  const monthOrder = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  
+  monthCountData.sort((a, b) => {
+    return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
+  });
+
+  return monthCountData;
+}
