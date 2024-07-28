@@ -143,7 +143,6 @@ export const getDispatchersVehicleJoin = async (
       ORDER BY ${sortColumn} ${sortDirection.toUpperCase()} LIMIT ${limit} OFFSET ${offset};`;
     }
 
-    console.log({queryText})
     
   const allDispatchers = await DB.query(queryText, values)
     
