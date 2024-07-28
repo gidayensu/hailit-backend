@@ -10,7 +10,7 @@ import {
   getOneUser,
   updateUser,
 } from "../../controllers/user.controller.js";
-import { userRoleValidation } from "../../validation/userRoleValidation.js";
+
 
 export const userRouter = express.Router();
 
@@ -20,7 +20,7 @@ userRouter.get("/:userId", supaAuth, getOneUser);
 
 userRouter.get("/admin/:userId", supaAuth, userIsAdmin);
 
-userRouter.post("/register", userRoleValidation, addUser);
+userRouter.post("/register", addUser);
 
 userRouter.put("/:userId", supaAuth, isUserRole, updateUser);
 
