@@ -23,7 +23,7 @@ export const getAllRiders = async (req, res) => {
       search
     );
     if (allRiders.error) {
-      return res
+      return res && res
         .status(allRiders.errorCode)
         .json({
           error: allRiders.error,
@@ -32,9 +32,9 @@ export const getAllRiders = async (req, res) => {
         });
     }
 
-    if (res && res.status) {
-      res.status(200).json(allRiders);
-    }
+    
+    res && res.status(200).json(allRiders);
+    
   } catch (error) {
     if (res && res.status) {
       res
