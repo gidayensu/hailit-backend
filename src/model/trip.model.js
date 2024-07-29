@@ -1,9 +1,9 @@
-import { FIRST_NAME, LAST_NAME, LOCATION_TABLE_NAME, TRIP_ID_COLUMN, TRIP_REQUEST_DATE_COLUMN, TRIP_TABLE_NAME, USER_ID_TRIP, USER_ID_USER, } from '../constants/tripConstants.js';
+import { FIRST_NAME, LAST_NAME, LOCATION_TABLE_NAME, TRIP_ID_COLUMN, TRIP_TABLE_NAME, USER_ID_TRIP, USER_ID_USER } from '../constants/tripConstants.js';
 import { USER_TABLE_NAME } from "../constants/usersConstants.js";
 import { errorHandler } from "../utils/errorHandler.js";
 import { addOne } from "./DB/addDbFunctions.js";
 import { deleteOne } from "./DB/deleteDbFunctions.js";
-import { getCountOnOneCondition, getSpecificDetailsUsingId, selectOnCondition } from "./DB/getDbFunctions.js";
+import { getSpecificDetailsUsingId, selectOnCondition, getOne } from "./DB/getDbFunctions.js";
 import { increaseByValue } from "./DB/helperDbFunctions.js";
 import {
   getCountByMonth,
@@ -12,9 +12,9 @@ import {
   getRevenueByMonth,
   getTripsCustomersJoin,
   getTripsMonths,
+  tripsCount,
   upToOneWeekTripCounts
 } from "./DB/tripsDbFunctions.js";
-import { tripsCount } from './DB/tripsDbFunctions.js';
 import { updateOne } from "./DB/updateDbFunctions.js";
 
 
@@ -262,16 +262,19 @@ export const ratingCountIncrease = async (
   return increaseDispatcherRateCount;
 };
 
-export const associatedWithTrip = async (trip_id, roleIdColumn) => {
-  const tripIdColumn = "trip_id";
+export const associatedWithTrip = async (trip_id, condition, conditionColumn) => {
 
   try { 
-    const tripData = await getSpecificDetailsUsingId(
+    const tripData = await getOne(
+      TRIP_TABLE_NAME,
+      TRIP_ID_COLUMN,
       trip_id,
-      tripIdColumn,
-      roleIdColumn
+      conditionColumn,
+      condition
     );
-
+    if(tripData?.errorCode === 404) {
+      return false;
+    }
     
     return tripData;
     

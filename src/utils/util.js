@@ -58,22 +58,23 @@ export const userIsUserRole = async (user_id, user_role) => {
   return await isUserRole(user_id, user_role);
 };
 
-export const userAssociatedWithTrip = async (role_id, trip_id, role) => {
-  let roleIdColumn = "user_id";
+export const userAssociatedWithTrip = async (trip_id, requester_id, requester_role,) => {
+  let requesterIdColumn = "user_id"
 
-  if (role === "Driver") {
-    roleIdColumn = "driver_id";
+  if (requester_role === "Dispatcher") {
+    requesterIdColumn = "dispatcher_id";
   }
-  const tripData = await associatedWithTrip(trip_id, roleIdColumn);
-  if (!tripData) {
+  
+  const tripData = await associatedWithTrip(trip_id, requester_id, requesterIdColumn);
+  if (!tripData || tripData.error) {
     return false;
   }
 
-  if (role === "Driver") {
-    return tripData[0]?.driver_id === role_id ? true : false;
+  if (requester_role === "Dispatcher") {
+    return tripData[0]?.dispatcher_id === requester_id ? true : false;
   }
 
-  return tripData[0]?.user_id === role_id ? true : false;
+  return tripData[0]?.user_id === requester_id ? true : false;
 };
 
 export const riderUserId = async (rider_id) => {

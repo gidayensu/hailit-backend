@@ -221,12 +221,15 @@ export const selectOnCondition = async (
   }
 };
 
-export const getOne = async (tableName, columnName, entry) => {
+export const getOne = async (tableName, columnName, condition, secondConditionColumn, secondCondition) => {
   try {
-    const value = [entry];
-    const queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1`;
-
-    const result = await DB.query(queryText, value);
+    const values = [condition];
+    let queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1`;
+    if(secondCondition) {
+      values.push(secondCondition)
+      queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1 AND ${secondConditionColumn} = $2`;
+    }
+    const result = await DB.query(queryText, values);
 
     if (result.rowCount > 0) {
       return result.rows;

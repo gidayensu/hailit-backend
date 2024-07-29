@@ -22,6 +22,7 @@ import { addTripValidation } from "../../validation/tripsValidation/addTripValid
 import { rateTripValidation } from "../../validation/tripsValidation/rateTripValidation.js";
 import { tripStatsColumnValidation } from "../../validation/tripsValidation/tripStatsColumnValidation.js";
 import { updateTripValidation } from "../../validation/tripsValidation/updateTripValidation.js";
+import { isAssociatedWithTrip } from "../../auth/user-auth/isAssociatedWithTrip.js";
 
 export const tripRouter = express.Router();
 
@@ -35,7 +36,7 @@ tripRouter.get("/user-trips/:user_id", supaAuth, getUserTrips);
 
 tripRouter.post("/add-trip/", tripSupaAuth, addTripValidation, addTrip);
 
-tripRouter.put("/user-trip/:trip_id", supaAuth, updateTripValidation, updateTrip);
+tripRouter.put("/user-trip/:trip_id", supaAuth, isAssociatedWithTrip, updateTripValidation, updateTrip);
 
 tripRouter.put("/rate-trip/:trip_id", supaAuth, rateTripValidation, rateTrip);
 
