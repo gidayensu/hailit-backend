@@ -273,7 +273,7 @@ export const updateTripService = async (tripDetails) => {
     let dispatcherDetails = await dispatcherService(dispatcher_id);
 
     if (dispatcherDetails.error) {
-      return { ...oneTrip, dispatcher: "Not assigned" };
+      return { ...tripUpdate, dispatcher: "Not assigned" };
     }
 
     const {
