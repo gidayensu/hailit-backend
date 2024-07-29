@@ -10,13 +10,13 @@ import {
   getOneUser,
   updateUser,
 } from "../../controllers/user.controller.js";
-
+import {isUser} from "../../auth/user-auth/isUser.js"
 
 export const userRouter = express.Router();
 
 userRouter.get("/", supaAuth, isAdmin,  getAllUsersValidation,  getAllUsers);
 
-userRouter.get("/:userId", supaAuth, isUserRole, getOneUser);
+userRouter.get("/:userId",  supaAuth, isUser, getOneUser);
 
 userRouter.get("/admin/:userId", supaAuth, userIsAdmin);
 
