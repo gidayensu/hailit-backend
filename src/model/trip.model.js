@@ -1,4 +1,4 @@
-import { FIRST_NAME, LAST_NAME, LOCATION_TABLE_NAME, TRIP_ID, TRIP_REQUEST_DATE_COLUMN, TRIP_TABLE_NAME, USER_ID_TRIP, USER_ID_USER, } from '../constants/tripConstants.js';
+import { FIRST_NAME, LAST_NAME, LOCATION_TABLE_NAME, TRIP_ID_COLUMN, TRIP_REQUEST_DATE_COLUMN, TRIP_TABLE_NAME, USER_ID_TRIP, USER_ID_USER, } from '../constants/tripConstants.js';
 import { USER_TABLE_NAME } from "../constants/usersConstants.js";
 import { errorHandler } from "../utils/errorHandler.js";
 import { addOne } from "./DB/addDbFunctions.js";
@@ -63,7 +63,7 @@ export const getAllTripsFromDB = async (limit, offset, sortColumn,
       LAST_NAME,
       USER_ID_USER,
       USER_ID_TRIP,
-      TRIP_ID,
+      TRIP_ID_COLUMN,
       limit,
       offset,
       sortColumn,

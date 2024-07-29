@@ -1,4 +1,4 @@
-import { PAYMENT_STATUS, USER_ID_TRIP, USER_ID_USER, FIRST_NAME, LAST_NAME, TRIP_ID } from "../../constants/tripConstants.js";
+import { PAYMENT_STATUS, USER_ID_TRIP, USER_ID_USER, FIRST_NAME, LAST_NAME, TRIP_ID_COLUMN } from "../../constants/tripConstants.js";
 import { USERS_TABLE } from "../../constants/riderConstants.js";
 import { errorHandler } from "../../utils/errorHandler.js";
 import { DB } from "./connectDb.js";
@@ -53,7 +53,7 @@ export const tripsCount = async (tripTable, search) => {
 FROM ${tripTable} 
 FULL OUTER JOIN ${USERS_TABLE} 
 ON ${USER_ID_TRIP} = ${USER_ID_USER} 
-WHERE ${TRIP_ID} IS NOT NULL;
+WHERE ${TRIP_ID_COLUMN} IS NOT NULL;
 `;
 
 
@@ -66,7 +66,7 @@ WHERE ${TRIP_ID} IS NOT NULL;
 FROM ${tripTable} 
 FULL OUTER JOIN ${USERS_TABLE} 
 ON ${USER_ID_TRIP} = ${USER_ID_USER} 
-WHERE ${TRIP_ID} IS NOT NULL AND ( 
+WHERE ${TRIP_ID_COLUMN} IS NOT NULL AND ( 
     ${FIRST_NAME} ILIKE $1 OR
     ${LAST_NAME} ILIKE $1 OR
     trips.trip_id ILIKE $1 OR

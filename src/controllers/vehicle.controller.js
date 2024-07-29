@@ -66,16 +66,16 @@ export const addVehicle = async (req, res) => {
       });
   }
 
-  const addingVehicleResult = await addVehicleService(req.body);
-  if (addingVehicleResult.error) {
+  const addedVehicle = await addVehicleService(req.body);
+  if (addedVehicle.error) {
     return res.status(403).json({
-      error: addingVehicleResult.error,
-      errorMessage: addingVehicleResult.errorMessage,
+      error: addedVehicle.error,
+      errorMessage: addedVehicle.errorMessage,
       errorSource: "addVehicle Controller",
     });
   }
-
-  res.status(200).json({ vehicle: addingVehicleResult });
+  req.io.emit('addedVehicle', addedVehicle)
+  res.status(200).json({ vehicle: addedVehicle });
 };
 
 export const updateVehicle = async (req, res) => {
@@ -88,17 +88,17 @@ export const updateVehicle = async (req, res) => {
       return res.status(403).json({ error: "Require at least one input" });
     }
 
-    const updatingVehicle = await updateVehicleService(vehicle_id, req.body);
+    const updatedVehicle = await updateVehicleService(vehicle_id, req.body);
 
-    if (updatingVehicle.error) {
+    if (updatedVehicle.error) {
       return res.status(403).json({
-        error: updatingVehicle.error,
-        errorMessage: updatingVehicle.errorMessage,
+        error: updatedVehicle.error,
+        errorMessage: updatedVehicle.errorMessage,
         errorSource: "updateVehicle Controller",
       });
     }
-
-    res.status(200).json({ vehicle: updatingVehicle });
+    req.io.emit('updatedVehicle', updatedVehicle)
+    res.status(200).json({ vehicle: updatedVehicle });
   } catch (err) {
     return res.status(500).json({
       error: "Server Error",
@@ -112,18 +112,18 @@ export const deleteVehicle = async (req, res) => {
   try {
     const { vehicle_id } = req.params;
 
-    const deleteVehicle = await deleteVehicleService(vehicle_id);
+    const deletedVehicle = await deleteVehicleService(vehicle_id);
 
-    if (deleteVehicle.error) {
+    if (deletedVehicle.error) {
       return res.status(400).json({
-        // Assuming 400 for delete error
+        
         error: "Error occurred deleting vehicle",
-        errorMessage: deleteVehicle.errorMessage,
+        errorMessage: deletedVehicle.errorMessage,
         errorSource: "deleteVehicle Controller",
       });
     }
-
-    res.status(200).json({ message: "Vehicle deleted successfully" }); // Updated success message
+    req.io.emit('deletedVehicle', deletedVehicle)
+    res.status(200).json({ success: true, vehicle_id }); 
   } catch (err) {
     return res.status(500).json({
       error: "Server Error occurred deleting vehicle",

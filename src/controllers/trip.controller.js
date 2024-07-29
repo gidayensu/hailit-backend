@@ -62,17 +62,18 @@ export const getOneTrip = async (req, res) => {
     const user_id = req.user?.sub;
 
     const oneTrip = await getOneTripService(trip_id, user_id);
-
     if (oneTrip.error) {
       return res
-        .status(400)
-        .json({
-          error: oneTrip.error,
-          errorMessage: oneTrip.errorMessage,
-          errorSource: oneTrip.errorSource,
-        });
+      .status(400)
+      .json({
+        error: oneTrip.error,
+        errorMessage: oneTrip.errorMessage,
+        errorSource: oneTrip.errorSource,
+      });
     }
-    res.status(200).json({ trip: oneTrip });
+    const returnedTrip = {trip:oneTrip}
+    console.log({returnedTrip})
+    res.status(200).json(returnedTrip);
   } catch (err) {
     return res
       .status(500)
@@ -128,13 +129,14 @@ export const addTrip = async (req, res) => {
           errorSource: tripAdded.errorSource,
         });
     }
+    req.io.emit('tripAdded', tripAdded);
     res.status(200).json({ trip: tripAdded });
   } catch (err) {
     return res
       .status(500)
       .json({
         error: "Server Error occurred adding trip",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Adding Trip Controller",
       });
   }
@@ -155,8 +157,11 @@ export const updateTrip = async (req, res) => {
           errorSource: tripUpdate.errorSource,
         });
     }
+    const updatedTrip = {trip: tripUpdate}
 
-    res.status(200).json({ trip: tripUpdate });
+    console.log({updatedTrip})
+    req.io.emit('tripUpdated', updatedTrip)
+    res.status(200).json(updatedTrip);
   } catch (err) {
     return res
       .status(500)
@@ -176,18 +181,18 @@ export const rateTrip = async (req, res) => {
     const { trip_id } = req.params;
     const detailsWithId = { trip_id, ...ratingDetails };
 
-    const tripRating = await rateTripService(detailsWithId);
-    if (tripRating.error) {
+    const ratedTrip = await rateTripService(detailsWithId);
+    if (ratedTrip.error) {
       return res
         .status(400)
         .json({
-          error: tripRating.error,
-          errorMessage: tripRating.errorMessage,
-          errorSource: tripRating.errorSource,
+          error: ratedTrip.error,
+          errorMessage: ratedTrip.errorMessage,
+          errorSource: ratedTrip.errorSource,
         });
     }
-
-    res.status(200).json(tripRating);
+    req.io.emit('tripRated', ratedTrip)
+    res.status(200).json(ratedTrip);
   } catch (err) {
     return res
       .status(500)
@@ -213,8 +218,8 @@ export const deleteTrip = async (req, res) => {
           errorSource: tripDelete.errorSource,
         });
     }
-
-    res.status(200).json({ success: "trip deleted" });
+    req.io.emit('tripDeleted', trip_id)
+    res.status(200).json({ success: true, trip_id });
   } catch (err) {
     return res
       .status(500)

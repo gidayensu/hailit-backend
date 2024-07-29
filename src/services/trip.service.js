@@ -8,7 +8,7 @@ import {
   ANONYMOUS_USER_PROPS,
   MONTH_ORDER,
   NO_LOCATION_PROPS,
-  TRIP_ID,
+  TRIP_ID_COLUMN,
 } from "../constants/tripConstants.js";
 import {
   addTripToDB,
@@ -44,7 +44,7 @@ import {
   updateDispatcherRating,
   sortByCalendarMonths
 } from "./tripServiceHelpers.js";
-
+import { getOneUserService } from "./user.service.js";
 config({ path: "../../../.env" });
 
 //GET ALL TRIPS
@@ -107,7 +107,7 @@ export const getOneTripService = async (trip_id, requester_user_id) => {
     //check if user is admin
     const isAdmin = await userIsUserRole(requester_user_id, "Admin");
 
-    let oneTrip = await getOneTripFromDB(trip_id, TRIP_ID);
+    let oneTrip = await getOneTripFromDB(trip_id, TRIP_ID_COLUMN);
     if (oneTrip.error) {
       return { error: oneTrip.error };
     }
@@ -136,8 +136,6 @@ export const getOneTripService = async (trip_id, requester_user_id) => {
       user_id = "",
       rider_id = "",
       driver_id = "",
-      license_number = "",
-      available = "",
       vehicle_id = "",
       first_name = "",
       last_name = "",
@@ -150,8 +148,6 @@ export const getOneTripService = async (trip_id, requester_user_id) => {
       cumulative_rating,
       user_id,
       dispatcher_id: rider_id || driver_id,
-      license_number,
-      available,
       vehicle_id,
       first_name,
       last_name,
@@ -237,8 +233,12 @@ export const addTripService = async (user_id, tripDetails) => {
       ...tripStatusDetails,
     };
 
-    const newTrip = await addTripToDB(finalTripDetails, locationDetails);
-
+    let newTrip = await addTripToDB(finalTripDetails, locationDetails);
+    //adds name of user to trips details for dashboard
+    const {first_name, last_name} = await getOneUserService(user_id)
+    newTrip.first_name = first_name;
+    newTrip.last_name = last_name;
+    
     return newTrip;
   } catch (err) {
     return errorHandler(
@@ -258,7 +258,50 @@ export const updateTripService = async (tripDetails) => {
       ALLOWED_UPDATE_PROPERTIES
     );
 
+    
     const tripUpdate = await updateTripOnDB(validTripDetails);
+    if(tripUpdate.error) {
+      return tripUpdate //with error details
+    }
+
+    const {dispatcher_id, trip_medium} = tripUpdate;
+    
+
+    const dispatcherService =
+      trip_medium === "Motor" ? getOneRiderService : getOneDriverService;
+
+    let dispatcherDetails = await dispatcherService(dispatcher_id);
+
+    if (dispatcherDetails.error) {
+      return { ...oneTrip, dispatcher: "Not assigned" };
+    }
+
+    const {
+      rating_count = 0,
+      cumulative_rating = "0.0",
+      user_id = "",
+      rider_id = "",
+      driver_id = "",
+      vehicle_id = "",
+      first_name = "",
+      last_name = "",
+      phone_number = "",
+      vehicle,
+    } = dispatcherDetails;
+
+    dispatcherDetails = {
+      rating_count,
+      cumulative_rating,
+      user_id,
+      dispatcher_id: rider_id || driver_id,
+      vehicle_id,
+      first_name,
+      last_name,
+      phone_number,
+      vehicle,
+    };
+
+    return { ...tripUpdate, dispatcher: dispatcherDetails };
 
     return tripUpdate;
   } catch (err) {

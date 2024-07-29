@@ -92,18 +92,18 @@ export const updateRider = async (req, res) => {
   const riderDetails = { ...reqBody, rider_id };
 
   try {
-    const riderUpdate = await updateRiderService(riderDetails);
-    if (!riderUpdate.error) {
-      res.status(200).json({ rider: riderUpdate });
-    } else {
-      res
-        .status(riderUpdate.errorCode)
-        .json({
-          error: riderUpdate.error,
-          errorMessage: riderUpdate.errorMessage,
-          errorSource: riderUpdate.errorSource,
-        });
-    }
+    const updatedRider = await updateRiderService(riderDetails);
+    if (updatedRider.error) {
+      return res
+      .status(updatedRider.errorCode)
+      .json({
+        error: updatedRider.error,
+        errorMessage: updatedRider.errorMessage,
+        errorSource: updatedRider.errorSource,
+      });
+    } 
+    req.io.emit('updatedRider', updatedRider)
+    res.status(200).json({ rider: updatedRider });
   } catch (err) {
     return res
       .status(500)
@@ -118,23 +118,24 @@ export const updateRider = async (req, res) => {
 export const deleteRider = async (req, res) => {
   try {
     const { rider_id } = req.params;
-    const riderDelete = await deleteRiderService(rider_id);
-    if (riderDelete.error) {
+    const deletedRider = await deleteRiderService(rider_id);
+    if (deletedRider.error) {
       return res
-        .status(riderDelete.errorCode)
+        .status(deletedRider.errorCode)
         .json({
-          error: riderDelete.error,
-          errorMessage: riderDelete.errorMessage,
-          errorSource: riderDelete.errorSource,
+          error: deletedRider.error,
+          errorMessage: deletedRider.errorMessage,
+          errorSource: deletedRider.errorSource,
         });
     }
 
-    if (!riderDelete) {
+    if (!deletedRider) {
       res
         .status(404)
-        .json({ error: "rider not deleted. Rider details not found" });
+        .json({ success_false, error: "rider not deleted." });
     }
-    res.status(200).json({ success: "rider deleted" });
+    req.io.emit('deletedRider', deletedRider)
+    res.status(200).json({ success: true, rider_id  });
   } catch (err) {
     return res
       .status(500)

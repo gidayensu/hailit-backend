@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+
 import {
   addUserService,
   deleteUserService,
@@ -37,11 +37,12 @@ export const getAllUsers = async (req, res) => {
           errorSource: allUsers.errorSource,
         });
     }
-
-    if (page) {
+    
+    if (page) { // ??
       return res.status(200).json(allUsers);
     }
-    if (res && res.status) {
+    if (res && res.status) {  
+
       res.status(200).json({ users: allUsers });
     }
   } catch (err) {
@@ -57,16 +58,6 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-export const googleAuth = async (req, res) => {
-  const code = req.query.c;
-  const accessToken = req.body;
-  const next = req.query.next ?? "/";
-
-  if (code) {
-    const supabase = createClient({ req, res });
-    await supabase.auth.exchangeCodeForSession(code);
-  }
-};
 
 export const getOneUser = async (req, res) => {
   try {
@@ -148,19 +139,19 @@ export const addUser = async (req, res) => {
     }
 
     const userDetails = req.body;
-    const addingUser = await addUserService(userDetails);
+    const addedUser = await addUserService(userDetails);
 
-    if (addingUser.error) {
+    if (addedUser.error) {
       return res
         .status(403)
         .json({
-          error: addingUser.error,
-          errorMessage: addingUser.errorMessage,
-          errorSource: addingUser.errorSource,
+          error: addedUser.error,
+          errorMessage: addedUser.errorMessage,
+          errorSource: addedUser.errorSource,
         });
     }
-
-    res.status(200).json({ user: addingUser });
+    req.io.emit('addedUser', addedUser)
+    res.status(200).json({ user: addedUser });
   } catch (err) {
     res
       .status(500)
@@ -208,6 +199,7 @@ export const updateUser = async (req, res) => {
     const userDetails = req.body;
 
     const updateUser = await updateUserService(userId, userDetails);
+    
     if (updateUser.error) {
       return res
         .status(updateUser.errorCode)
@@ -217,6 +209,7 @@ export const updateUser = async (req, res) => {
           errorSource: updateUser.errorSource,
         });
     }
+    req.io.emit('addedUser', updateUser)
     res.status(200).json({ user: updateUser });
   } catch (err) {
     res
@@ -243,7 +236,7 @@ export const deleteUser = async (req, res) => {
           errorSource: userDelete.errorSource,
         });
     }
-
+    req.io.emit('userDelete', userDelete)
     res.status(200).json(userDelete);
   } catch (err) {
     res

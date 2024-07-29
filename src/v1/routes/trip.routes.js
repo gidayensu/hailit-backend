@@ -15,7 +15,7 @@ import {
   getUserTrips,
   rateTrip,
   searchTrips,
-  updateTrip,
+  updateTrip
 } from "../../controllers/trip.controller.js";
 import { getAllTripsValidation } from "../../validation/tripsValidation/getAllTripsValidation.js";
 import { addTripValidation } from "../../validation/tripsValidation/addTripValidation.js";
@@ -25,7 +25,7 @@ import { updateTripValidation } from "../../validation/tripsValidation/updateTri
 
 export const tripRouter = express.Router();
 
-tripRouter.get("/",   supaAuth, isAdmin, getAllTripsValidation, getAllTrips);
+tripRouter.get("/", supaAuth, isAdmin, getAllTripsValidation, getAllTrips);
 
 tripRouter.get("/search-trips", supaAuth, searchTrips);
 
@@ -41,13 +41,13 @@ tripRouter.put("/rate-trip/:trip_id", supaAuth, rateTripValidation, rateTrip);
 
 tripRouter.delete("/user-trip/:trip_id", supaAuth, deleteTrip);
 
-//TRIP STATS
+// TRIP STATS
 tripRouter.get("/trip-months", supaAuth, isAdmin, getTripMonths);
 
-tripRouter.get("/current-week-trip-count", supaAuth,  isAdmin,  currentWeekTripCount );
+tripRouter.get("/current-week-trip-count", supaAuth, isAdmin, currentWeekTripCount);
 
-tripRouter.get("/trip-count-by-month", supaAuth, isAdmin, tripStatsColumnValidation,  getTripsCountByMonth );
+tripRouter.get("/trip-count-by-month", supaAuth, isAdmin, tripStatsColumnValidation, getTripsCountByMonth);
 
-tripRouter.get( "/current-month-trip-count", supaAuth, isAdmin, getCurrentMonthTripCounts);
+tripRouter.get("/current-month-trip-count", supaAuth, isAdmin, getCurrentMonthTripCounts);
 
 tripRouter.get("/trips-revenue", supaAuth, isAdmin, getTripRevenueByMonth);

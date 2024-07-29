@@ -87,12 +87,12 @@ export const updateDriver = async (req, res) => {
   }
 
   try {
-    const driverUpdate = await updateDriverService(driverDetails);
-    if (!driverUpdate.error) {
-      res.status(200).json({ driver: driverUpdate });
-    } else {
-      res.status(400).json({ error: "driver details not updated" });
+    const updatedDriver = await updateDriverService(driverDetails);
+    if (updatedDriver.error) {
+      return res.status(updatedDriver.errorCode).json({ error: updatedDriver.error, errorMessage: updatedDriver.errorMessage, errorSource: updatedDriver.errorSource });
     }
+    req.io.emit('updatedDriver', updatedDriver)
+    res.status(200).json({ driver: updatedDriver });
   } catch (err) {
     return res
       .status(500)
@@ -103,23 +103,24 @@ export const updateDriver = async (req, res) => {
 export const deleteDriver = async (req, res) => {
   const { driver_id } = req.params;
   try {
-    const driverDelete = await deleteDriverService(driver_id);
-    if (driverDelete.error) {
+    const deletedDriver = await deleteDriverService(driver_id);
+    if (deletedDriver.error) {
       return res
-        .status(driverDelete.errorCode)
+        .status(deletedDriver.errorCode)
         .json({
-          error: driverDelete.error,
-          errorMessage: driverDelete.errorMessage,
-          errorSource: driverDelete.errorSource,
+          error: deletedDriver.error,
+          errorMessage: deletedDriver.errorMessage,
+          errorSource: deletedDriver.errorSource,
         });
     }
 
-    if (!driverDelete) {
+    if (!deletedDriver) {
       return res
         .status(404)
         .json({ error: "driver not delete. Driver details was not found" });
     }
-    res.status(200).json({ success: "driver deleted" });
+    req.io.emit('deletedDriver', deletedDriver)
+    res.status(200).json({ success: "driver deleted", driver_id });
   } catch (err) {
     res
       .status(500)

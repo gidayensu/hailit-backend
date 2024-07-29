@@ -98,7 +98,7 @@ export const ANONYMOUS_USER_PROPS = [
 
   //TRIPS TABLE AND COLUMNS
   export const TRIP_TABLE_NAME = "trips";
-  export const TRIP_ID = "trips.trip_id";
+  export const TRIP_ID_COLUMN = "trips.trip_id";
   export const TRIP_REQUEST_DATE_COLUMN = "trips.trip_request_date";
   export const FIRST_NAME = "users.first_name";
   export const LAST_NAME = "users.last_name";
