@@ -16,7 +16,7 @@ export const userRouter = express.Router();
 
 userRouter.get("/", supaAuth, isAdmin,  getAllUsersValidation,  getAllUsers);
 
-userRouter.get("/:userId", supaAuth, getOneUser);
+userRouter.get("/:userId", supaAuth, isUserRole, getOneUser);
 
 userRouter.get("/admin/:userId", supaAuth, userIsAdmin);
 
