@@ -91,7 +91,7 @@ export const ANONYMOUS_USER_PROPS = [
   ];
 
   export const DISPATCHER_TRIP_FIELDS = [
-    "trip_id, trip_medium, trip_status, trip_stage, recipient_number, sender_number,payment_status, trip_type, pickup_location, drop_off_location, package_type, trip_commencement_date, trip_completion_date, trip_cost, trip_request_date, payment_method",
+    "trip_id, dispatcher_id, trip_medium, trip_status, trip_stage, recipient_number, sender_number,payment_status, trip_type, pickup_location, drop_off_location, package_type, trip_commencement_date, trip_completion_date, trip_cost, trip_request_date, payment_method",
   ];
 
   export const ALLOWED_TRIP_STATS_COLUMNS = ['trip_status', 'trip_area', 'trip_type', 'package_type', 'trip_medium'];
