@@ -23,7 +23,7 @@ export const addingAdminAuth = async (req, res, next) => {
 
     next();
   } catch (err) {
-    return res.status(403).json({ error: "Authentication Error" });
+    return res.status(403).json({ error: `Authentication Error: ${err}` });
   }
 };
 

@@ -1,10 +1,10 @@
-import {  PLATE_NUMBER_COLUMN, VEHICLE_ID_COLUMN, VEHICLE_TABLE_NAME } from "../constants/vehicleConstants.js";
+import { PLATE_NUMBER_COLUMN, VEHICLE_ID_COLUMN, VEHICLE_TABLE_NAME } from "../constants/vehicleConstants.js";
+import { errorHandler } from "../utils/errorHandler.js";
 import { addOne } from "./DB/addDbFunctions.js";
 import { deleteOne } from "./DB/deleteDbFunctions.js";
-import { getAllVehicles, getCountOnOneCondition, getOne, vehiclesCount  } from "./DB/getDbFunctions.js";
+import { getAllVehicles, getOne, vehiclesCount } from "./DB/getDbFunctions.js";
+import { detailExists } from "./DB/helperDbFunctions.js";
 import { updateOne } from "./DB/updateDbFunctions.js";
-import { errorHandler } from "../utils/errorHandler.js";
-
 
 
 export const getAllVehiclesFromDB = async (
@@ -68,7 +68,7 @@ export const addVehicleToDB = async (completeVehicleDetails) => {
   
   const { plate_number } = completeVehicleDetails;
   try {
-    const vehicleExists = await dbFunctions.detailExists(
+    const vehicleExists = await detailExists(
       VEHICLE_TABLE_NAME,
       PLATE_NUMBER_COLUMN,
       plate_number

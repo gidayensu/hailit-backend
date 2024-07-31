@@ -29,7 +29,7 @@ export const tripAuth = async (req, res, next)=> {
         ? (tripAssociation = await userAssociatedWithTrip(
             dispatcher_id,
             trip_id,
-            role
+            
           ))
         : (tripAssociation = await userAssociatedWithTrip(
             user_id,

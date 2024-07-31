@@ -6,12 +6,14 @@ export const isAssociatedWithTrip = async (req, res, next) => {
     const {trip_id} = req.params
 
     
-    const dispatcherId = req.body;
+    const dispatcherId = req.body.dispatcher_id;
+    
     const jwtUserId = req.user.sub;
     const requesterId = dispatcherId ? dispatcherId : jwtUserId;
     const requesterRole = dispatcherId ? "Dispatcher" : "Customer";
     const isAdmin = await userIsUserRole(jwtUserId, "Admin");
     const isAssociated = await userAssociatedWithTrip(trip_id, requesterId, requesterRole)
+    
     if (isAssociated || isAdmin) {
       next();
     } else {
@@ -26,7 +28,7 @@ export const isAssociatedWithTrip = async (req, res, next) => {
 
 export const userIsAdmin = async (req, res) => {
   try {
-    const path = req.path;
+    
 
     const { userId } = req.params;
     const jwtUserId = req.user.sub;

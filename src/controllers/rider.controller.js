@@ -13,7 +13,7 @@ export const getAllRiders = async (req, res) => {
       sortColumn,
       sortDirection,
       search
-    } = req?.query;
+    } = req.query;
 
     const allRiders = await getAllRidersService(
       page,
@@ -35,13 +35,13 @@ export const getAllRiders = async (req, res) => {
     
     res && res.status(200).json(allRiders);
     
-  } catch (error) {
+  } catch (err) {
     if (res && res.status) {
       res
         .status(500)
         .json({
           error: "Server error occurred getting all riders",
-          errorMessage: err,
+          errorMessage: `${err}`,
           errorSource: "Rider Controller",
         });
     }
@@ -132,7 +132,7 @@ export const deleteRider = async (req, res) => {
     if (!deletedRider) {
       res
         .status(404)
-        .json({ success_false, error: "rider not deleted." });
+        .json({ success: false, error: "rider not deleted." });
     }
     req.io.emit('deletedRider', deletedRider)
     res.status(200).json({ success: true, rider_id  });

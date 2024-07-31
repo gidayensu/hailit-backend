@@ -12,7 +12,7 @@ export const getAllDrivers = async (req, res) => {
     sortColumn,
     sortDirection,
     search
-  } = req?.query;
+  } = req.query;
 
   try {
     const allDrivers = await getAllDriversService(

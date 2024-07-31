@@ -2,7 +2,7 @@ import { userIsUserRole } from "../../utils/util.js";
 
 export const isUserRole = async (req, res, next) => {
   try {
-    const path = req.path;
+    
 
     const { userId } = req.params;
     let userRole = req.body.user_role;
@@ -29,7 +29,7 @@ export const isUserRole = async (req, res, next) => {
 
 export const userIsAdmin = async (req, res) => {
   try {
-    const path = req.path;
+    
 
     const { userId } = req.params;
     const jwtUserId = req.user.sub;

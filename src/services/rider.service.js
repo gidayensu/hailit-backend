@@ -27,7 +27,7 @@ export const getAllRidersService = async (
   try {
     const riders = await getAllEntitiesService(
       page,
-      limit = DEFAULT_LIMIT,
+      limit,
       sortColumn,
       sortDirection,
       search,

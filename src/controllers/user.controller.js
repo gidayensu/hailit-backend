@@ -21,7 +21,7 @@ export const getAllUsers = async (req, res) => {
     sortColumn,
     sortDirection,
     search
-  } = req?.query;
+  } = req.query;
   try {
     const allUsers = await getAllUsersService(page,
       limit,

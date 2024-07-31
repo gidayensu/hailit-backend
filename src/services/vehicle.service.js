@@ -1,9 +1,7 @@
 import { v4 as uuid } from "uuid";
-import {DEFAULT_LIMIT} from "../constants/sharedConstants.js"
-import { getAllEntitiesService } from "./helpers.service.js";
+import { DEFAULT_LIMIT } from "../constants/sharedConstants.js";
 import {
-  ALLOWED_VEHICLE_PROPERTIES,
-  VEHICLE_TYPE_COLUMN
+  ALLOWED_VEHICLE_PROPERTIES
 } from "../constants/vehicleConstants.js";
 import {
   addVehicleToDB,
@@ -15,7 +13,7 @@ import {
 } from "../model/vehicle.model.js";
 import { allowedPropertiesOnly } from "../utils//util.js";
 import { errorHandler } from "../utils/errorHandler.js";
-import { paginatedRequest } from "../utils/paginatedRequest.js";
+import { getAllEntitiesService } from "./helpers.service.js";
 
 export const getAllVehiclesService = async (
   page,

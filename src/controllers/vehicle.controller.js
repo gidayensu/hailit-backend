@@ -14,7 +14,7 @@ export const getAllVehicles = async (req, res) => {
       sortColumn,
       sortDirection,
       search
-    } = req?.query;
+    } = req.query;
     const allVehicles = await getAllVehiclesService(page, limit, sortColumn,
       sortDirection, search);
       
