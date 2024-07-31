@@ -75,8 +75,8 @@ export const getOneTrip = async (req, res) => {
         errorSource: oneTrip.errorSource,
       });
     }
+
     const returnedTrip = {trip:oneTrip}
-    
     res.status(200).json(returnedTrip);
   } catch (err) {
     return res
