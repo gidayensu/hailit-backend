@@ -58,14 +58,16 @@ export const userIsUserRole = async (user_id, user_role) => {
   return await isUserRole(user_id, user_role);
 };
 
+
 export const userAssociatedWithTrip = async (trip_id, requester_id, requester_role,) => {
-  let requesterIdColumn = "user_id"
+  let requesterIdColumn = "customer_id"
 
   if (requester_role === "Dispatcher") {
     requesterIdColumn = "dispatcher_id";
   }
   
   const tripData = await associatedWithTrip(trip_id, requester_id, requesterIdColumn);
+  
   if (!tripData || tripData.error) {
     return false;
   }
@@ -74,7 +76,7 @@ export const userAssociatedWithTrip = async (trip_id, requester_id, requester_ro
     return tripData[0]?.dispatcher_id === requester_id ? true : false;
   }
 
-  return tripData[0]?.user_id === requester_id ? true : false;
+  return tripData[0]?.customer_id === requester_id ? true : false;
 };
 
 export const riderUserId = async (rider_id) => {

@@ -13,7 +13,8 @@ import {
   getTripsCustomersJoin,
   getTripsMonths,
   tripsCount,
-  upToOneWeekTripCounts
+  upToOneWeekTripCounts,
+  getIDsAndMedium
 } from "./DB/tripsDbFunctions.js";
 import { updateOne } from "./DB/updateDbFunctions.js";
 
@@ -50,7 +51,33 @@ export const searchTrips = async(searchQuery, limit, offset)=> {
     return errorHandler("Error occurred getting Trips Monts", `${err}`, 500, "Trips Months Trip Model")
   }
 }
+export const getSpecificTripDetailsUsingId = async (tripId, columns) => {
+  try {
 
+    const specificDetails = await getSpecificDetailsUsingId(
+      TRIP_TABLE_NAME,
+      tripId,
+      TRIP_ID_COLUMN,
+      columns
+    );
+    
+    return specificDetails;
+  } catch(err) {
+    return errorHandler(
+      `Error occurred getting specific trip details`,
+      err,
+      500,
+      "Trip Model: Get Specific Details"
+    );
+
+  }
+};
+
+export const getIDsAndMediumFromDb = async (tripId)=> {
+  const IDsAndMeidum = await getIDsAndMedium(tripId);
+  
+  return IDsAndMeidum;
+}
 
 export const getAllTripsFromDB = async (limit, offset, sortColumn,
   sortDirection, search ) => {

@@ -15,14 +15,16 @@ import {
   deleteTripFromDB,
   getAllTripsFromDB,
   getCurrentMonthTripsCount,
+  getIDsAndMediumFromDb,
   getOneTripFromDB,
+  getSpecificTripDetailsUsingId,
   getTripCount,
   getTripCountByMonth,
   oneWeekTripsCount,
   revenueByMonth,
   searchTrips,
   tripsMonths,
-  updateTripOnDB,
+  updateTripOnDB
 } from "../model/trip.model.js";
 import { getOneUserFromDB } from "../model/user.model.js";
 import { errorHandler } from "../utils/errorHandler.js";
@@ -30,19 +32,21 @@ import {
   allowedPropertiesOnly,
   currencyFormatter,
   getDayFromDate,
-  userIsUserRole,
+  userAssociatedWithTrip,
+  userIsUserRole
 } from "../utils/util.js";
-import { getOneDriverService } from "./driver.service.js";
 import { getAllEntitiesService } from "./helpers.service.js";
-import { getOneRiderService } from "./rider.service.js";
 import {
   dispatcherTrips,
   getCustomerTrips,
+  getDispatcherDetails,
   getDispatcherId,
   increaseRatingCount,
   percentageDifference,
-  updateDispatcherRating,
-  sortByCalendarMonths
+  sortByCalendarMonths,
+  tripsRealTimeUpdate,
+
+  updateDispatcherRating
 } from "./tripServiceHelpers.js";
 import { getOneUserService } from "./user.service.js";
 config({ path: "../../../.env" });
@@ -107,54 +111,23 @@ export const getOneTripService = async (trip_id, requester_user_id) => {
     //check if user is admin
     const isAdmin = await userIsUserRole(requester_user_id, "Admin");
 
-    let oneTrip = await getOneTripFromDB(trip_id, TRIP_ID_COLUMN);
+    let oneTrip =  await getOneTripFromDB(trip_id, TRIP_ID_COLUMN);
     if (oneTrip.error) {
       return { error: oneTrip.error };
     }
 
     //exclude sender and recipient phone numbers from data sent
-    if (
-      !requester_user_id ||
-      (requester_user_id !== oneTrip.customer_id && !isAdmin)
-    ) {
+    if (!requester_user_id ||  (requester_user_id !== oneTrip.customer_id && !isAdmin) ) {
       oneTrip = allowedPropertiesOnly(oneTrip, ANONYMOUS_USER_PROPS);
     }
     const { dispatcher_id, trip_medium } = oneTrip;
-
-    const dispatcherService =
-      trip_medium === "Motor" ? getOneRiderService : getOneDriverService;
-
-    let dispatcherDetails = await dispatcherService(dispatcher_id);
-
+    const dispatcherDetails = await getDispatcherDetails({dispatcher_id, trip_medium})
+      
     if (dispatcherDetails.error) {
       return { ...oneTrip, dispatcher: "Not assigned" };
     }
 
-    const {
-      rating_count = 0,
-      cumulative_rating = "0.0",
-      user_id = "",
-      rider_id = "",
-      driver_id = "",
-      vehicle_id = "",
-      first_name = "",
-      last_name = "",
-      phone_number = "",
-      vehicle,
-    } = dispatcherDetails;
-
-    dispatcherDetails = {
-      rating_count,
-      cumulative_rating,
-      user_id,
-      dispatcher_id: rider_id || driver_id,
-      vehicle_id,
-      first_name,
-      last_name,
-      phone_number,
-      vehicle,
-    };
-
+    
     return { ...oneTrip, dispatcher: dispatcherDetails };
   } catch (err) {
     return errorHandler(
@@ -200,7 +173,7 @@ export const getUserTripsService = async (user_id) => {
 };
 
 //ADD TRIP
-export const addTripService = async (user_id, tripDetails) => {
+export const addTripService = async (user_id, tripDetails, io) => {
   try {
     const { pick_lat, pick_long, drop_lat, drop_long } = tripDetails;
 
@@ -234,11 +207,27 @@ export const addTripService = async (user_id, tripDetails) => {
     };
 
     let newTrip = await addTripToDB(finalTripDetails, locationDetails);
+    if(newTrip.error) {
+      return newTrip; //with error details
+    }
     //adds name of user to trips details for dashboard
     const {first_name, last_name} = await getOneUserService(user_id)
     newTrip.first_name = first_name;
     newTrip.last_name = last_name;
+
+    // real time update
+    await tripsRealTimeUpdate({
+      io,
+      reqUserId: user_id,
+      trip: newTrip,
+      dispatcherUserId: newTrip.dispatcher_id,
+      customerUserId: user_id,
+      tripType: "addedTrip",
+    });
+
     
+    //ADD ADVANCED REAL-TIME STAT UPDATE
+
     return newTrip;
   } catch (err) {
     return errorHandler(
@@ -251,59 +240,40 @@ export const addTripService = async (user_id, tripDetails) => {
 };
 
 //UPDATE TRIP
-export const updateTripService = async (tripDetails) => {
+export const updateTripService = async (
+  tripDetails,
+  reqUserId,
+  io,
+) => {
   try {
+    
     const validTripDetails = allowedPropertiesOnly(
       tripDetails,
       ALLOWED_UPDATE_PROPERTIES
     );
 
-    
-    const tripUpdate = await updateTripOnDB(validTripDetails);
-    if(tripUpdate.error) {
-      return tripUpdate //with error details
+    let updatedTrip = await updateTripOnDB(validTripDetails);
+    if (updatedTrip.error) {
+      return updatedTrip; //with error details
     }
+    
+    let dispatcherUserId = ''; //for fetching data for real time update
+    const customerUserId = updatedTrip?.customer_id; //for fetching data for real time update
+    const { dispatcher_id, trip_medium } = updatedTrip;
 
-    const {dispatcher_id, trip_medium} = tripUpdate;
+    if(dispatcher_id) {
+      const dispatcherDetails = await getDispatcherDetails({dispatcher_id, trip_medium})
+      console.log(dispatcherDetails)
+      dispatcherUserId = dispatcherDetails?.user_id
+      updatedTrip = { ...updatedTrip, dispatcher: dispatcherDetails }
+    }
+    //emit reall time update
+     await tripsRealTimeUpdate({io, reqUserId, trip: updatedTrip, dispatcherUserId, customerUserId, tripType: "updatedTrip"})
+    
     
 
-    const dispatcherService =
-      trip_medium === "Motor" ? getOneRiderService : getOneDriverService;
+    return updatedTrip;
 
-    let dispatcherDetails = await dispatcherService(dispatcher_id);
-
-    if (dispatcherDetails.error) {
-      return { ...tripUpdate, dispatcher: "Not assigned" };
-    }
-
-    const {
-      rating_count = 0,
-      cumulative_rating = "0.0",
-      user_id = "",
-      rider_id = "",
-      driver_id = "",
-      vehicle_id = "",
-      first_name = "",
-      last_name = "",
-      phone_number = "",
-      vehicle,
-    } = dispatcherDetails;
-
-    dispatcherDetails = {
-      rating_count,
-      cumulative_rating,
-      user_id,
-      dispatcher_id: rider_id || driver_id,
-      vehicle_id,
-      first_name,
-      last_name,
-      phone_number,
-      vehicle,
-    };
-
-    return { ...tripUpdate, dispatcher: dispatcherDetails };
-
-    return tripUpdate;
   } catch (err) {
     return errorHandler(
       `Server Error Occurred updating trip`,
@@ -315,7 +285,7 @@ export const updateTripService = async (tripDetails) => {
 };
 
 //RATE TRIP
-export const rateTripService = async (ratingDetails) => {
+export const rateTripService = async (ratingDetails, io, reqUserId) => {
   try {
     const ratingDetailsWithRatingStatus = { ...ratingDetails, rated: true };
 
@@ -330,13 +300,13 @@ export const rateTripService = async (ratingDetails) => {
       return updateTrip; //Error details returned
     }
 
-    const tripMedium = await tripModel.getSpecificDetailsUsingId(
+    const tripMedium = await getSpecificTripDetailsUsingId(
       trip_id,
       "trip_id",
       "trip_medium"
     );
     const cumulativeDispatcherRating =
-      await tripModel.getSpecificDetailsUsingId(
+      await getSpecificTripDetailsUsingId(
         dispatcher_id,
         "dispatcher_id",
         "AVG(dispatcher_rating)"
@@ -344,13 +314,13 @@ export const rateTripService = async (ratingDetails) => {
     const averageDispatcherRating = cumulativeDispatcherRating[0].avg;
     const { trip_medium } = tripMedium[0];
 
-    const ratingUpdate = await updateDispatcherRating(
+    const ratedTrip = await updateDispatcherRating(
       trip_medium,
       dispatcher_id,
       averageDispatcherRating
     );
-    if (ratingUpdate.error) {
-      return ratingUpdate; //error details returned
+    if (ratedTrip.error) {
+      return ratedTrip; //error details returned
     }
 
     const ratingCountUpdate = await increaseRatingCount(
@@ -361,7 +331,17 @@ export const rateTripService = async (ratingDetails) => {
       return ratingCountUpdate; //error details included
     }
 
-    return { success: "trip updated with rating" };
+    
+    //check for user role and emit based on the user role
+    const isAdmin = await userIsUserRole(reqUserId, "admin");
+    const isAssociatedWithTrip = await userAssociatedWithTrip (ratedTrip?.trip_id, reqUserId, "Customer")
+    
+    if(isAdmin || isAssociatedWithTrip){
+      io.emit('ratedTrip', ratedTrip);
+    }
+
+
+    return ratedTrip;
   } catch (err) {
     return errorHandler(
       `Server Error Occurred Adding Rating: ${err}`,
@@ -373,11 +353,33 @@ export const rateTripService = async (ratingDetails) => {
 };
 
 //DELETE TRIP
-export const deleteTripService = async (trip_id) => {
+export const deleteTripService = async (trip_id, user_id, io) => {
   try {
-    const tripDelete = await deleteTripFromDB(trip_id);
+    
+    const IDsANdMedium = await getIDsAndMediumFromDb (trip_id);
+    
+    
+    const {dispatcher_id, customer_id: customerUserId, trip_medium} = IDsANdMedium;
+    const dispatcherDetails = dispatcher_id && await getDispatcherDetails({dispatcher_id, trip_medium})
+    const {user_id: dispatcherUserId} = dispatcherDetails;
+    
+    
+    const deletedTrip = dispatcherUserId && await deleteTripFromDB(trip_id);
+    if(deletedTrip.error) {
+      return deletedTrip;
+    }
 
-    return tripDelete;
+    await tripsRealTimeUpdate({
+      io,
+      reqUserId: user_id,
+      dispatcherUserId,
+      customerUserId,
+      tripType: "deletedTrip",
+    });
+
+    
+        
+    return deletedTrip;
   } catch (err) {
     return errorHandler(
       "Error occurred deleting trip",

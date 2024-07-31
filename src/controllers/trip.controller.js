@@ -1,3 +1,5 @@
+
+
 import { DEFAULT_USER_ID } from "../constants/usersConstants.js";
 import {
   addTripService,
@@ -15,6 +17,8 @@ import {
   updateTripService,
 } from "../services/trip.service.js";
 
+
+
 export const getAllTrips = async (req, res) => {
   try {
     const {
@@ -23,7 +27,7 @@ export const getAllTrips = async (req, res) => {
       sortColumn,
       sortDirection,
       search
-    } = req?.query;
+    } = req.query;
 
     const allTrips = await getAllTripsService(
       page,
@@ -72,7 +76,7 @@ export const getOneTrip = async (req, res) => {
       });
     }
     const returnedTrip = {trip:oneTrip}
-    console.log({returnedTrip})
+    
     res.status(200).json(returnedTrip);
   } catch (err) {
     return res
@@ -118,8 +122,9 @@ export const addTrip = async (req, res) => {
   try {
     const tripDetails = req.body;
     const user_id = req.user?.sub || DEFAULT_USER_ID;
-
-    const tripAdded = await addTripService(user_id, tripDetails);
+    const io = req.io;
+    
+    const tripAdded = await addTripService(user_id, tripDetails, io);
     if (tripAdded.error) {
       return res
         .status(400)
@@ -129,8 +134,8 @@ export const addTrip = async (req, res) => {
           errorSource: tripAdded.errorSource,
         });
     }
-    req.io.emit('tripAdded', tripAdded);
     res.status(200).json({ trip: tripAdded });
+    
   } catch (err) {
     return res
       .status(500)
@@ -144,10 +149,13 @@ export const addTrip = async (req, res) => {
 
 export const updateTrip = async (req, res) => {
   try {
+    const reqUserId = req.user.sub;
+    const io = req.io;
+    
     const { trip_id } = req.params;
-    const tripDetails = { trip_id, ...req.body };
+    const tripDetails = { trip_id, ...req.body,  };
 
-    const tripUpdate = await updateTripService(tripDetails);
+    const tripUpdate = await updateTripService(tripDetails, reqUserId, io, );
     if (tripUpdate?.error) {
       return res
         .status(403)
@@ -159,8 +167,8 @@ export const updateTrip = async (req, res) => {
     }
     const updatedTrip = {trip: tripUpdate}
 
-    console.log({updatedTrip})
-    req.io.emit('tripUpdated', updatedTrip)
+    
+    // req.io.emit('updatedTrip', updatedTrip)
     res.status(200).json(updatedTrip);
   } catch (err) {
     return res
@@ -176,7 +184,7 @@ export const updateTrip = async (req, res) => {
 export const rateTrip = async (req, res) => {
   try {
     const ratingDetails = req.body;
-    const { dispatcher_rating } = req.body;
+    
 
     const { trip_id } = req.params;
     const detailsWithId = { trip_id, ...ratingDetails };
@@ -191,7 +199,7 @@ export const rateTrip = async (req, res) => {
           errorSource: ratedTrip.errorSource,
         });
     }
-    req.io.emit('tripRated', ratedTrip)
+    // req.io.emit('tripRated', ratedTrip)
     res.status(200).json(ratedTrip);
   } catch (err) {
     return res
@@ -206,8 +214,10 @@ export const rateTrip = async (req, res) => {
 
 export const deleteTrip = async (req, res) => {
   try {
+    const user_id = req.user.sub;
     const { trip_id } = req.params;
-    const tripDelete = await deleteTripService(trip_id);
+    const io = req.io;
+    const tripDelete = await deleteTripService(trip_id, user_id, io);
 
     if (tripDelete.error) {
       return res
@@ -218,7 +228,7 @@ export const deleteTrip = async (req, res) => {
           errorSource: tripDelete.errorSource,
         });
     }
-    req.io.emit('tripDeleted', trip_id)
+    // req.io.emit('tripDeleted', trip_id)
     res.status(200).json({ success: true, trip_id });
   } catch (err) {
     return res

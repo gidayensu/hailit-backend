@@ -101,24 +101,24 @@ WHERE ${TRIP_ID_COLUMN} IS NOT NULL AND (
 
 export const upToOneWeekTripCounts = async () => {
   try {
-    let queryText = `with
+    let queryText = `WITH
   date_series as (
-    select
-      current_date - interval '6 days' + i * interval '1 DAY' as trip_date
-    from
-      generate_series(0, 6) as s (i)
+    SELECT
+      CURRENT_DATE - INTERVAL '6 days' + i * INTERVAL '1 DAY' AS trip_date
+    FROM
+      generate_series(0, 6) AS s (i)
   )
-select
+SELECT
   ds.trip_date,
-  count(t.trip_request_date) as total_count
+  count(t.trip_request_date) AS total_count
 from
   date_series ds
   left join trips t on DATE (t.trip_request_date) = ds.trip_date
-where
-  ds.trip_date >= current_date - interval '6 days'
-group by
+WHERE
+  ds.trip_date >= CURRENT_DATE - INTERVAL '6 days'
+GROUP BY
   ds.trip_date
-order by
+ORDER BY
   ds.trip_date;
 `;
 
@@ -351,3 +351,25 @@ LIMIT ${limit} OFFSET ${offset};`;
     );
   }
 };
+
+export const getIDsAndMedium = async (tripId)=> {
+  const value = [tripId]
+  try {
+    const queryText = 'SELECT dispatcher_id as dispatcher_id, customer_id as customer_id, trip_medium as trip_medium FROM trips WHERE trip_id = $1';
+    const IDsAndMedium = await DB.query(queryText, value);
+    if(IDsAndMedium.rowCount < 1) {
+      return errorHandler("dispatcherId not found", null, 404, "Trips DB Functions: Get Dispatcher Id")
+    }
+    if(IDsAndMedium.rowCount > 0) {
+      
+      return IDsAndMedium.rows[0];
+    }
+  } catch (err) {
+    return errorHandler( 
+      "Error occurred getting dispatcherId", 
+      `${err}`,
+      500,
+      "Trips DB Functions"
+    )
+  }
+}

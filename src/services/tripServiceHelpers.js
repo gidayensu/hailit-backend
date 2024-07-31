@@ -20,19 +20,114 @@ import {
 import { USER_ID_COLUMN } from "../constants/usersConstants.js";
 import {
   getDriverDetailOnCondition,
+  getSpecificDriversFromDB,
   updateDriverOnDB,
 } from "../model/driver.model.js";
 import {
   getRiderOnConditionFromDB,
+  getSpecificRidersFromDB,
   updateRiderOnDB,
 } from "../model/rider.model.js";
 import {
   getUserTripsFromDB,
   ratingCountIncrease,
 } from "../model/trip.model.js";
-import { currencyFormatter } from "../utils/util.js";
+import { errorHandler } from "../utils/errorHandler.js";
+import { currencyFormatter, userIsUserRole } from "../utils/util.js";
+import {
+  currentMonthTripsCountService,
+  currentWeekTrip,
+  getRevenueByMonth,
+  getTripMonthsService,
+  getUserTripsService
+} from "./trip.service.js";
 
+import { getOneRiderService } from "./rider.service.js";
+import { getOneDriverService } from "./driver.service.js";
 
+export const tripsRealTimeUpdate = async ({io, reqUserId, trip, dispatcherUserId, customerUserId, tripType, trip_id} )=> {
+  
+
+  const ioName = io.name;
+    const isAdmin = await userIsUserRole(reqUserId, "Admin");
+    const adminNsName = (isAdmin && `/user-${reqUserId}`) || null;
+    const customerNsName = `/user-${customerUserId}`;
+    const dispatcherNsName = `/user-${dispatcherUserId}`;
+
+    if (customerNsName === ioName || adminNsName === ioName) {
+      try {
+        tripType === "addedTrip" 
+        ? io.emit("addedTrip", trip)
+        : tripType === "updatedTrip" 
+        ? io.emit("updatedTrip", trip)
+        : tripType === "deletedTrip" 
+        ? io.emit("deletedTrip", trip_id)
+        : ''
+        const customerTrips = await getUserTripsService(
+          customerUserId
+        );
+        io.emit("customerTrips", customerTrips);
+      } catch (error) {
+        console.error("Error fetching data for admin namespace:", error);
+      }
+      if (dispatcherNsName === ioName || adminNsName === ioName) {
+        try {
+          const dispatherTrips = await getUserTripsService(dispatcherUserId);
+          io.emit("dispatherTrips", dispatherTrips);
+        } catch (error) {
+          console.error("Error fetching data for admin namespace:", error);
+        }
+
+        if (adminNsName === ioName) {
+          try {
+            const [
+              currentMonthTripsCount,
+              tripMonths,
+              monthRevenue,
+              currentWeekCount,
+            ] = await Promise.all([
+              currentMonthTripsCountService(),
+              getTripMonthsService(),
+              getRevenueByMonth(),
+              currentWeekTrip(),
+            ]);
+
+            io.emit("currentMonthTripsCount", currentMonthTripsCount);
+            io.emit("tripMonths", tripMonths);
+            io.emit("monthRevenue", monthRevenue);
+            io.emit("currentWeekCount", currentWeekCount);
+          } catch (error) {
+            console.error("Error fetching data for admin namespace:", error);
+          }
+        }
+      }
+    }
+
+}
+
+export const getDispatcherDetails = async ({trip_medium, dispatcher_id})=> {
+  const dispatcherService =
+        trip_medium === "Motor" ? getOneRiderService : getOneDriverService;
+      let dispatcherDetails = await dispatcherService(dispatcher_id);
+  
+      if (dispatcherDetails.error) {
+        dispatcherDetails = "Not assigned";
+      }
+      const {
+        rider_id = "",
+        driver_id = "",
+        
+      } = dispatcherDetails;
+  
+      dispatcherDetails = {
+        ...dispatcherDetails,
+        dispatcher_id: rider_id || driver_id,
+        
+      };
+      return dispatcherDetails;
+}
+
+//FETCH DISPATCHER DETAILS FOR UPDATED TRIP;
 
 //CALCULATE TRIPS == breaks away from camel case to match the database case
 
@@ -283,3 +378,4 @@ export const sortByCalendarMonths= (monthCountData) => {
 
   return monthCountData;
 }
+
