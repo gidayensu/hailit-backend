@@ -19,7 +19,7 @@ export const getAllQueryValidation = (req, res, next, CLIENT_SORT_COLUMNS, CLIEN
     const validSortColumn = CLIENT_SORT_COLUMNS.includes(sortColumn);
     const validSortDirection = SORT_DIRECTION.includes(sortDirection);
     
-    page && !validPage && errorReturner("Page must be a number");
+    !validPage && errorReturner("Page must be a number");
     limit && !validLimit && errorReturner("Limit must be a number");
 
     sortColumn &&
