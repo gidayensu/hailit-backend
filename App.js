@@ -32,10 +32,9 @@ const io = new Server(server, {
 
 
 let ioUniqueNameSpace; 
-let uniqueNspUser ='';
 io.engine.use((req, res, next) => {
   const queryId = req._query.user_id;
-  uniqueNspUser = queryId;
+  
   const nsp = io.of(`/user-${queryId}`);
   ioUniqueNameSpace = nsp;
   nsp.use((socket, next) => {
@@ -46,8 +45,6 @@ io.engine.use((req, res, next) => {
       return next(new Error("Authentication error"));
     }
     socket.user_id = user_id;
-    
-    nsp.emit("hi", "everyone!");
     next();
   });
   
@@ -79,8 +76,6 @@ io.use((socket, next) => {
 app.use((req, res, next)=> {
   
   req.io = ioUniqueNameSpace;
-  req.nspUser = uniqueNspUser;
-  ioUniqueNameSpace.emit('hi', "I am running")
   next()
 })
 
