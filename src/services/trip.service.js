@@ -216,7 +216,8 @@ export const addTripService = async (user_id, tripDetails, io) => {
     newTrip.last_name = last_name;
 
     // real time update
-    await tripsRealTimeUpdate({
+    
+    io && await tripsRealTimeUpdate({
       io,
       reqUserId: user_id,
       trip: newTrip,
@@ -268,7 +269,7 @@ export const updateTripService = async (
       updatedTrip = { ...updatedTrip, dispatcher: dispatcherDetails }
     }
     //emit reall time update
-     await tripsRealTimeUpdate({io, reqUserId, trip: updatedTrip, dispatcherUserId, customerUserId, tripType: "updatedTrip"})
+     io && await tripsRealTimeUpdate({io, reqUserId, trip: updatedTrip, dispatcherUserId, customerUserId, tripType: "updatedTrip"})
     
     
 
@@ -369,7 +370,7 @@ export const deleteTripService = async (trip_id, user_id, io) => {
       return deletedTrip;
     }
 
-    await tripsRealTimeUpdate({
+    io && await tripsRealTimeUpdate({
       io,
       reqUserId: user_id,
       dispatcherUserId,
