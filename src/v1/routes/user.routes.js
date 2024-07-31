@@ -9,6 +9,7 @@ import {
   getAllUsers,
   getOneUser,
   updateUser,
+  healthCheck
 } from "../../controllers/user.controller.js";
 import {isUser} from "../../auth/user-auth/isUser.js"
 
@@ -21,6 +22,7 @@ userRouter.get("/:userId",  supaAuth, isUser, getOneUser);
 userRouter.get("/admin/:userId", supaAuth, userIsAdmin);
 
 userRouter.post("/register", addUser);
+userRouter.post("/health-check", healthCheck);
 
 userRouter.put("/:userId", supaAuth, isUserRole, updateUser);
 

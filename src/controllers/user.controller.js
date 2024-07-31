@@ -59,6 +59,10 @@ export const getAllUsers = async (req, res) => {
 };
 
 
+export const healthCheck = async (req, res) => {
+  return res.status(200).json({status: "successful", connected: true});
+};
+
 export const getOneUser = async (req, res) => {
   try {
     const { userId } = req.params;
