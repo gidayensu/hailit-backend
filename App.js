@@ -67,7 +67,7 @@ io.on('connection', (socket) => {
 
   console.log(`User ${userId} connected`);
   socket.join(userId);
-  io.to(userId).emit("hi", `Hello you are connected to room ${userId}`)
+  
   socket.on("disconnect", () => {
     console.log(
       `User ${socket.user_id} disconnected from room `
@@ -88,10 +88,9 @@ io.of("/admins").use((socket, next) => {
 io.of("/admins").on("connection", (socket)=> {
   const userId = socket.admin_user_id;
   
-  io.to(userId).emit("hi", `Hello you are connected to room ${userId}`)
+  
   console.log(`Admin ${userId} connected`)
-
-  io.of("/admins").emit("hi", `Hello you are as admin to admin namespace with ID ${userId}`)
+  
   socket.on("disconnect", ()=> {
     console.log(`Admin ${userId} disconnected`)
   })
