@@ -32,7 +32,6 @@ import {
   allowedPropertiesOnly,
   currencyFormatter,
   getDayFromDate,
-  userAssociatedWithTrip,
   userIsUserRole
 } from "../utils/util.js";
 import { getAllEntitiesService } from "./helpers.service.js";
@@ -223,7 +222,7 @@ export const addTripService = async (user_id, tripDetails, io) => {
       trip: newTrip,
       dispatcherUserId: newTrip.dispatcher_id,
       customerUserId: user_id,
-      tripType: "addedTrip",
+      tripType: "tripAdded",
     });
 
     
@@ -264,12 +263,11 @@ export const updateTripService = async (
 
     if(dispatcher_id) {
       const dispatcherDetails = await getDispatcherDetails({dispatcher_id, trip_medium})
-      console.log(dispatcherDetails)
       dispatcherUserId = dispatcherDetails?.user_id
       updatedTrip = { ...updatedTrip, dispatcher: dispatcherDetails }
     }
     //emit reall time update
-     io && await tripsRealTimeUpdate({io, reqUserId, trip: updatedTrip, dispatcherUserId, customerUserId, tripType: "updatedTrip"})
+     io && await tripsRealTimeUpdate({io, reqUserId, trip: updatedTrip, dispatcherUserId, customerUserId, tripType: "tripUpdated"})
     
     
 
@@ -332,14 +330,19 @@ export const rateTripService = async (ratingDetails, io, reqUserId) => {
       return ratingCountUpdate; //error details included
     }
 
-    
+    const { customer_id: customerUserId, } = ratedTrip;
+    const dispatcherDetails = dispatcher_id && await getDispatcherDetails({dispatcher_id, trip_medium})
+    const {user_id: dispatcherUserId} = dispatcherDetails;
     //check for user role and emit based on the user role
-    const isAdmin = await userIsUserRole(reqUserId, "admin");
-    const isAssociatedWithTrip = await userAssociatedWithTrip (ratedTrip?.trip_id, reqUserId, "Customer")
-    
-    if(isAdmin || isAssociatedWithTrip){
-      io.emit('ratedTrip', ratedTrip);
-    }
+    io && await tripsRealTimeUpdate({
+      io,
+      reqUserId,
+      dispatcherUserId,
+      customerUserId,
+      tripType: "tripRated",
+      trip: ratedTrip
+    });
+
 
 
     return ratedTrip;
@@ -366,7 +369,7 @@ export const deleteTripService = async (trip_id, user_id, io) => {
     
     
     const deletedTrip = dispatcherUserId && await deleteTripFromDB(trip_id);
-    if(deletedTrip.error) {
+    if(deletedTrip?.error) {
       return deletedTrip;
     }
 
@@ -375,7 +378,8 @@ export const deleteTripService = async (trip_id, user_id, io) => {
       reqUserId: user_id,
       dispatcherUserId,
       customerUserId,
-      tripType: "deletedTrip",
+      tripType: "tripDeleted",
+      trip_id
     });
 
     

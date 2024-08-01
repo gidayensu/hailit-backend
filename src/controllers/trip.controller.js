@@ -168,7 +168,7 @@ export const updateTrip = async (req, res) => {
     const updatedTrip = {trip: tripUpdate}
 
     
-    // req.io.emit('updatedTrip', updatedTrip)
+    
     res.status(200).json(updatedTrip);
   } catch (err) {
     return res

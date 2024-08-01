@@ -154,7 +154,7 @@ export const addUser = async (req, res) => {
           errorSource: addedUser.errorSource,
         });
     }
-    req.io.emit('addedUser', addedUser)
+    
     res.status(200).json({ user: addedUser });
   } catch (err) {
     res
@@ -213,7 +213,7 @@ export const updateUser = async (req, res) => {
           errorSource: updateUser.errorSource,
         });
     }
-    req.io.emit('addedUser', updateUser)
+    
     res.status(200).json({ user: updateUser });
   } catch (err) {
     res
@@ -240,7 +240,7 @@ export const deleteUser = async (req, res) => {
           errorSource: userDelete.errorSource,
         });
     }
-    req.io.emit('userDelete', userDelete)
+    
     res.status(200).json(userDelete);
   } catch (err) {
     res

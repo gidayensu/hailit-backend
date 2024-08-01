@@ -28,38 +28,20 @@ const io = new Server(server, {
     origin: '*',
     methods: ['GET', 'POST'],
   },
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: true,
+  }
 });
 
 
-let ioUniqueNameSpace; 
+
 io.engine.use((req, res, next) => {
-  const queryId = req._query.user_id;
-  
-  const nsp = io.of(`/user-${queryId}`);
-  ioUniqueNameSpace = nsp;
-  nsp.use((socket, next) => {
-    const user_id = socket.handshake.query.user_id;
-
-    if (!user_id) {
-      nsp.disconnectSockets(true);
-      return next(new Error("Authentication error"));
-    }
-    socket.user_id = user_id;
-    next();
-  });
-  
-  nsp.on("connection", (socket) => {
-    console.log(`User ${socket.user_id} connected to namespace ${nsp.name}`);
-
-    socket.on("disconnect", () => {
-      console.log(
-        `User ${socket.user_id} disconnected from namespace ${nsp.name}`
-      );
-    });
-  });
-  
-  
-  
+  const user_id = req._query.user_id;
+  if (!user_id) {
+    io.disconnectSockets(true);
+    return next(new Error("Authentication error"));
+  }
   next();
 });
 
@@ -73,18 +55,47 @@ io.use((socket, next) => {
   next();
 });
 
+
 app.use((req, res, next)=> {
   
-  req.io = ioUniqueNameSpace;
+  req.io = io;
   next()
 })
 
 io.on('connection', (socket) => {  
-    
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
+  const userId = socket.user_id;
+
+  console.log(`User ${userId} connected`);
+  socket.join(userId);
+  io.to(userId).emit("hi", `Hello you are connected to room ${userId}`)
+  socket.on("disconnect", () => {
+    console.log(
+      `User ${socket.user_id} disconnected from room `
+    );
   });
 });
+
+io.of("/admins").use((socket, next) => {
+  const user_id = socket.handshake.query.user_id; 
+  
+  if (!user_id) {
+    return next(new Error('Authentication error. Not an Admin'));
+  }
+  socket.admin_user_id = user_id;
+  next();
+});
+
+io.of("/admins").on("connection", (socket)=> {
+  const userId = socket.admin_user_id;
+  
+  io.to(userId).emit("hi", `Hello you are connected to room ${userId}`)
+  console.log(`Admin ${userId} connected`)
+
+  io.of("/admins").emit("hi", `Hello you are as admin to admin namespace with ID ${userId}`)
+  socket.on("disconnect", ()=> {
+    console.log(`Admin ${userId} disconnected`)
+  })
+})
 
 
 

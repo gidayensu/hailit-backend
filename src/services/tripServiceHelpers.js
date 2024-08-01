@@ -48,62 +48,58 @@ import { getOneDriverService } from "./driver.service.js";
 export const tripsRealTimeUpdate = async ({io, reqUserId, trip, dispatcherUserId, customerUserId, tripType, trip_id} )=> {
   
 
-  const ioName = io.name;
+  
     const isAdmin = await userIsUserRole(reqUserId, "Admin");
-    const adminNsName = (isAdmin && `/user-${reqUserId}`) || null;
-    const customerNsName = `/user-${customerUserId}`;
-    const dispatcherNsName = `/user-${dispatcherUserId}`;
+    const IDs = [customerUserId, dispatcherUserId];
+    
+    isAdmin ? IDs.push(reqUserId) : '';
 
-    if (customerNsName === ioName || adminNsName === ioName) {
-      try {
-        tripType === "addedTrip" 
-        ? io.emit("addedTrip", trip)
-        : tripType === "updatedTrip" 
-        ? io.emit("updatedTrip", trip)
-        : tripType === "deletedTrip" 
-        ? io.emit("deletedTrip", trip_id)
-        : ''
-        const customerTrips = await getUserTripsService(
-          customerUserId
-        );
-        io.emit("customerTrips", customerTrips);
-      } catch (error) {
-        console.error("Error fetching data for admin namespace:", error);
+    try {
+      //emit to customers/dispatchers
+      if(tripType === "tripAdded" ){
+        io.to(customerUserId).emit("tripAdded")
+        io.of('/admins').emit("tripAdded", trip)
       }
-      if (dispatcherNsName === ioName || adminNsName === ioName) {
-        try {
-          const dispatherTrips = await getUserTripsService(dispatcherUserId);
-          io.emit("dispatherTrips", dispatherTrips);
-        } catch (error) {
-          console.error("Error fetching data for admin namespace:", error);
-        }
 
-        if (adminNsName === ioName) {
-          try {
-            const [
-              currentMonthTripsCount,
-              tripMonths,
-              monthRevenue,
-              currentWeekCount,
-            ] = await Promise.all([
-              currentMonthTripsCountService(),
-              getTripMonthsService(),
-              getRevenueByMonth(),
-              currentWeekTrip(),
-            ]);
-
-            io.emit("currentMonthTripsCount", currentMonthTripsCount);
-            io.emit("tripMonths", tripMonths);
-            io.emit("monthRevenue", monthRevenue);
-            io.emit("currentWeekCount", currentWeekCount);
-          } catch (error) {
-            console.error("Error fetching data for admin namespace:", error);
-          }
-        }
+      if(tripType === "tripUpdated" ) {
+        IDs.forEach(id=>io.to(id).emit("tripUpdated", trip))
+        io.of('/admins').emit("tripUpdated", trip)
       }
+
+      if(tripType === "tripDeleted") {
+        IDs.forEach(id=>io.to(id).emit("tripDeleted", trip_id))
+        io.of('/admins').emit("tripDeleted", trip_id)
+      }
+      
+      const customerTrips = await getUserTripsService(customerUserId);
+      const dispatherTrips = await getUserTripsService(dispatcherUserId);
+      io.to(customerUserId).emit("customerTrips", customerTrips);
+      io.to(dispatcherUserId).emit("dispatcherTrips", dispatherTrips);
+
+      //emit to admins
+      const [
+        currentMonthTripsCount,
+        tripMonths,
+        monthRevenue,
+        currentWeekCount,
+      ] = await Promise.all([
+        currentMonthTripsCountService(),
+        getTripMonthsService(),
+        getRevenueByMonth(),
+        currentWeekTrip(),
+      ]);
+      
+      
+      
+      io.of('/admins').emit("currentMonthTripsCount", currentMonthTripsCount);
+      io.of('/admins').emit("tripMonths", tripMonths);
+      io.of('/admins').emit("monthRevenue", monthRevenue);
+      io.of('/admins').emit("currentWeekCount", currentWeekCount);
+      
+    } catch (error) {
+      console.error("Error fetching data for admin namespace:", error);
     }
-
-}
+  }
 
 export const getDispatcherDetails = async ({trip_medium, dispatcher_id})=> {
   const dispatcherService =
