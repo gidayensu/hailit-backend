@@ -403,7 +403,7 @@ export const getTripMonthsService = async () => {
       return tripMonthsData; //error message returned
     }
     const monthsArray = tripMonthsData.map((tripsMonth) => tripsMonth.month);
-
+    
     monthsArray.sort((a, b) => MONTH_ORDER.indexOf(a) - MONTH_ORDER.indexOf(b));
 
     return monthsArray;
@@ -537,21 +537,20 @@ export const getRevenueByMonth = async () => {
     }
 
     const revenue = [];
-
+    const sortedRevenue = sortByCalendarMonths(monthsRevenue);
     const tripMonths = [];
-    monthsRevenue.forEach((monthRevenue) => {
+    sortedRevenue.forEach((monthRevenue) => {
       revenue.push(+monthRevenue.revenue || 0);
       tripMonths.push(monthRevenue.month);
     });
-
-
+    
     return { tripMonths, revenue };
   } catch (err) {
     return errorHandler(
-      "Error occurred current week trips count",
+      "Error occurred revenue by month",
       `${err}`,
       500,
-      "Trips Week Service"
+      "Trips Revenue Service"
     );
   }
 };
