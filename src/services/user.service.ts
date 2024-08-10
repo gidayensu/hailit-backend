@@ -1,16 +1,16 @@
-import { DEFAULT_LIMIT } from "../constants/sharedConstants.js";
+import { DEFAULT_LIMIT } from "../constants/sharedConstants";
 import {
   ALLOWED_PROPERTIES,
   USER_ID_COLUMN,
-} from "../constants/usersConstants.js";
+} from "../constants/usersConstants";
 import {
   deleteDriverFromDB,
   getDriverDetailOnCondition,
-} from "../model/driver.model.js";
+} from "../model/driver.model";
 import {
   deleteRiderFromDB,
   getRiderOnConditionFromDB,
-} from "../model/rider.model.js";
+} from "../model/rider.model";
 import {
   addUserToDB,
   deleteUserFromDB,
@@ -22,17 +22,17 @@ import {
   phoneNumberExists,
   updateUserOnDB,
   userExists
-} from "../model/user.model.js";
-import { errorHandler } from "../utils/errorHandler.js";
-import { allowedPropertiesOnly } from "../utils/util.js";
+} from "../model/user.model";
+import { errorHandler } from "../utils/errorHandler";
+import { allowedPropertiesOnly } from "../utils/util";
 import {
   addDriverIfApplicable,
   addRiderIfApplicable,
   riderOrDriverDetails,
   updateDriverRole,
   updateRiderRole,
-} from "./dispatcherRole.service.js";
-import { getAllEntitiesService } from "./helpers.service.js";
+} from "./dispatcherRole.service";
+import { getAllEntitiesService } from "./helpers.service";
 
 //GET ALL CUSTOMERS (USERS WITH CUSTOMER ROLE)
 export const getAllUsersService = async (

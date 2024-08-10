@@ -2,7 +2,7 @@ import {
   allowedPropertiesOnly,
   emailValidator,
   phoneValidator,
-} from "./util.js";
+} from "./util";
 
 //ALLOWED PROPERTIES ONLY TEST
 describe("allowedPropertiesOnly", () => {

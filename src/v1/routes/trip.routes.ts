@@ -1,7 +1,7 @@
 import express from "express";
-import { isAdmin } from "../../auth/isAdmin.js";
-import { supaAuth } from "../../auth/supaAuth.js";
-import { tripSupaAuth } from "../../auth/trip-auth/tripSupaAuth.js";
+import { isAdmin } from "../../auth/isAdmin";
+import { supaAuth } from "../../auth/supaAuth";
+import { tripSupaAuth } from "../../auth/trip-auth/tripSupaAuth";
 import {
   addTrip,
   currentWeekTripCount,
@@ -16,13 +16,13 @@ import {
   rateTrip,
   searchTrips,
   updateTrip
-} from "../../controllers/trip.controller.js";
-import { getAllTripsValidation } from "../../validation/tripsValidation/getAllTripsValidation.js";
-import { addTripValidation } from "../../validation/tripsValidation/addTripValidation.js";
-import { rateTripValidation } from "../../validation/tripsValidation/rateTripValidation.js";
-import { tripStatsColumnValidation } from "../../validation/tripsValidation/tripStatsColumnValidation.js";
-import { updateTripValidation } from "../../validation/tripsValidation/updateTripValidation.js";
-import { isAssociatedWithTrip } from "../../auth/user-auth/isAssociatedWithTrip.js";
+} from "../../controllers/trip.controller";
+import { getAllTripsValidation } from "../../validation/tripsValidation/getAllTripsValidation";
+import { addTripValidation } from "../../validation/tripsValidation/addTripValidation";
+import { rateTripValidation } from "../../validation/tripsValidation/rateTripValidation";
+import { tripStatsColumnValidation } from "../../validation/tripsValidation/tripStatsColumnValidation";
+import { updateTripValidation } from "../../validation/tripsValidation/updateTripValidation";
+import { isAssociatedWithTrip } from "../../auth/user-auth/isAssociatedWithTrip";
 
 export const tripRouter = express.Router();
 

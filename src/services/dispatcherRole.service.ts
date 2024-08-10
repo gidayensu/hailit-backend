@@ -1,15 +1,15 @@
-import { USER_ID_COLUMN } from "../constants/usersConstants.js";
+import { USER_ID_COLUMN } from "../constants/usersConstants";
 import {
   addDriverToDB,
   deleteDriverFromDB,
   getDriverDetailOnCondition,
-} from "../model/driver.model.js";
+} from "../model/driver.model";
 import {
   addRiderToDB,
   deleteRiderFromDB,
   getRiderOnConditionFromDB,
-} from "../model/rider.model.js";
-import { errorHandler } from "../utils/errorHandler.js";
+} from "../model/rider.model";
+import { errorHandler } from "../utils/errorHandler";
 
 export const riderOrDriverDetails = async (user_role, userId) => {
   if (user_role === "Driver") {

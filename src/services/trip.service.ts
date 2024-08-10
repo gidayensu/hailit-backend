@@ -1,7 +1,7 @@
 
 import crypto from "crypto";
 import { config } from "dotenv";
-import { DEFAULT_LIMIT } from "../constants/sharedConstants.js";
+import { DEFAULT_LIMIT } from "../constants/sharedConstants";
 import {
   ALLOWED_RATE_TRIP_PROPS,
   ALLOWED_UPDATE_PROPERTIES,
@@ -9,7 +9,7 @@ import {
   MONTH_ORDER,
   NO_LOCATION_PROPS,
   TRIP_ID_COLUMN,
-} from "../constants/tripConstants.js";
+} from "../constants/tripConstants";
 import {
   addTripToDB,
   deleteTripFromDB,
@@ -25,16 +25,16 @@ import {
   searchTrips,
   tripsMonths,
   updateTripOnDB
-} from "../model/trip.model.js";
-import { getOneUserFromDB } from "../model/user.model.js";
-import { errorHandler } from "../utils/errorHandler.js";
+} from "../model/trip.model";
+import { getOneUserFromDB } from "../model/user.model";
+import { errorHandler } from "../utils/errorHandler";
 import {
   allowedPropertiesOnly,
   currencyFormatter,
   getDayFromDate,
   userIsUserRole
-} from "../utils/util.js";
-import { getAllEntitiesService } from "./helpers.service.js";
+} from "../utils/util";
+import { getAllEntitiesService } from "./helpers.service";
 import {
   dispatcherTrips,
   getCustomerTrips,
@@ -46,8 +46,8 @@ import {
   tripsRealTimeUpdate,
 
   updateDispatcherRating
-} from "./tripServiceHelpers.js";
-import { getOneUserService } from "./user.service.js";
+} from "./tripServiceHelpers";
+import { getOneUserService } from "./user.service";
 config({ path: "../../../.env" });
 
 //GET ALL TRIPS

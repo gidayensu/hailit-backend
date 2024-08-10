@@ -1,5 +1,5 @@
-import { paginatedRequest } from "../utils/paginatedRequest.js";
-import { errorHandler } from "../utils/errorHandler.js";
+import { paginatedRequest } from "../utils/paginatedRequest";
+import { errorHandler } from "../utils/errorHandler";
 
 export const getAllEntitiesService = async (
     page,

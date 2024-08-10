@@ -1,5 +1,5 @@
-import { userIsUserRole, driverUserId } from '../../utils/util.js';
-import { errorHandler } from '../../utils/errorHandler.js';
+import { userIsUserRole, driverUserId } from '../../utils/util';
+import { errorHandler } from '../../utils/errorHandler';
 
 export const isAdminOrRider = async (req, res, next) => {
     

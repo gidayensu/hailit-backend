@@ -1,8 +1,8 @@
 import {
   ALLOWED_DRIVER_UPDATE_PROPERTIES,
   GET_DRIVER_COLUMNS,
-} from "../constants/driverConstants.js";
-import { DEFAULT_LIMIT } from "../constants/sharedConstants.js";
+} from "../constants/driverConstants";
+import { DEFAULT_LIMIT } from "../constants/sharedConstants";
 import {
   addDriverToDB,
   deleteDriverFromDB,
@@ -10,12 +10,12 @@ import {
   getDriversCount,
   getOneDriverFromDB,
   updateDriverOnDB,
-} from "../model/driver.model.js";
-import { getSpecificUserDetailsUsingId } from "../model/user.model.js";
-import { getOneVehicleFromDB } from "../model/vehicle.model.js";
-import { errorHandler } from "../utils/errorHandler.js";
-import { allowedPropertiesOnly, userIsUserRole } from "../utils/util.js";
-import { getAllEntitiesService } from "./helpers.service.js";
+} from "../model/driver.model";
+import { getSpecificUserDetailsUsingId } from "../model/user.model";
+import { getOneVehicleFromDB } from "../model/vehicle.model";
+import { errorHandler } from "../utils/errorHandler";
+import { allowedPropertiesOnly, userIsUserRole } from "../utils/util";
+import { getAllEntitiesService } from "./helpers.service";
 
 export const getAllDriversService = async (
   page,

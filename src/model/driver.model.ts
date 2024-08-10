@@ -7,18 +7,18 @@ import {
   USER_FIRST_NAME, USER_ID_DRIVER, USER_ID_USERS, USER_LAST_NAME, VEHICLE_ID_COLUMN, VEHICLE_NAME_COLUMN,
   VEHICLE_PLATE_COLUMN, VEHICLE_TABLE,
 } from '../constants/driverConstants.js';
-import { USER_ID_COLUMN, USER_TABLE_NAME } from "../constants/usersConstants.js";
-import { errorHandler } from "../utils/errorHandler.js";
+import { USER_ID_COLUMN, USER_TABLE_NAME } from "../constants/usersConstants";
+import { errorHandler } from "../utils/errorHandler";
 
-import { addOne } from "./DB/addDbFunctions.js";
-import { deleteOne } from "./DB/deleteDbFunctions.js";
+import { addOne } from "./DB/addDbFunctions";
+import { deleteOne } from "./DB/deleteDbFunctions";
 import {
   getOne,
   getSpecificDetails,
   getSpecificDetailsUsingId
-} from "./DB/getDbFunctions.js";
-import { updateOne } from "./DB/updateDbFunctions.js";
-import { getDispatcherCount, getDispatchersVehicleJoin } from "./DB/usersDbFunctions.js";
+} from "./DB/getDbFunctions";
+import { updateOne } from "./DB/updateDbFunctions";
+import { getDispatcherCount, getDispatchersVehicleJoin } from "./DB/usersDbFunctions";
 
 export const getAllDriversFromDB = async (limit,
   offset,

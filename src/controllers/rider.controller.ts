@@ -3,7 +3,7 @@ import {
   getAllRidersService,
   getOneRiderService,
   updateRiderService,
-} from "../services/rider.service.js";
+} from "../services/rider.service";
 
 export const getAllRiders = async (req, res) => {
   try {

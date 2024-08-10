@@ -1,10 +1,10 @@
 import { FIRST_NAME, LAST_NAME, LOCATION_TABLE_NAME, TRIP_ID_COLUMN, TRIP_TABLE_NAME, USER_ID_TRIP, USER_ID_USER } from '../constants/tripConstants.js';
-import { USER_TABLE_NAME } from "../constants/usersConstants.js";
-import { errorHandler } from "../utils/errorHandler.js";
-import { addOne } from "./DB/addDbFunctions.js";
-import { deleteOne } from "./DB/deleteDbFunctions.js";
-import { getSpecificDetailsUsingId, selectOnCondition, getOne } from "./DB/getDbFunctions.js";
-import { increaseByValue } from "./DB/helperDbFunctions.js";
+import { USER_TABLE_NAME } from "../constants/usersConstants";
+import { errorHandler } from "../utils/errorHandler";
+import { addOne } from "./DB/addDbFunctions";
+import { deleteOne } from "./DB/deleteDbFunctions";
+import { getSpecificDetailsUsingId, selectOnCondition, getOne } from "./DB/getDbFunctions";
+import { increaseByValue } from "./DB/helperDbFunctions";
 import {
   getCountByMonth,
   getOneTrip,
@@ -15,8 +15,8 @@ import {
   tripsCount,
   upToOneWeekTripCounts,
   getIDsAndMedium
-} from "./DB/tripsDbFunctions.js";
-import { updateOne } from "./DB/updateDbFunctions.js";
+} from "./DB/tripsDbFunctions";
+import { updateOne } from "./DB/updateDbFunctions";
 
 
 export const tripsMonths = async()=> {

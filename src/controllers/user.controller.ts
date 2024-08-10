@@ -6,8 +6,8 @@ import {
   getOneUserService,
   getUserIdUsingEmailService,
   updateUserService,
-} from "../services/user.service.js";
-import { emailValidator, phoneValidator } from "../utils/util.js";
+} from "../services/user.service";
+import { emailValidator, phoneValidator } from "../utils/util";
 
 import { config } from "dotenv";
 

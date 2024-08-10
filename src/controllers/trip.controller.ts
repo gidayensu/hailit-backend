@@ -1,6 +1,6 @@
 
 
-import { DEFAULT_USER_ID } from "../constants/usersConstants.js";
+import { DEFAULT_USER_ID } from "../constants/usersConstants";
 import {
   addTripService,
   currentMonthTripsCountService,
@@ -15,7 +15,7 @@ import {
   searchTripService,
   tripsCountByMonth,
   updateTripService,
-} from "../services/trip.service.js";
+} from "../services/trip.service";
 
 
 

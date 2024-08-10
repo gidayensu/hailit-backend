@@ -7,11 +7,11 @@ import http from 'http';
 import { Server } from 'socket.io';
 
 // routes
-import { driverRouter } from './src/v1/routes/driver.routes.js';
-import { userRouter } from './src/v1/routes/user.routes.js';
-import { riderRouter } from './src/v1/routes/rider.routes.js';
-import { tripRouter } from './src/v1/routes/trip.routes.js';
-import { vehicleRouter } from './src/v1/routes/vehicle.routes.js';
+import { driverRouter } from './src/v1/routes/driver.routes';
+import { userRouter } from './src/v1/routes/user.routes';
+import { riderRouter } from './src/v1/routes/rider.routes';
+import { tripRouter } from './src/v1/routes/trip.routes';
+import { vehicleRouter } from './src/v1/routes/vehicle.routes';
 
 const PORT = process.env.PORT || 5000;
 

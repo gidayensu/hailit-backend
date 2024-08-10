@@ -14,20 +14,20 @@ import {
   VEHICLE_ID,
   VEHICLE_NAME_COLUMN,
   VEHICLE_PLATE_COLUMN,
-} from "../constants/riderConstants.js";
-import { USER_ID_COLUMN, USER_TABLE_NAME } from "../constants/usersConstants.js";
-import { VEHICLE_TABLE_NAME } from "../constants/vehicleConstants.js";
-import { errorHandler } from "../utils/errorHandler.js";
-import { addOne } from "./DB/addDbFunctions.js";
-import { deleteOne } from "./DB/deleteDbFunctions.js";
+} from "../constants/riderConstants";
+import { USER_ID_COLUMN, USER_TABLE_NAME } from "../constants/usersConstants";
+import { VEHICLE_TABLE_NAME } from "../constants/vehicleConstants";
+import { errorHandler } from "../utils/errorHandler";
+import { addOne } from "./DB/addDbFunctions";
+import { deleteOne } from "./DB/deleteDbFunctions";
 import {
   
   getOne,
   getSpecificDetails,
   getSpecificDetailsUsingId,
-} from "./DB/getDbFunctions.js";
-import { updateOne } from "./DB/updateDbFunctions.js";
-import { getDispatchersVehicleJoin, getDispatcherCount } from "./DB/usersDbFunctions.js";
+} from "./DB/getDbFunctions";
+import { updateOne } from "./DB/updateDbFunctions";
+import { getDispatchersVehicleJoin, getDispatcherCount } from "./DB/usersDbFunctions";
 
 
 export const getAllRiders = async (limit,

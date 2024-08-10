@@ -1,8 +1,8 @@
 import {
   ALLOWED_UPDATE_RIDER_PROPERTIES,
   RIDER_DETAILS,
-} from "../constants/riderConstants.js";
-import { DEFAULT_LIMIT } from "../constants/sharedConstants.js";
+} from "../constants/riderConstants";
+import { DEFAULT_LIMIT } from "../constants/sharedConstants";
 import {
   addRiderToDB,
   deleteRiderFromDB,
@@ -10,12 +10,12 @@ import {
   getOneRiderFromDB,
   getRidersCount,
   updateRiderOnDB,
-} from "../model/rider.model.js";
-import { getSpecificUserDetailsUsingId } from "../model/user.model.js";
-import { getOneVehicleFromDB } from "../model/vehicle.model.js";
-import { errorHandler } from "../utils/errorHandler.js";
-import { allowedPropertiesOnly, userIsUserRole } from "../utils/util.js";
-import { getAllEntitiesService } from "./helpers.service.js";
+} from "../model/rider.model";
+import { getSpecificUserDetailsUsingId } from "../model/user.model";
+import { getOneVehicleFromDB } from "../model/vehicle.model";
+import { errorHandler } from "../utils/errorHandler";
+import { allowedPropertiesOnly, userIsUserRole } from "../utils/util";
+import { getAllEntitiesService } from "./helpers.service";
 
 export const getAllRidersService = async (
   page,

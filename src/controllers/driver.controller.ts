@@ -3,7 +3,7 @@ import {
   getAllDriversService,
   getOneDriverService,
   updateDriverService,
-} from "../services/driver.service.js";
+} from "../services/driver.service";
 
 export const getAllDrivers = async (req, res) => {
   const {

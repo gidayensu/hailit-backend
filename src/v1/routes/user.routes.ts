@@ -1,8 +1,8 @@
 import express from "express";
-import { isAdmin } from "../../auth/isAdmin.js";
-import { supaAuth } from "../../auth/supaAuth.js";
-import { isUserRole, userIsAdmin } from "../../auth/user-auth/isUserRole.js";
-import { getAllUsersValidation } from "../../validation/getAllUsersValidation.js";
+import { isAdmin } from "../../auth/isAdmin";
+import { supaAuth } from "../../auth/supaAuth";
+import { isUserRole, userIsAdmin } from "../../auth/user-auth/isUserRole";
+import { getAllUsersValidation } from "../../validation/getAllUsersValidation";
 import {
   addUser,
   deleteUser,
@@ -10,8 +10,8 @@ import {
   getOneUser,
   updateUser,
   healthCheck
-} from "../../controllers/user.controller.js";
-import {isUser} from "../../auth/user-auth/isUser.js"
+} from "../../controllers/user.controller";
+import {isUser} from "../../auth/user-auth/isUser"
 
 export const userRouter = express.Router();
 

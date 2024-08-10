@@ -1,7 +1,7 @@
-import { PAYMENT_STATUS, USER_ID_TRIP, USER_ID_USER, FIRST_NAME, LAST_NAME, TRIP_ID_COLUMN } from "../../constants/tripConstants.js";
-import { USERS_TABLE } from "../../constants/riderConstants.js";
-import { errorHandler } from "../../utils/errorHandler.js";
-import { DB } from "./connectDb.js";
+import { PAYMENT_STATUS, USER_ID_TRIP, USER_ID_USER, FIRST_NAME, LAST_NAME, TRIP_ID_COLUMN } from "../../constants/tripConstants";
+import { USERS_TABLE } from "../../constants/riderConstants";
+import { errorHandler } from "../../utils/errorHandler";
+import { DB } from "./connectDb";
 
 export const getOneTrip = async (
   tripTableName,

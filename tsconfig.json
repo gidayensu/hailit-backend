@@ -2,7 +2,11 @@
     "compilerOptions": {
         "outDir": "./built",
         "allowJs": true,
-        "target": "ES5"
+        "module": "CommonJS",
+        "esModuleInterop": true
     },
+
+
     "include": ["./src/**/*"]
 }
+

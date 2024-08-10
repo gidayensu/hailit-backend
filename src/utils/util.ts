@@ -1,9 +1,9 @@
 import parsePhoneNumberFromString from "libphonenumber-js";
 
-import { getOneDriverFromDB } from "../model/driver.model.js";
-import { getOneRiderFromDB } from "../model/rider.model.js";
-import { associatedWithTrip } from "../model/trip.model.js";
-import { isUserRole } from "../model/user.model.js";
+import { getOneDriverFromDB } from "../model/driver.model";
+import { getOneRiderFromDB } from "../model/rider.model";
+import { associatedWithTrip } from "../model/trip.model";
+import { isUserRole } from "../model/user.model";
 
 const EMAIL_REGEX =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;

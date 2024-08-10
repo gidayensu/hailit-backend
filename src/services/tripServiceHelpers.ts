@@ -1,12 +1,12 @@
 import {
   DRIVER_ID_COLUMN,
   DRIVER_TABLE_NAME,
-} from "../constants/driverConstants.js";
+} from "../constants/driverConstants";
 import {
   RATING_COUNT_COLUMN,
   RIDER_ID_COLUMN,
   RIDER_TABLE_NAME
-} from "../constants/riderConstants.js";
+} from "../constants/riderConstants";
 
 import {
   CUSTOMER_ID_COLUMN,
@@ -16,34 +16,34 @@ import {
   DISPATCHER_ID_COLUMN,
   DISPATCHER_TRIP_FIELDS,
   TRIP_REQUEST_DATE_COLUMN,
-} from "../constants/tripConstants.js";
-import { USER_ID_COLUMN } from "../constants/usersConstants.js";
+} from "../constants/tripConstants";
+import { USER_ID_COLUMN } from "../constants/usersConstants";
 import {
   getDriverDetailOnCondition,
   getSpecificDriversFromDB,
   updateDriverOnDB,
-} from "../model/driver.model.js";
+} from "../model/driver.model";
 import {
   getRiderOnConditionFromDB,
   getSpecificRidersFromDB,
   updateRiderOnDB,
-} from "../model/rider.model.js";
+} from "../model/rider.model";
 import {
   getUserTripsFromDB,
   ratingCountIncrease,
-} from "../model/trip.model.js";
-import { errorHandler } from "../utils/errorHandler.js";
-import { currencyFormatter } from "../utils/util.js";
+} from "../model/trip.model";
+import { errorHandler } from "../utils/errorHandler";
+import { currencyFormatter } from "../utils/util";
 import {
   currentMonthTripsCountService,
   currentWeekTrip,
   getRevenueByMonth,
   getTripMonthsService,
   getUserTripsService
-} from "./trip.service.js";
+} from "./trip.service";
 
-import { getOneDriverService } from "./driver.service.js";
-import { getOneRiderService } from "./rider.service.js";
+import { getOneDriverService } from "./driver.service";
+import { getOneRiderService } from "./rider.service";
 
 export const tripsRealTimeUpdate = async ({io,  trip, dispatcherUserId, customerUserId, tripType, trip_id} )=> {
   

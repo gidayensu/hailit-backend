@@ -5,19 +5,19 @@ import {
   USER_ROLE,
   USER_ROLE_COLUMN,
   USER_TABLE_NAME
-} from "../constants/usersConstants.js";
-import { errorHandler } from "../utils/errorHandler.js";
-import { addOne } from "./DB/addDbFunctions.js";
-import { deleteOne } from "./DB/deleteDbFunctions.js";
+} from "../constants/usersConstants";
+import { errorHandler } from "../utils/errorHandler";
+import { addOne } from "./DB/addDbFunctions";
+import { deleteOne } from "./DB/deleteDbFunctions";
 import {
   getCountOnOneCondition,
   getOne,
   getSpecificDetailsUsingId
-} from "./DB/getDbFunctions.js";
-import { detailExists } from "./DB/helperDbFunctions.js";
-import { updateOne } from "./DB/updateDbFunctions.js";
-import { getAllCustomers } from "./DB/usersDbFunctions.js";
-import { customersCount } from "./DB/usersDbFunctions.js";
+} from "./DB/getDbFunctions";
+import { detailExists } from "./DB/helperDbFunctions";
+import { updateOne } from "./DB/updateDbFunctions";
+import { getAllCustomers } from "./DB/usersDbFunctions";
+import { customersCount } from "./DB/usersDbFunctions";
 
 export const getAllUsersFromDB = async (
   limit,

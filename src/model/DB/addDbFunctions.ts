@@ -1,5 +1,5 @@
-import { errorHandler } from "../../utils/errorHandler.js";
-import { DB } from "./connectDb.js";
+import { errorHandler } from "../../utils/errorHandler";
+import { DB } from "./connectDb";
 
 //...args changed to args
 export const addOne = async (tableName, columns, values) => {

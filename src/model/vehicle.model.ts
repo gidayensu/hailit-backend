@@ -1,10 +1,10 @@
-import { PLATE_NUMBER_COLUMN, VEHICLE_ID_COLUMN, VEHICLE_TABLE_NAME } from "../constants/vehicleConstants.js";
-import { errorHandler } from "../utils/errorHandler.js";
-import { addOne } from "./DB/addDbFunctions.js";
-import { deleteOne } from "./DB/deleteDbFunctions.js";
-import { getAllVehicles, getOne, vehiclesCount } from "./DB/getDbFunctions.js";
-import { detailExists } from "./DB/helperDbFunctions.js";
-import { updateOne } from "./DB/updateDbFunctions.js";
+import { PLATE_NUMBER_COLUMN, VEHICLE_ID_COLUMN, VEHICLE_TABLE_NAME } from "../constants/vehicleConstants";
+import { errorHandler } from "../utils/errorHandler";
+import { addOne } from "./DB/addDbFunctions";
+import { deleteOne } from "./DB/deleteDbFunctions";
+import { getAllVehicles, getOne, vehiclesCount } from "./DB/getDbFunctions";
+import { detailExists } from "./DB/helperDbFunctions";
+import { updateOne } from "./DB/updateDbFunctions";
 
 
 export const getAllVehiclesFromDB = async (

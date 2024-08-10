@@ -1,5 +1,5 @@
-import { errorHandler } from "../../utils/errorHandler.js";
-import { DB } from "./connectDb.js";
+import { errorHandler } from "../../utils/errorHandler";
+import { DB } from "./connectDb";
 
 export const deleteOne = async (tableName, columnName, id) => {
   try {

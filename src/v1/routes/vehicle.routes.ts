@@ -1,9 +1,9 @@
 import express from 'express';
-import { getAllVehicleValidation } from '../../validation/getAllVehicleValidation.js';
-import { addVehicle, deleteVehicle, getAllVehicles, getOneVehicle, updateVehicle } from '../../controllers/vehicle.controller.js';
+import { getAllVehicleValidation } from '../../validation/getAllVehicleValidation';
+import { addVehicle, deleteVehicle, getAllVehicles, getOneVehicle, updateVehicle } from '../../controllers/vehicle.controller';
 
-import { isAdmin } from '../../auth/isAdmin.js';
-import { supaAuth } from '../../auth/supaAuth.js';
+import { isAdmin } from '../../auth/isAdmin';
+import { supaAuth } from '../../auth/supaAuth';
 
 
 

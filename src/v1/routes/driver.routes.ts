@@ -1,14 +1,14 @@
 import express from "express";
-import { supaAuth } from "../../auth/supaAuth.js";
+import { supaAuth } from "../../auth/supaAuth";
 import {
   deleteDriver,
   getAllDrivers,
   getOneDriver,
   updateDriver,
-} from "../../controllers/driver.controller.js";
+} from "../../controllers/driver.controller";
 
-import { getAllDriversValidation } from "../../validation/getAllDriversValidation.js";
-import { isAdmin } from "../../auth/isAdmin.js";
+import { getAllDriversValidation } from "../../validation/getAllDriversValidation";
+import { isAdmin } from "../../auth/isAdmin";
 
 export const driverRouter = express.Router();
 

@@ -4,7 +4,7 @@ import {
   getAllVehiclesService,
   getOneVehicleService,
   updateVehicleService,
-} from "../services/vehicle.service.js";
+} from "../services/vehicle.service";
 
 export const getAllVehicles = async (req, res) => {
   try {
