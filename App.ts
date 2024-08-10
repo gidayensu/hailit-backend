@@ -46,12 +46,12 @@ io.engine.use((req, res, next) => {
 });
 
 io.use((socket, next) => {
-  const user_id = socket.handshake.query.user_id; 
+  const userId = socket.handshake.query.user_id; 
   
-  if (!user_id) {
+  if (!userId) {
     return next(new Error('Authentication error'));
   }
-  socket.user_id = user_id;
+  (socket as any).userId = userId;
   next();
 });
 
@@ -63,30 +63,30 @@ app.use((req, res, next)=> {
 })
 
 io.on('connection', (socket) => {  
-  const userId = socket.user_id;
+  const userId = (socket as any).userId;
 
   console.log(`User ${userId} connected`);
   socket.join(userId);
   
   socket.on("disconnect", () => {
     console.log(
-      `User ${socket.user_id} disconnected from room `
+      `User ${userId} disconnected from room `
     );
   });
 });
 
 io.of("/admins").use((socket, next) => {
-  const user_id = socket.handshake.query.user_id; 
+  const userId = socket.handshake.query.user_id; 
   
-  if (!user_id) {
+  if (!userId) {
     return next(new Error('Authentication error. Not an Admin'));
   }
-  socket.admin_user_id = user_id;
+  (socket as any).adminUserId = userId;
   next();
 });
 
 io.of("/admins").on("connection", (socket)=> {
-  const userId = socket.admin_user_id;
+  const userId = (socket as any).adminUserId;
   
   
   console.log(`Admin ${userId} connected`)
