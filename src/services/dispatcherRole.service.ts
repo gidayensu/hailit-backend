@@ -50,7 +50,13 @@ export const addRiderIfApplicable = async (user_id, addedUser) => {
     if (addRider.error) return addRider;
     return { ...addedUser, rider: addRider[0] };
   } catch (err) {
-    return errorHandler("Error adding rider", `${err}`, 500, "User Service");
+    return errorHandler({
+      error: "Error adding rider",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "User Service: Add Rider if Applicable"
+    }
+    );
   }
 };
 
@@ -61,10 +67,13 @@ export const addDriverIfApplicable = async (user_id, addedUser) => {
     return { ...addedUser, driver: addDriver[0] };
   } catch (err) {
     return errorHandler(
-      "Error. User not updated",
-      `${err}`,
-      500,
-      "User Service"
+      {
+        error: "Error. User not updated",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Service"
+      }
+      
     );
   }
 };
@@ -83,10 +92,13 @@ export const updateRiderRole = async (userId, updatedDetails) => {
     return { ...updatedDetails, rider: addRider[0] };
   } catch (err) {
     return errorHandler(
-      "Error updating rider role",
-      `${err}`,
-      500,
-      "User Service: Update Rider Role"
+      {
+        error: "Error updating rider role",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Service: Update Rider Role"
+      }
+      
     );
   }
 };
@@ -107,10 +119,13 @@ export const updateDriverRole = async (userId, updatedDetails) => {
     return { ...updatedDetails, driver: addDriver[0] };
   } catch (err) {
     return errorHandler(
-      "Error updating driver role",
-      `${err}`,
-      500,
-      "User Service"
+      {
+        error: "Error updating driver role",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Service: Update Rider Role"
+      }
+      
     );
   }
 };

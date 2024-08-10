@@ -12,6 +12,12 @@ export const deleteOne = async (tableName, columnName, id) => {
     return deletion.rowCount ? true : false;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return errorHandler(`Error occurred`, `${err}`, 500, "Database Functions");
+    return errorHandler({
+      error: "Error occurred",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Database Functions"
+    }
+    );
   }
 };

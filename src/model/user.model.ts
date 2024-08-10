@@ -37,16 +37,25 @@ export const getAllUsersFromDB = async (
     );
 
     if (!allUsers) {
-      return errorHandler("No user found", null, 404, "User Model");
+      return errorHandler({
+        error: "No user found",
+        errorMessage: null,
+        errorCode: 404,
+        errorSource: "User Model"
+      }
+      );
     }
 
     return allUsers;
   } catch (err) {
     return errorHandler(
-      "Server error occurred getting all users",
-      err,
-      500,
-      "User Model"
+      {
+        error: "Server error occurred getting all users",
+        errorMessage: err,
+        errorCode: 500,
+        errorSource: "User Model: Get All Users"
+      }
+      
     );
   }
 };
@@ -63,10 +72,13 @@ export const getCustomerCount = async (search) => {
     return customerCount;
   } catch (err) {
     return errorHandler(
-      "Server error occurred getting customer count",
-      err,
-      500,
-      "User Model: Customer Count"
+      {
+        error: "Server error occurred getting customer count",
+        errorMessage: err,
+        errorCode: 500,
+        errorSource: "User Model: Customer Count"
+      }
+      
     );
   }
 };
@@ -84,10 +96,13 @@ export const getOneUserFromDB = async (userId) => {
     return user[0];
   } catch (err) {
     return errorHandler(
-      "Error occurred getting user details",
-      err,
-      500,
-      "User Model"
+      {
+        error: "Error occurred getting user details",
+        errorMessage: err,
+        errorCode: 500,
+        errorSource: "User Model"
+      }
+      
     );
   }
 };
@@ -115,18 +130,24 @@ export const addUserToDB = async (userDetails) => {
       }
     } else {
       return errorHandler(
-        "user email or number exists",
-        null,
-        400,
-        "User Model"
+        {
+          error: "User email or number exists",
+          errorMessage: null,
+          errorCode: 400,
+          errorSource: "User Model"
+        }
+        
       );
     }
   } catch (err) {
     return errorHandler(
-      `Error occurred adding user`,
-      `${err}`,
-      500,
-      "User Model"
+      {
+        error: "Error occurred adding user",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Model"
+      }
+      
     );
   }
 };
@@ -152,10 +173,13 @@ export const updateUserOnDB = async (userId, userDetails) => {
     
   } catch (err) {
     return errorHandler(
-      `Error occurred this error`,
-      `${err}`,
-      500,
-      "User Model"
+      {
+        error: "Error occurred: this error",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Model"
+      }
+      
     );
   }
 };
@@ -170,10 +194,13 @@ export const getSpecificUserDetailsUsingId = async (userId, columns) => {
   );
   if (specificDetails.error) {
     return errorHandler(
-      `Error occurred: ${specificDetails.error}`,
-      null,
-      500,
-      "User Model"
+      {
+        error: `Error occurred: ${specificDetails.error}`,
+        errorMessage: null,
+        errorCode: 500,
+        errorSource: "User Model"
+      }
+      
     );
   }
 
@@ -186,9 +213,12 @@ export const deleteUserFromDB = async (userId) => {
     //check if user exists
     const userExist = await userExists(userId); //returns true/false or error
     
-    if(userExist.error || !userExist) {
-      userExist.error ? userExist : errorHandler("User does not exist", null, 404, "User Mode: Delete User")
+    if(userExist.error ) {
+      return userExist 
     }
+    // if(userExist.error || !userExist) {
+    //   userExist.error ? userExist : errorHandler("User does not exist", null, 404, "User Mode: Delete User")
+    // }
 
     //delete if user exists
     if (userExist) {
@@ -196,7 +226,13 @@ export const deleteUserFromDB = async (userId) => {
       return { success: "user deleted" };
     } 
   } catch (err) {
-    return errorHandler("Server Error occurred", `${err}`, 500, "User Mode: Delete User")
+    return errorHandler({
+      error: "Server Error occurred",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "User Model: Delete User"
+    }
+    )
   }
 };
 
@@ -213,10 +249,13 @@ export const getCustomersCount = async () => {
     return customersCount;
   } catch (err) {
     return errorHandler(
-      "Error occurred getting customers count",
-      `${err}`,
-      500,
-      "User Model: Customers Count"
+      {
+        error: "Error occurred getting customers count",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Model: Customers Count"
+      }
+      
     );
   }
 };
@@ -229,7 +268,13 @@ export const emailExists = async (email) => {
     const columnName = USER_COLUMNS_FOR_ADDING[3];
     return await detailExists(USER_TABLE_NAME, columnName, email);
   } catch (err) {
-    return errorHandler("Error checking if email exists", `${err}`, 500, "User Service: Email Exists");
+    return errorHandler({
+      error: "Error checking if email exists",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "User Service: Email Exists"
+    }
+    );
   }
 };
 
@@ -239,7 +284,13 @@ export const phoneNumberExists = async (phoneNumber) => {
     const phoneNumberColumn = USER_COLUMNS_FOR_ADDING[4];
     return await detailExists(USER_TABLE_NAME, phoneNumberColumn, phoneNumber);
   } catch (err) {
-    return errorHandler("Error checking if phone number exists", `${err}`, 500, "User Service: Phone Number Exists");
+    return errorHandler({
+      error: "Error checking if phone number exists",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "User Service: Phone Number Exists"
+    }
+    );
   }
 };
 
@@ -251,16 +302,25 @@ export const userExists = async (userId)=> {
    
     
     if(!exists) {
-      return errorHandler("User does not exist", null, 404, "User Mode: Update User")
+      return errorHandler({
+        error: "User does not exist",
+        errorMessage: null,
+        errorCode: 404,
+        errorSource: "User Model: Update User"
+      }
+      )
     }
     
     return exists //will return error or true;
   } catch (err) {
     return errorHandler(
-      `Server error occurred `,
-      `${err}`,
-      500,
-      "User Model: userExists")
+      {
+        error: "Server error occurred",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Model: userExists"
+      }
+      )
   }
     }; 
 
@@ -292,10 +352,13 @@ export const userExists = async (userId)=> {
         }
       } catch (err) {
         return errorHandler(
-          "Error occurred getting uesr ID",
-          `${err}`,
-          500,
-          "User Model: User ID with User Email"
+          {
+            error: "Error occurred getting user ID",
+            errorMessage: `${err}`,
+            errorCode: 500,
+            errorSource: "User Model: User ID with User Email"
+          }
+          
         );
       }
     };

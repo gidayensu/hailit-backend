@@ -41,10 +41,13 @@ export const getAllEntitiesService = async (
     } catch (err) {
       
       return errorHandler(
-        `Error occurred getting all ${entityName}`,
-        `${err}`,
-        500,
-        `${entityName} service`
+        {
+          error: `Error occurred getting all ${entityName}`,
+          errorMessage: `${err}`,
+          errorCode: 500,
+          errorSource: `${entityName} service`
+        }
+        
       );
     }
   };

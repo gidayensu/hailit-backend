@@ -42,10 +42,13 @@ export const getAll = async (
   
   } catch (err) {
     return errorHandler(
-      "Error occurred getting all details",
-      `${err}`,
-      500,
-      "Database Functions: Get All"
+      {
+        error: "Error occurred getting all details",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions: Get All"
+      }
+      
     );
   }
 };
@@ -91,10 +94,13 @@ export const getAllVehicles = async (
     return data;
   } catch (err) {
     return errorHandler(
-      "Error occurred getting all details",
-      `${err}`,
-      500,
-      "Database Functions: Get All"
+      {
+        error: "Error occurred getting all details",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions: Get All Vehicles"
+      }
+      
     );
   }
 };
@@ -129,10 +135,13 @@ export const vehiclesCount = async (
     return data[0];
   } catch (err) {
     return errorHandler(
-      "Error occurred getting vehicle count",
-      `${err}`,
-      500,
-      "Database Functions: Getting vehicle count"
+      {
+        error: "Error occurred getting vehicle count",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions: Getting vehicle count"
+      }
+      
     );
   }
 };
@@ -157,10 +166,13 @@ export const getCountOnOneCondition = async (
     return data.rows[0];
   } catch (err) {
     return errorHandler(
-      "Error occurred getting count on one condition",
-      `${err}`,
-      500,
-      "Database Functions: One Condition Count"
+      {
+        error: "Error occurred getting count on one condition",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions: One Condition Count"
+      }
+      
     );
   }
 };
@@ -179,10 +191,13 @@ export const getAllDateSort = async (tableName, dateColumn, limit) => {
     return data;
   } catch (err) {
     return errorHandler(
-      "Error occurred getting all date sort",
-      `${err}`,
-      500,
-      "Database Functions: Get All Date Sort"
+      {
+        error: "Error occurred getting all date sort",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions: Get All Date Sort"
+      }
+      
     );
   }
 };
@@ -213,10 +228,13 @@ export const selectOnCondition = async (
     return result.rows;
   } catch (err) {
     return errorHandler(
-      "Error occurred selecting on condition",
-      `${err}`,
-      500,
-      "Database Functions: Select On Condition"
+      {
+        error: "Error occurred selecting on condition",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions: Select On Condition"
+      }
+      
     );
   }
 };
@@ -235,18 +253,24 @@ export const getOne = async (tableName, columnName, condition, secondConditionCo
       return result.rows;
     } else {
       return errorHandler(
-        "detail does not exist",
-        null,
-        404,
-        "Database Functions"
+        {
+          error: "Detail does not exist",
+          errorMessage: null,
+          errorCode: 404,
+          errorSource: "Database Functions"
+        }
+        
       );
     }
   } catch (err) {
     return errorHandler(
-      "Error occurred getting one detail",
-      `${err}`,
-      500,
-      "getOne Database Functions"
+      {
+        error: "Error occurred getting one detail",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "getOne Database Functions"
+      }
+      
     );
   }
 };
@@ -266,10 +290,13 @@ export const getSpecificDetails = async (
   } catch (err) {
     await DB.query("ROLLBACK");
     return errorHandler(
-      "Server Error occurred, data not retrieved",
-      `${err}`,
-      500,
-      "Database Functions: Get Specific Details"
+      {
+        error: "Server Error occurred, data not retrieved",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions: Get Specific Details"
+      }
+      
     );
   }
 };
@@ -292,7 +319,13 @@ export const getSpecificDetailsUsingId = async (
     const value = [id];
     const { rows } = await DB.query(queryText, value);
     if (!rows) {
-      return errorHandler("Detail not found", null, 404, "Database Functions");
+      return errorHandler({
+        error: "Detail not found",
+        errorMessage: null,
+        errorCode: 404,
+        errorSource: "Database Functions"
+      }
+      );
     }
     await DB.query("COMMIT");
 
@@ -300,10 +333,13 @@ export const getSpecificDetailsUsingId = async (
   } catch (err) {
     await DB.query("ROLLBACK");
     return errorHandler(
-      "Server Error occurred, data not retrieved",
-      `${err}`,
-      500,
-      "Database Functions: Specific Details Using Id"
+      {
+        error: "Server Error occurred, data not retrieved",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions: Specific Details Using Id"
+      }
+      
     );
   }
 };

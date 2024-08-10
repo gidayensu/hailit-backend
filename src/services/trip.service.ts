@@ -74,10 +74,13 @@ export const getAllTripsService = async (
     
   } catch (err) {
     return errorHandler(
-      "Error Occurred in getting Trips Detail",
-      `${err}`,
-      500,
-      "Get All Trips Service"
+      {
+        error: "Error occurred in getting trips detail",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Get All Trips Service"
+      }
+      
     );
   }
 };
@@ -130,10 +133,13 @@ export const getOneTripService = async (trip_id, requester_user_id) => {
     return { ...oneTrip, dispatcher: dispatcherDetails };
   } catch (err) {
     return errorHandler(
-      "Error Occurred in getting One Trip Detail",
-      `${err}`,
-      500,
-      "Trip Service"
+      {
+        error: "Error occurred in getting one trip detail",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trip Service: One trip"
+      }
+      
     );
   }
 };
@@ -231,10 +237,13 @@ export const addTripService = async (user_id, tripDetails, io) => {
     return newTrip;
   } catch (err) {
     return errorHandler(
-      `Server Error  Occurred adding trip`,
-      `${err}`,
-      500,
-      "Trip Service"
+      {
+        error: "Server error occurred adding trip",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trip Service"
+      }
+      
     );
   }
 };
@@ -275,10 +284,13 @@ export const updateTripService = async (
 
   } catch (err) {
     return errorHandler(
-      `Server Error Occurred updating trip`,
-      `${err}`,
-      500,
-      "Trip Service"
+      {
+        error: "Server error occurred updating trip",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trip Service"
+      }
+      
     );
   }
 };
@@ -348,10 +360,13 @@ export const rateTripService = async (ratingDetails, io, reqUserId) => {
     return ratedTrip;
   } catch (err) {
     return errorHandler(
-      `Server Error Occurred Adding Rating: ${err}`,
-      `${err}`,
-      500,
-      "Trip Service"
+      {
+        error: `Server error occurred adding rating: ${err}`,
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trip Service: Rate Trip"
+      }
+      
     );
   }
 };
@@ -387,10 +402,13 @@ export const deleteTripService = async (trip_id, user_id, io) => {
     return deletedTrip;
   } catch (err) {
     return errorHandler(
-      "Error occurred deleting trip",
-      `${err}`,
-      500,
-      "Trip Service: Delete Trip"
+      {
+        error: "Error occurred deleting trip",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trip Service: Delete Trip"
+      }
+      
     );
   }
 };
@@ -409,10 +427,13 @@ export const getTripMonthsService = async () => {
     return monthsArray;
   } catch (err) {
     return errorHandler(
-      "Error occurred getting trips months",
-      `${err}`,
-      500,
-      "Trips Months Service"
+      {
+        error: "Error occurred getting trips months",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trips Months Service"
+      }
+      
     );
   }
 };
@@ -485,10 +506,13 @@ export const currentMonthTripsCountService = async () => {
     };
   } catch (err) {
     return errorHandler(
-      "Error occurred getting trips months",
-      `${err}`,
-      500,
-      "Trips Months Service"
+      {
+        error: "Error occurred getting trips months",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trips Months Service"
+      }
+      
     );
   }
 };
@@ -520,10 +544,13 @@ export const tripsCountByMonth = async (tripDataColumn, condition, month) => {
     return { tripMonths, tripCounts };
   } catch (err) {
     return errorHandler(
-      "Error occurred current week trips count",
-      `${err}`,
-      500,
-      "Trips Week Service"
+      {
+        error: "Error occurred getting current week trips count",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trips Week Service"
+      }
+      
     );
   }
 };
@@ -547,10 +574,13 @@ export const getRevenueByMonth = async () => {
     return { tripMonths, revenue };
   } catch (err) {
     return errorHandler(
-      "Error occurred revenue by month",
-      `${err}`,
-      500,
-      "Trips Revenue Service"
+      {
+        error: "Error occurred getting revenue by month",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trips Revenue Service"
+      }
+      
     );
   }
 };
@@ -577,10 +607,13 @@ export const currentWeekTrip = async () => {
     return { tripDays, tripCounts };
   } catch (err) {
     return errorHandler(
-      "Error occurred current week trips count",
-      `${err}`,
-      500,
-      "Trips Week Service"
+      {
+        error: "Error occurred getting current week trips count",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trips Week Service"
+      }
+      
     );
   }
 };

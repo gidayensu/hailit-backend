@@ -56,10 +56,13 @@ export const getAllUsersService = async (
     return users;
   } catch (err) {
     return errorHandler(
-      "Error occurred getting all users",
-      `${err}`,
-      500,
-      "User service"
+      {
+        error: "Error occurred getting all users",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Service"
+      }
+      
     );
   }
 };
@@ -82,10 +85,13 @@ export const getOneUserService = async (userId) => {
     return user;
   } catch (err) {
     return errorHandler(
-      "Server error occurred in getting user",
-      `${err}`,
-      500,
-      "User Service: Get One User"
+      {
+        error: "Server error occurred in getting user",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Service: Get One User"
+      }
+      
     );
   }
 };
@@ -98,10 +104,13 @@ export const getUserIdUsingEmailService = async (userEmail) => {
     return user;
   } catch (err) {
     return errorHandler(
-      "Error occurred in getting user",
-      `${err}`,
-      500,
-      "User Service"
+      {
+        error: "Error occurred in getting user",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Service: get user id using email"
+      }
+      
     );
   }
 };
@@ -137,10 +146,13 @@ export const addUserService = async (userDetails) => {
     return addedUser;
   } catch (err) {
     return errorHandler(
-      "Error occurred in adding user",
-      `${err}`,
-      500,
-      "User Service"
+      {
+        error: "Error occurred in adding user",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Service"
+      }
+      
     );
   }
 };
@@ -155,10 +167,13 @@ export const updateUserService = async (userId, userDetails) => {
     );
     if (validUserDetails.length < 1) {
       return errorHandler(
-        "No valid details added",
-        null,
-        403,
-        "User Service: Update User"
+        {
+          error: "No valid details added",
+          errorMessage: null,
+          errorCode: 403,
+          errorSource: "User Service: Update User"
+        }
+        
       );
     }
     const date_updated = "now()";
@@ -212,10 +227,13 @@ export const updateUserService = async (userId, userDetails) => {
     return updatedDetails;
   } catch (err) {
     return errorHandler(
-      "Error User not updated",
-      `${err}`,
-      500,
-      "Update User Service"
+      {
+        error: "Error: User not updated",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Update User Service"
+      }
+      
     );
   }
 };
@@ -254,10 +272,13 @@ export const deleteUserService = async (userId) => {
     return deleteUser;
   } catch (err) {
     return errorHandler(
-      "Error occurred deleting user",
-      `${err}`,
-      500,
-      "User Service: Delete user"
+      {
+        error: "Error occurred deleting user",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Service: Delete User"
+      }
+      
     );
   }
 };
@@ -274,19 +295,25 @@ export const detailExistsUserAssociation = async (
     const userDetail = userData[detailProp];
     if (detail && detailExists && detail !== userDetail) {
       return errorHandler(
-        `User not updated, use a different ${detailProp}`,
-        null,
-        400,
-        "User Service: Detail Exists"
+        {
+          error: `User not updated, use a different ${detailProp}`,
+          errorMessage: null,
+          errorCode: 400,
+          errorSource: "User Service: Detail Exists"
+        }
+        
       );
     }
     return detailExists;
   } catch (err) {
     return errorHandler(
-      `Error checking ${detailProp} association`,
-      `${err}`,
-      500,
-      "User Service: Detail Exists"
+      {
+        error: "Error checking ${detailProp} association",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Service: Detail Exists"
+      }
+      
     );
   }
 };

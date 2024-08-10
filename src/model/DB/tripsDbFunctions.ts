@@ -30,19 +30,25 @@ WHERE
       return result.rows;
     } else {
       return errorHandler(
-        "detail does not exist",
-        null,
-        404,
-        "Database Functions"
+        {
+          error: "Detail does not exist",
+          errorMessage: null,
+          errorCode: 404,
+          errorSource: "Database Functions"
+        }
+        
       );
     }
   } catch (err) {
     
     return errorHandler(
-      "Error occurred getting one Trip",
-      `${err}`,
-      500,
-      " Database Trip Functions: Get One Trip"
+      {
+        error: "Error occurred getting one Trip",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Trip Functions: Get One Trip"
+      }
+      
     );
   }
 };
@@ -91,10 +97,13 @@ WHERE ${TRIP_ID_COLUMN} IS NOT NULL AND (
     return data[0];
   } catch (err) {
     return errorHandler(
-      "Error occurred getting trip count",
-      `${err}`,
-      500,
-      "Trips Database Functions: Getting trips count"
+      {
+        error: "Error occurred getting trip count",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trips Database Functions: Getting trips count"
+      }
+      
     );
   }
 };
@@ -127,10 +136,13 @@ ORDER BY
     return data.rows;
   } catch (err) {
     return errorHandler(
-      "Error occurred getting one week trip counts",
-      `${err}`,
-      500,
-      "Database Functions: One Week Trip Counts"
+      {
+        error: "Error occurred getting one week trip counts",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions: One Week Trip Counts"
+      }
+      
     );
   }
 };
@@ -143,10 +155,13 @@ export const getTripsMonths = async () => {
     return months.rows;
   } catch (err) {
     return errorHandler(
-      "Error occurred getting months",
-      `${err}`,
-      500,
-      "Trips Months DB Functions"
+      {
+        error: "Error occurred getting months",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trips Months DB Functions"
+      }
+      
     );
   }
 };
@@ -165,10 +180,13 @@ export const getRevenueByMonth = async () => {
     return data.rows;
   } catch (err) {
     return errorHandler(
-      "Error occurred getting revenue",
-      `${err}`,
-      500,
-      "DB Functions: Get Trip Revenue By Month"
+      {
+        error: "Error occurred getting revenue",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "DB Functions: Get Trip Revenue By Month"
+      }
+      
     );
   }
 };
@@ -200,10 +218,13 @@ export const getCountByMonth = async (dataColumn, condition, month) => {
     return data.rows;
   } catch (err) {
     return errorHandler(
-      "Error occurred getting revenue",
-      `${err}`,
-      500,
-      "DB Functions: Get Trip Count By Month"
+      {
+        error: "Error occurred getting revenue",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "DB Functions: Get Trip Count By Month"
+      }
+      
     );
   }
 };
@@ -216,13 +237,7 @@ export const getPreviousTwoMonthsCounts = async (
   paymentStatusColumn
 ) => {
   try {
-    //by month name
-    // const currentMonthNameQuery = `
-    //   SELECT TO_CHAR(CURRENT_DATE, 'Month') AS current_month,
-    //          TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'Month') AS previous_month;
-    // `;
-    // const monthNamesResult = await DB.query(currentMonthNameQuery);
-    // const { current_month, previous_month } = monthNamesResult.rows[0];
+    
     const values = ["Delivered", "Cancelled", true];
     const queryText = `
     SELECT
@@ -257,10 +272,13 @@ export const getPreviousTwoMonthsCounts = async (
     return selectedTrips.rows[0];
   } catch (err) {
     return errorHandler(
-      "Error occurred getting previous two months trip counts",
-      `${err}`,
-      500,
-      "Database Functions (Two Months Trips)"
+      {
+        error: "Error occurred getting previous two months trip counts",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions (Two Months Trips)"
+      }
+      
     );
   }
 };
@@ -283,10 +301,13 @@ export const getTwoMonthsTrip = async (tripTable, requestDateColumn) => {
     return selectedTrips.rows;
   } catch (err) {
     return errorHandler(
-      "Error occurred getting two Months Trip",
-      `${err}`,
-      500,
-      "Database Functions (Two Months Trips)"
+      {
+        error: "Error occurred getting two months trip",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions (Two Months Trips)"
+      }
+      
     );
   }
 };
@@ -344,10 +365,13 @@ LIMIT ${limit} OFFSET ${offset};`;
     return trips;
   } catch (err) {
     return errorHandler(
-      "Error occurred getting customer trips",
-      `${err}`,
-      500,
-      "Database Functions"
+      {
+        error: "Error occurred getting customer trips",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions"
+      }
+      
     );
   }
 };
@@ -358,7 +382,13 @@ export const getIDsAndMedium = async (tripId)=> {
     const queryText = 'SELECT dispatcher_id as dispatcher_id, customer_id as customer_id, trip_medium as trip_medium FROM trips WHERE trip_id = $1';
     const IDsAndMedium = await DB.query(queryText, value);
     if(IDsAndMedium.rowCount < 1) {
-      return errorHandler("dispatcherId not found", null, 404, "Trips DB Functions: Get Dispatcher Id")
+      return errorHandler({
+        error: "dispatcherId not found",
+        errorMessage: null,
+        errorCode: 404,
+        errorSource: "Trips DB Functions: Get Dispatcher Id"
+      }
+      )
     }
     if(IDsAndMedium.rowCount > 0) {
       
@@ -366,10 +396,13 @@ export const getIDsAndMedium = async (tripId)=> {
     }
   } catch (err) {
     return errorHandler( 
-      "Error occurred getting dispatcherId", 
-      `${err}`,
-      500,
-      "Trips DB Functions"
+      {
+        error: "Error occurred getting dispatcherId",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trips DB Functions"
+      }
+      
     )
   }
 }

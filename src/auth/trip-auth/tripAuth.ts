@@ -1,4 +1,5 @@
 
+import { errorHandler } from '../../utils/errorHandler.js';
 import { userIsUserRole, userAssociatedWithTrip } from '../../utils/util.js';
 
 export const tripAuth = async (req, res, next)=> {
@@ -43,8 +44,8 @@ export const tripAuth = async (req, res, next)=> {
         return res.status(401).json({ error: "You cannot access trip" });
       }
     } catch (err) {
+      return errorHandler({ error: 'Trip Access Authorization error ', errorMessage:`${err}`, errorCode:403, errorSource: "Trip Auth" })
     
-    return { error: `Trip Access Authorization error, ${err}` };
 }
 
 }

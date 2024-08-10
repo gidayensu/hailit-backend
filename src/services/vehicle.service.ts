@@ -43,11 +43,12 @@ export const getAllVehiclesService = async (
     return allVehicles;
 
   } catch (err) {
-    return errorHandler(
+    return errorHandler({ error:
       "Server error occurred getting all vehicles",
+      errorMessage: 
       `${err}`,
-      500,
-      "Vehicle Service"
+      errorCode: 500,
+      errorSource:"Vehicle Service"}
     );
   }
 };
@@ -57,11 +58,11 @@ export const getOneVehicleService = async (vehicle_id) => {
     const getVehicle = await getOneVehicleFromDB(vehicle_id);
     return getVehicle;
   } catch (err) {
-    return errorHandler(
-      "Server error occurred",
-      `${err}`,
-      500,
-      "Vehicle Service" 
+    return errorHandler({
+      error:"Server error occurred",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Vehicle Service" }
     );
   }
 };
@@ -83,11 +84,11 @@ export const addVehicleService = async (vehicleDetails) => {
     const addVehicleResult = await addVehicleToDB(validVehicleDetails);
     return addVehicleResult;
   } catch (err) {
-    return errorHandler(
-      "Error occurred. Vehicle not added",
-      `${err}`,
-      500,
-      "Vehicle Service"
+    return errorHandler({
+      error:"Error occurred. Vehicle not added",
+      errorMessage:`${err}`,
+      errorCode:500,
+      errorSource:"Vehicle Service"}
     );
   }
 };
@@ -107,11 +108,11 @@ export const updateVehicleService = async (
 
     return updateVehicle;
   } catch (err) {
-    return errorHandler(
-      "Server Error. Vehicle not updated",
-      `${err}`,
-      500,
-      "Vehicle Service"
+    return errorHandler({
+      error:"Server Error. Vehicle not updated",
+      errorMessage:`${err}`,
+      errorCode:500,
+      errorSource:"Vehicle Service"}
     );
   }
 };
@@ -121,11 +122,13 @@ export const deleteVehicleService = async (vehicle_id) => {
     const deleteVehicle = await deleteVehicleFromDB(vehicle_id);
     return deleteVehicle;
   } catch (err) {
-    return errorHandler(
-      "Vehicle not deleted. Server Error",
-      `${err}`,
-      500,
-      "Vehicle Service"
+    return errorHandler({
+      error: "Server Error. Vehicle not deleted",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Vehicle Service"
+    }
+    
     );
   }
 };

@@ -19,20 +19,26 @@ export const addOne = async (tableName, columns, values) => {
     if (!result.rows) {
       await DB.query("ROLLBACK");
       return errorHandler(
-        "Error occurred adding detail",
-        null,
-        500,
-        "Database Functions: Add One"
+        {
+          error: "Error occurred adding detail",
+          errorMessage: null,
+          errorCode: 500,
+          errorSource: "Database Functions: Add One"
+        }
+        
       );
     }
     return result.rows;
   } catch (err) {
     await DB.query("ROLLBACK");
     return errorHandler(
-      `Server Error occurred`,
-      `${err}`,
-      500,
-      "Database Functions: Add One"
+      {
+        error: "Server Error occurred",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions: Add One"
+      }
+      
     );
   }
 };

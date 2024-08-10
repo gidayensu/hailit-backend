@@ -27,10 +27,13 @@ export const getAllVehiclesFromDB = async (
     return allVehicles;
   } catch (err) {
     return errorHandler(
-      `Error occurred getting all vehicles`,
-      `${err}`,
-      500,
-      "Vehicle Model"
+      {
+        error: "Error occurred getting all vehicles",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Vehicle Model"
+      }
+      
     );
   }
 };
@@ -43,7 +46,13 @@ export const getVehiclesCount = async(search)=> {
     return count;
     
   } catch(err) {
-    return errorHandler("Error occurred getting vehicles count", `${err}`, 500, "Vehicle Model: Vehicles Count")
+    return errorHandler({
+      error: "Error occurred getting vehicles count",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Vehicle Model: Vehicles Count"
+    }
+    )
   }
 }
 
@@ -58,7 +67,13 @@ export const getOneVehicleFromDB = async (vehicle_id) => {
 
     return getVehicle[0];
   } catch (err) {
-    return errorHandler(`Error occurred`, `${err}`, 500, "Vehicle Model");
+    return errorHandler({
+      error: "Error occurred",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Vehicle Model"
+    }
+    );
   }
 };
 
@@ -76,10 +91,13 @@ export const addVehicleToDB = async (completeVehicleDetails) => {
 
     if (vehicleExists) {
       return errorHandler(
-        "Vehicle exists. It has already been added",
-        null,
-        400,
-        "Vehicle Model"
+        {
+          error: "Vehicle exists. It has already been added",
+          errorMessage: null,
+          errorCode: 400,
+          errorSource: "Vehicle Model"
+        }
+        
       );
     }
     const addVehicleResult = await addOne(
@@ -94,7 +112,13 @@ export const addVehicleToDB = async (completeVehicleDetails) => {
 
     return addVehicleResult[0];
   } catch (err) {
-    return errorHandler(`Error occurred`, `${err}`, 500, "Vehicle Model");
+    return errorHandler({
+      error: "Error occurred",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Vehicle Model"
+    }
+    );
   }
 };
 
@@ -117,7 +141,13 @@ export const updateVehicleOnDB = async (vehicle_id, vehicleUpdateDetails) => {
 
     return vehicleUpdate.rows[0];
   } catch (err) {
-    return errorHandler(`Error occurred`, `${err}`, 500, "Vehicle Model");
+    return errorHandler({
+      error: "Error occurred",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Vehicle Model"
+    }
+    );
   }
 };
 
@@ -130,6 +160,12 @@ export const deleteVehicleFromDB = async (vehicle_id) => {
     );
     return vehicleDeletion;
   } catch (err) {
-    return errorHandler(`Error occurred`, `${err}`, 500, "Vehicle Model");
+    return errorHandler({
+      error: "Error occurred",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Vehicle Model"
+    }
+    );
   }
 };

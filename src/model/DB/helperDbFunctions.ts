@@ -11,10 +11,13 @@ export const detailExists = async (tableName, columnName, detail) => {
     return results.rowCount > 0 ? true : false;
   } catch (err) {
     return errorHandler(
-      "Error occurred checking if detail exists",
-      `${err}`,
-      500,
-      "Database Functions: Detail Exists"
+      {
+        error: "Error occurred checking if detail exists",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions: Detail Exists"
+      }
+      
     );
   }
 };
@@ -34,6 +37,12 @@ export const increaseByValue = async (
     return increaseValue.rowCount ? true : false;
   } catch (err) {
     DB.query("ROLLBACK");
-    return errorHandler(`Error occurred`, `${err}`, 500, "Database Functions");
+    return errorHandler({
+      error: "Error occurred increasing by Value",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Database Functions: Increase by value"
+    }
+    );
   }
 };

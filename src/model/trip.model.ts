@@ -26,7 +26,13 @@ export const tripsMonths = async()=> {
     return tripMonthsData;
     
   } catch(err) {
-    return errorHandler("Error occurred getting Trips Monts", `${err}`, 500, "Trips Months Trip Model")
+    return errorHandler({
+      error: "Error occurred getting Trips Months",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Trips Months Trip Model"
+    }
+    )
   }
 }
 
@@ -37,7 +43,13 @@ export const getTripCount = async(search)=> {
     return tripCounts;
     
   } catch(err) {
-    return errorHandler("Error occurred getting Trips Monts", `${err}`, 500, "Trips Months Trip Model")
+    return errorHandler({
+      error: "Error occurred getting Trip Count",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Trips Count Trip Model"
+    }
+    )
   }
 }
 export const searchTrips = async(searchQuery, limit, offset)=> {
@@ -48,7 +60,13 @@ export const searchTrips = async(searchQuery, limit, offset)=> {
     return searchResults;
     
   } catch(err) {
-    return errorHandler("Error occurred getting Trips Monts", `${err}`, 500, "Trips Months Trip Model")
+    return errorHandler({
+      error: "Error occurred searching Trips",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Search Trips Trip Model"
+    }
+    )
   }
 }
 export const getSpecificTripDetailsUsingId = async (tripId, columns) => {
@@ -64,10 +82,13 @@ export const getSpecificTripDetailsUsingId = async (tripId, columns) => {
     return specificDetails;
   } catch(err) {
     return errorHandler(
-      `Error occurred getting specific trip details`,
-      err,
-      500,
-      "Trip Model: Get Specific Details"
+      {
+        error: "Error occurred getting specific trip details",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trip Model: Get Specific Details"
+      }
+      
     );
 
   }
@@ -102,10 +123,13 @@ export const getAllTripsFromDB = async (limit, offset, sortColumn,
   } catch (err) {
     
     return errorHandler(
-      "Server Error Occurred in getting all trips",
-      `${err}`,
-      500,
-      "Trip Model: All Trips"
+      {
+        error: "Server Error Occurred in getting all trips",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trip Model: All Trips"
+      }
+      
     );
   }
 };
@@ -122,10 +146,13 @@ export const getOneTripFromDB = async (trip_id, tripIdColumn) => {
     return oneTrip[0];
   } catch (err) {
     return errorHandler(
-      "Server Error Occurred in getting data from Database",
-      err,
-      500,
-      "Trip Model: Get One Trip"
+      {
+        error: "Server Error Occurred in getting data from Database",
+        errorMessage: err,
+        errorCode: 500,
+        errorSource: "Trip Model: Get One Trip"
+      }
+      
     );
   }
 };
@@ -148,15 +175,24 @@ export const getUserTripsFromDB = async (
     );
     
     if ( userTrips.length === 0) {
-      return errorHandler("No user Trip found", null, 404, "Trip Model: Get User Trips");
+      return errorHandler({
+        error: "No user trip found",
+        errorMessage: null,
+        errorCode: 404,
+        errorSource: "Trip Model: Get User Trips"
+      }
+      );
     }
     return userTrips;
   } catch (err) {
     return errorHandler(
-      "Server Error Occurred in getting user Trips from DB",
-      err,
-      500,
-      "Trip Model: Get User Trips From DB"
+      {
+        error: "Server Error Occurred in getting user trips from DB",
+        errorMessage: err,
+        errorCode: 500,
+        errorSource: "Trip Model: Get User Trips From DB"
+      }
+      
     );
   }
 };
@@ -177,10 +213,13 @@ export const getSpecificTripDetailsUsingIdFromDB = async (
     return specificTripDetail;
   } catch (err) {
     return errorHandler(
-      "Server Error Occurred in getting specific trip from DB",
-      err,
-      500,
-      "Trip Model: Get Specifc Trip Detail Using ID"
+      {
+        error: "Server Error Occurred in getting specific trip from DB",
+        errorMessage: err,
+        errorCode: 500,
+        errorSource: "Trip Model: Get Specific Trip Detail Using ID"
+      }
+      
     );
   }
 };
@@ -213,10 +252,13 @@ export const addTripToDB = async (tripDetailsWithoutLocation, locationDetails) =
 
   } catch (err) {
     return errorHandler(
-      "Server Error Occurred in adding trip to DB",
-      err,
-      500,
-      "Trip Model: Add Trip"
+      {
+        error: "Server Error Occurred in adding trip to DB",
+        errorMessage: err,
+        errorCode: 500,
+        errorSource: "Trip Model: Add Trip"
+      }
+      
     );
   }
 };
@@ -241,18 +283,24 @@ export const updateTripOnDB = async (tripDetails) => {
       return updatedTrip;
     } catch (err) {
       return errorHandler(
-        "Error occurred in updating rider details",
-        err,
-        500,
-        "Trip Model"
+        {
+          error: "Error occurred in updating rider details",
+          errorMessage: err,
+          errorCode: 500,
+          errorSource: "Trip Model"
+        }
+        
       );
     }
   } catch (err) {
     return errorHandler(
-      "Server Error Occurred updating trip details on DB",
-      err,
-      500,
-      "Trip Model: Update Trip"
+      {
+        error: "Server Error Occurred updating trip details on DB",
+        errorMessage: err,
+        errorCode: 500,
+        errorSource: "Trip Model: Update Trip"
+      }
+      
     );
   }
 };
@@ -264,10 +312,13 @@ export const deleteTripFromDB = async (trip_id) => {
     
   } catch (err) {
     return errorHandler(
-      "Error Occurred Deleting Trip",
-      err,
-      500,
-      "Trip Model: delete Trip"
+      {
+        error: "Error occurred deleting trip",
+        errorMessage: err,
+        errorCode: 500,
+        errorSource: "Trip Model: delete Trip"
+      }
+      
     );
   }
 };
@@ -307,10 +358,13 @@ export const associatedWithTrip = async (trip_id, condition, conditionColumn) =>
     
   } catch (err) {
     return errorHandler(
-      "Error occurred while confirming user's relation to trip",
-      err,
-      500,
-      "Trip Model: Associated With Trip"
+      {
+        error: "Error occurred while confirming user's relation to trip",
+        errorMessage: err,
+        errorCode: 500,
+        errorSource: "Trip Model: Associated With Trip"
+      }
+      
     );
   }
 };
@@ -323,10 +377,13 @@ export const oneWeekTripsCount = async ()=> {
     return oneWeekTripsCount;
   } catch (err){
     return errorHandler(
-      "Server Error Occurred in getting previous week trips count ",
-      `${err}`,
-      500,
-      "Trip Model: One Week Trips"
+      {
+        error: "Server Error Occurred in getting previous week trips count",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trip Model: One Week Trips"
+      }
+      
     );
   }
 
@@ -340,10 +397,13 @@ export const getCurrentMonthTripsCount = async ()=> {
   } catch (err) {
 
     return errorHandler(
-      `Server Error Occurred in retrieving current month trips count`,
-      `${err}`,
-      500,
-      "Trip Model: get current months trips count"
+      {
+        error: "Server Error Occurred in retrieving current month trips count",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trip Model: Get Current Month's Trips Count"
+      }
+      
     );
   }
   
@@ -356,10 +416,13 @@ export const getTripCountByMonth = async (dataColumn, condition, month)=> {
     return tripCount;
   } catch(err) {
     return errorHandler(
-      `Server Error Occurred in retrieving ${dataColumn ? dataColumn: 'trips'} data`,
-      `${err}`,
-      500,
-      "Trip Model: Get Trip Count By Month"
+      {
+        error: `Server Error Occurred in retrieving ${dataColumn ? dataColumn : 'trips'} data`,
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trip Model: Get Trip Count By Month"
+      }
+      
     );
   }
   
@@ -371,10 +434,13 @@ export const revenueByMonth = async ()=> {
     return revenue;
   } catch(err) {
     return errorHandler(
-      `Server Error Occurred in retrieving trips revenue data`,
-      `${err}`,
-      500,
-      "Trip Model: Get Trip Revenue By Month"
+      {
+        error: "Server Error Occurred in retrieving trips revenue data",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trip Model: Get Trip Revenue By Month"
+      }
+      
     );
   }
   

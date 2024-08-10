@@ -1,21 +1,6 @@
 import { errorHandler } from "../../utils/errorHandler.js";
 import { DB } from "./connectDb.js";
 
-// export const getAllCustomers = async (tableName) => {
-//   try {
-//     const allItems = await DB.query(`SELECT * FROM ${tableName} WHERE `);
-//     const data = allItems.rows;
-//     return data;
-//   } catch (err) {
-//     return errorHandler(
-//       "Error occurred getting all customers",
-//       `${err}`,
-//       500,
-//       "Database Functions: Get All Customers"
-//     );
-//   }
-// };
-
 
 export const customersCount = async (
   tableName,
@@ -45,10 +30,13 @@ export const customersCount = async (
     return data[0];
   } catch (err) {
     return errorHandler(
-      "Error occurred getting customer count",
-      `${err}`,
-      500,
-      "Database Functions: Get Customer Count"
+      {
+        error: "Error occurred getting customer count",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions: Get Customer Count"
+      }
+      
     );
   }
 };
@@ -92,10 +80,13 @@ export const getAllCustomers = async (
     return data;
   } catch (err) {
     return errorHandler(
-      "Error occurred getting all details",
-      `${err}`,
-      500,
-      "Database Functions: Get All Users"
+      {
+        error: "Error occurred getting all details",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions: Get All Users"
+      }
+      
     );
   }
 };
@@ -151,10 +142,13 @@ export const getDispatchersVehicleJoin = async (
   } catch (err) {
     
     return errorHandler(
-      "Error occurred getting dispatcher vehicle data",
-      `${err}`,
-      500,
-      "Database Functions"
+      {
+        error: "Error occurred getting dispatcher vehicle data",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Database Functions"
+      }
+      
     );
   }
 };
@@ -201,10 +195,13 @@ export const getDispatcherCount = async (
   } catch (err) {
     
     return errorHandler(
-      "Error occurred getting dispatcher count",
-      `${err}`,
-      500,
-      "User Database Functions: dispatcher count"
+      {
+        error: "Error occurred getting dispatcher count",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Database Functions: dispatcher count"
+      }
+      
     );
   }
 };

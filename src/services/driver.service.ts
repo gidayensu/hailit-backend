@@ -40,10 +40,13 @@ export const getAllDriversService = async (
   } catch (err) {
     
     return errorHandler(
-      "server error occurred getting drivers",
-      `${err}`,
-      500,
-      "get all drivers service"
+      {
+        error: "Server error occurred getting drivers",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Get All Drivers Service"
+      }
+      
     );
   }
 };
@@ -80,10 +83,13 @@ export const getOneDriverService = async (driver_id, requester_user_id) => {
     return { ...driverDetails, vehicle: vehicleDetails };
   } catch (err) {
     return errorHandler(
-      "Error occurred getting one driver",
-      `${err}`,
-      500,
-      "service"
+      {
+        error: "Error occurred getting one driver",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Service"
+      }
+      
     );
   }
 };
@@ -109,10 +115,13 @@ export const updateDriverService = async (driverDetails) => {
     return driverUpdate;
   } catch (err) {
     return errorHandler(
-      "Error occurred updating driver details",
-      `${err}`,
-      500,
-      "service"
+      {
+        error: "Error occurred updating driver details",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Service"
+      }
+      
     );
   }
 };
@@ -126,10 +135,13 @@ export const deleteDriverService = async (driver_id) => {
     return driverDelete;
   } catch (err) {
     return errorHandler(
-      "Server Error occurred deleting driver",
-      `${err}`,
-      500,
-      "Driver Service"
+      {
+        error: "Server Error occurred deleting driver",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Driver Service"
+      }
+      
     );
   }
 };

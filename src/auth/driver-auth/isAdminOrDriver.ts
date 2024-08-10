@@ -1,5 +1,5 @@
 import { userIsUserRole, driverUserId } from '../../utils/util.js';
-
+import { errorHandler } from '../../utils/errorHandler.js';
 
 export const isAdminOrRider = async (req, res, next) => {
     
@@ -9,14 +9,6 @@ export const isAdminOrRider = async (req, res, next) => {
         const jwtUserId = req.user.user_id;
         const isAdmin = await userIsUserRole(jwtUserId, 'Admin');
         const driver_user_id = await driverUserId(driver_id);
-        // for (let i = 0; i<role.length; i++) {
-        //      isRole = await userIsUserRole(jwtUserId, role[i]);
-        
-        //     if(isRole === true) {
-        //         break;
-        //     }
-        // }
-        
         
         if (driver_user_id === jwtUserId || isAdmin) {
              next ();
@@ -24,7 +16,7 @@ export const isAdminOrRider = async (req, res, next) => {
          return  res.status(401).json({error:`Unauthorized to access ${path}`})
         }
     } catch (err) {
-        return { error: `Authorization error, ${err}` };
+        return errorHandler({ error: 'Authorization error', errorMessage:`${err}`, errorCode:403, errorSource: "Admin/Driver Auth" })
     }
 }
 

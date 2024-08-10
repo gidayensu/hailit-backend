@@ -38,10 +38,13 @@ export const getAllRidersService = async (
     return riders;
   } catch (err) {
     return errorHandler(
-      "Error occurred getting all riders",
-      `${err}`,
-      500,
-      "Rider Service: Get All Riders"
+      {
+        error: "Error occurred getting all riders",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Rider Service: Get All Riders"
+      }
+      
     );
   }
 };
@@ -75,10 +78,13 @@ export const getOneRiderService = async (rider_id, requester_user_id) => {
     return { ...riderDetails, vehicle: vehicleDetails };
   } catch (err) {
     return errorHandler(
-      "Error occurred getting rider",
-      `${err}`,
-      500,
-      "Rider Service"
+      {
+        error: "Error occurred getting rider",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Rider Service"
+      }
+      
     );
   }
 };
@@ -89,10 +95,13 @@ export const addRiderService = async (user_id, vehicle_id) => {
     return riderAdd;
   } catch (err) {
     return errorHandler(
-      "Server error occurred",
-      `${err}`,
-      500,
-      "Rider Service"
+      {
+        error: "Server error occurred",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Rider Service"
+      }
+      
     );
   }
 };
@@ -109,10 +118,13 @@ export const updateRiderService = async (riderDetails) => {
     return riderUpdate;
   } catch (err) {
     return errorHandler(
-      "Error occurred updating rider details",
-      `${err}`,
-      500,
-      "Rider Service"
+      {
+        error: "Error occurred updating rider details",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Rider Service"
+      }
+      
     );
   }
 };
@@ -120,14 +132,17 @@ export const updateRiderService = async (riderDetails) => {
 export const deleteRiderService = async (rider_id) => {
   try {
     const riderDelete = await deleteRiderFromDB(rider_id); //returns true/false or error
-
+      
     return riderDelete;
   } catch (err) {
     return errorHandler(
-      "Error occurred deleting rider",
-      `${err}`,
-      500,
-      "Rider Service"
+      {
+        error: "Error occurred deleting rider",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Rider Service"
+      }
+      
     );
   }
 };

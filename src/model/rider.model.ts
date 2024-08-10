@@ -58,11 +58,23 @@ export const getAllRiders = async (limit,
       search
     );
     if (allRiders.error) {
-      return errorHandler(allRiders.error, null, 500, "All Riders Model");
+      return errorHandler({
+        error: allRiders.error,
+        errorMessage: null,
+        errorCode: 500,
+        errorSource: "All Riders Model"
+      }
+      );
     }
     return allRiders;
   } catch (err) {
-    return errorHandler("Server error occurred getting all riders", `${err}`, 500, "All Riders Model");
+    return errorHandler({
+      error: "Server error occurred getting all riders",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "All Riders Model"
+    }
+    );
   }
 };
 
@@ -89,7 +101,13 @@ export const getRidersCount = async(search)=> {
     return ridersCount;
     
   } catch(err) {
-    return errorHandler("Error occurred getting Riders Count", `${err}`, 500, "Rider Model: Riders Count")
+    return errorHandler({
+      error: "Error occurred getting Riders Count",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Rider Model: Riders Count"
+    }
+    )
   }
 }
 
@@ -102,11 +120,17 @@ export const getOneRiderFromDB = async (rider_id) => {
       rider_id
     );
     if (rider.error) {
-      return errorHandler("Rider not found", null, 404, "Rider Model");
+      return rider;
     }
     return rider[0];
   } catch (err) {
-    return errorHandler("Error occurred. Rider not fetched", `${err}`, 500, "Rider Model"); 
+    return errorHandler({
+      error: "Error occurred. Rider not fetched",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Rider Model"
+    }
+    ); 
   }
 };
 
@@ -119,7 +143,13 @@ export const getRiderOnConditionFromDB = async (columnName, condition) => {
     );
     return riderDetails;
   } catch (err) {
-    return errorHandler("No Rider Details Found", null, 404, "Rider Model");
+    return errorHandler({
+      error: "Error occurred getting rider",
+      errorMessage: null,
+      errorCode: 404,
+      errorSource: "Rider Model: Rider on Condition"
+    }
+    );
   }
 };
 
@@ -132,7 +162,13 @@ export const getSpecificRidersFromDB = async (specificColumn, condition) => {
     );
     return specificRiders;
   } catch (err) {
-    return errorHandler("Error occurred in retrieving riders", `${err}`, 500, "Rider Model");
+    return errorHandler({
+      error: "Error occurred in retrieving riders",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Rider Model"
+    }
+    );
   }
 };
 
@@ -141,7 +177,13 @@ export const addRiderToDB = async (user_id) => {
     const userIsRider = await getSpecificDetailsUsingId(RIDER_TABLE_NAME, user_id, USER_ID_COLUMN, RIDER_ID_COLUMN);
     
     if (userIsRider.length >= 1) {
-      return errorHandler("User is rider", "User already exists", 400, "Rider Model");
+      return errorHandler({
+        error: "User is rider",
+        errorMessage: "User already exists",
+        errorCode: 400,
+        errorSource: "Rider Model"
+      }
+      );
     }
     const rider_id = uuid();
     const riderDetails = [rider_id, DEFAULT_VEHICLE_ID, user_id];
@@ -154,7 +196,13 @@ export const addRiderToDB = async (user_id) => {
       return addingMotor;
     
   } catch (err) {
-    return errorHandler("Error occurred adding rider", `${err}`, 500, "Rider Model");
+    return errorHandler({
+      error: "Error occurred adding rider",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Rider Model"
+    }
+    );
   }
 };
 
@@ -176,15 +224,27 @@ export const updateRiderOnDB = async (riderDetails) => {
       return riderUpdate //error details returned
     }
     if (riderUpdate.rowCount === 0) {
-      return errorHandler("Rider details not updated", "Rider detail not found", 400, "Rider Model");
+      return errorHandler({
+        error: "Rider details not updated",
+        errorMessage: "Rider detail not found",
+        errorCode: 400,
+        errorSource: "Rider Model"
+      }
+      );
     }
     return riderUpdate.rows[0];
   } catch (err) {
-    return errorHandler("Error occurred in updating rider details", `${err}`, 500, "Rider Model");
+    return errorHandler({
+      error: "Error occurred in updating rider details",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Rider Model"
+    }
+    );
   }
 };
 
-export const deleteRiderFromDB = async (rider_id) => {
+export const deleteRiderFromDB = async (rider_id:string) => {
   try {
     const riderDelete = await deleteOne(
       RIDER_TABLE_NAME,
@@ -197,6 +257,12 @@ export const deleteRiderFromDB = async (rider_id) => {
     
     
   } catch (err) {
-    return errorHandler("Error Occurred Deleting Rider", `${err}`, 500, "Rider Model");
+    return errorHandler({
+      error: "Error occurred deleting rider",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Rider Model"
+    }
+    );
   }
 };

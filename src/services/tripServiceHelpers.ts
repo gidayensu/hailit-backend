@@ -100,6 +100,9 @@ export const tripsRealTimeUpdate = async ({io,  trip, dispatcherUserId, customer
   }
 
 export const getDispatcherDetails = async ({trip_medium, dispatcher_id})=> {
+  try {
+
+  
   const dispatcherService =
         trip_medium === "Motor" ? getOneRiderService : getOneDriverService;
       let dispatcherDetails = await dispatcherService(dispatcher_id);
@@ -119,6 +122,13 @@ export const getDispatcherDetails = async ({trip_medium, dispatcher_id})=> {
         
       };
       return dispatcherDetails;
+    } catch (err) {
+      return errorHandler({        
+        error: "Error occurred getting Dispatcher details",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trip Service Helper: Dispatcher Details"})
+    }
 }
 
 //FETCH DISPATCHER DETAILS FOR UPDATED TRIP;
@@ -135,10 +145,13 @@ export const increaseRatingCount = async (trip_medium, dispatcher_id) => {
     idColumn = DRIVER_ID_COLUMN;
   } else {
     return errorHandler(
-      "Error occurred increasing rating count",
-      "Invalid trip medium",
-      400,
-      "service"
+      {
+        error: "Error occurred increasing rating count",
+        errorMessage: "Invalid trip medium",
+        errorCode: 400,
+        errorSource: "Trip Service Helper: Increase Rating Count"
+      }
+      
     );
   }
 
@@ -248,10 +261,13 @@ export const getCustomerTrips = async (user_id) => {
     return trips;
   } catch (err) {
     return errorHandler(
-      `Error occurred getting customer trips`,
-      `${err}`,
-      500,
-      "Trip Service"
+      {
+        error: "Error occurred getting customer trips",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trip Service"
+      }
+      
     );
   }
 };
@@ -312,10 +328,13 @@ export const dispatcherTrips = async (user_role, user_id) => {
     return dispatcherTrips;
   } catch (err) {
     return errorHandler(
-      `Error occurred getting dispatcher trips`,
-      `${err}`,
-      500,
-      "Trip Service: dispatcherTrips"
+      {
+        error: "Error occurred getting dispatcher trips",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "Trip Service: dispatcherTrips"
+      }
+      
     );
   }
 };

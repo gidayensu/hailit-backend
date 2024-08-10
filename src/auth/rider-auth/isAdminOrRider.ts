@@ -1,3 +1,4 @@
+import { errorHandler } from '../../utils/errorHandler.js';
 import { userIsUserRole, riderUserId } from '../../utils/util.js';
 
 
@@ -18,7 +19,7 @@ export const isAdminOrRider = async (req, res, next) => {
          return  res.status(401).json({error:`Unauthorized to access ${path}`})
         }
     } catch (err) {
-        return { error: `Authorization error, ${err}` };
+        return errorHandler({ error: 'Authorization error', errorMessage:`${err}`, errorCode:403, errorSource: "Admin/Rider Auth" })
     }
 }
 
