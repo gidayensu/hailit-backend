@@ -33,7 +33,7 @@ import {
   ratingCountIncrease,
 } from "../model/trip.model.js";
 import { errorHandler } from "../utils/errorHandler.js";
-import { currencyFormatter, userIsUserRole } from "../utils/util.js";
+import { currencyFormatter } from "../utils/util.js";
 import {
   currentMonthTripsCountService,
   currentWeekTrip,
@@ -42,17 +42,15 @@ import {
   getUserTripsService
 } from "./trip.service.js";
 
-import { getOneRiderService } from "./rider.service.js";
 import { getOneDriverService } from "./driver.service.js";
+import { getOneRiderService } from "./rider.service.js";
 
-export const tripsRealTimeUpdate = async ({io, reqUserId, trip, dispatcherUserId, customerUserId, tripType, trip_id} )=> {
+export const tripsRealTimeUpdate = async ({io,  trip, dispatcherUserId, customerUserId, tripType, trip_id} )=> {
   
-
-  
-    const isAdmin = await userIsUserRole(reqUserId, "Admin");
+    
     const IDs = [customerUserId, dispatcherUserId];
     
-    isAdmin ? IDs.push(reqUserId) : '';
+    
 
     try {
       //emit to customers/dispatchers
@@ -368,10 +366,11 @@ export const sortByCalendarMonths= (monthCountData) => {
   ];
 
   
+  
   monthCountData.sort((a, b) => {
     return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
   });
 
   return monthCountData;
 }
-
+ 

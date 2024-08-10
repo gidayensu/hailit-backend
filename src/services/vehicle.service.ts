@@ -11,7 +11,7 @@ import {
   getVehiclesCount,
   updateVehicleOnDB,
 } from "../model/vehicle.model.js";
-import { allowedPropertiesOnly } from "../utils//util.js";
+import { allowedPropertiesOnly } from "../utils/util.js";
 import { errorHandler } from "../utils/errorHandler.js";
 import { getAllEntitiesService } from "./helpers.service.js";
 
