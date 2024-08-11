@@ -1,7 +1,8 @@
 
 import { userIsUserRole } from '../../utils/util.js';
+import { Middleware } from '../../types/middleware.types';
 
-export const isAdminOrUserAuth = async (req, res, next) => {
+export const isAdminOrUserAuth: Middleware = async (req, res, next) => {
     try {
         const { userId } = req.params;
         const jwtUserId = req.user.user_id;

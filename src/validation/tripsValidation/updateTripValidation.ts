@@ -7,8 +7,9 @@ import {
   ALLOWED_UPDATE_PROPERTIES,
 } from "../../constants/tripConstants.js";
 import { allowedPropertiesOnly, isRightValue } from "../../utils/util.js";
+import { Middleware } from "../../types/middleware.types.js";
 
-export const updateTripValidation = async (req, res, next) => {
+export const updateTripValidation: Middleware = async(req, res, next) => {
 
   const errors = [];
   const {

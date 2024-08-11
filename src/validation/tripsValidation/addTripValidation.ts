@@ -4,10 +4,11 @@ import {
   ALLOWED_TRIP_AREAS,
   ALLOWED_TRIP_MEDIUMS,
   ALLOWED_TRIP_TYPES
-} from "../../constants/tripConstants.js";
-import { allowedPropertiesOnly, isRightValue } from "../../utils/util.js";
+} from "../../constants/tripConstants";
+import { allowedPropertiesOnly, isRightValue } from "../../utils/util";
+import { Middleware } from "../../types/middleware.types";
 
-export const addTripValidation = async (req, res, next) => {
+export const addTripValidation: Middleware = async(req, res, next) => {
 
   const errors = [];
   const {

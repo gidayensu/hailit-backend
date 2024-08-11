@@ -16,10 +16,10 @@ import {
   tripsCountByMonth,
   updateTripService,
 } from "../services/trip.service";
+import { Middleware } from "../types/middleware.types";
 
 
-
-export const getAllTrips = async (req, res) => {
+export const getAllTrips : Middleware = async (req, res) => {
   try {
     const {
       page,
@@ -59,7 +59,7 @@ export const getAllTrips = async (req, res) => {
   }
 };
 
-export const getOneTrip = async (req, res) => {
+export const getOneTrip : Middleware = async (req, res) => {
   try {
     const { trip_id } = req.params;
 
@@ -89,7 +89,7 @@ export const getOneTrip = async (req, res) => {
   }
 };
 
-export const getUserTrips = async (req, res) => {
+export const getUserTrips : Middleware = async (req, res) => {
   try {
     const { user_id } = req.params;
 
@@ -116,7 +116,7 @@ export const getUserTrips = async (req, res) => {
   }
 };
 
-export const addTrip = async (req, res) => {
+export const addTrip : Middleware = async (req, res) => {
   ///trip amount, trip_status, driver_id, trip_date, total amount, payment_status, delivery_time, payment_method, dispatcher_rating, rating_comment will be added in the service layer based on certain conditions
 
   try {
@@ -147,7 +147,7 @@ export const addTrip = async (req, res) => {
   }
 };
 
-export const updateTrip = async (req, res) => {
+export const updateTrip : Middleware = async (req, res) => {
   try {
     const reqUserId = req.user.sub;
     const io = req.io;
@@ -181,7 +181,7 @@ export const updateTrip = async (req, res) => {
   }
 };
 
-export const rateTrip = async (req, res) => {
+export const rateTrip : Middleware = async (req, res) => {
   try {
     const ratingDetails = req.body;
     
@@ -212,7 +212,7 @@ export const rateTrip = async (req, res) => {
   }
 };
 
-export const deleteTrip = async (req, res) => {
+export const deleteTrip : Middleware = async (req, res) => {
   try {
     const user_id = req.user.sub;
     const { trip_id } = req.params;
@@ -241,7 +241,7 @@ export const deleteTrip = async (req, res) => {
   }
 };
 
-export const searchTrips = async (req, res) => {
+export const searchTrips : Middleware = async (req, res) => {
   try {
     const search = req.query.search;
 
@@ -269,7 +269,7 @@ export const searchTrips = async (req, res) => {
 };
 
 //TRIP STATS
-export const getTripMonths = async (req, res) => {
+export const getTripMonths : Middleware = async (req, res) => {
   try {
     const tripMonths = await getTripMonthsService();
     if (tripMonths.error) {
@@ -294,7 +294,7 @@ export const getTripMonths = async (req, res) => {
 };
 
 //GET CURRENT WEEK TRIP COUNT
-export const currentWeekTripCount = async (req, res) => {
+export const currentWeekTripCount : Middleware = async (req, res) => {
   try {
     const currentWeekTrips = await currentWeekTrip();
     if (currentWeekTrips.error) {
@@ -319,7 +319,7 @@ export const currentWeekTripCount = async (req, res) => {
 };
 
 //GET CURRENT MONTH TRIP COUNT
-export const getCurrentMonthTripCounts = async (req, res) => {
+export const getCurrentMonthTripCounts : Middleware = async (req, res) => {
   try {
     const tripCounts = await currentMonthTripsCountService();
     if (tripCounts.error) {
@@ -344,7 +344,7 @@ export const getCurrentMonthTripCounts = async (req, res) => {
 };
 
 //GET TRIPS COUNT BY MONTHS (CURRENT + PREVIOUS MONTHS)
-export const getTripsCountByMonth = async (req, res) => {
+export const getTripsCountByMonth : Middleware = async (req, res) => {
   try {
     const {
       trip_column,
@@ -381,7 +381,7 @@ export const getTripsCountByMonth = async (req, res) => {
   }
 };
 
-export const getTripRevenueByMonth = async (req, res) => {
+export const getTripRevenueByMonth : Middleware = async (req, res) => {
   try {
     const tripRevenue = await getRevenueByMonth();
     if (tripRevenue.error) {

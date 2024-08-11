@@ -1,8 +1,9 @@
 
 import { errorHandler } from '../../utils/errorHandler.js';
 import { userIsUserRole, userAssociatedWithTrip } from '../../utils/util.js';
+import { Middleware } from '../../types/middleware.types';
 
-export const tripAuth = async (req, res, next)=> {
+export const tripAuth: Middleware = async (req, res, next)=> {
     
     try {
       const path = req.path;

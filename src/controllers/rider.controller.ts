@@ -4,8 +4,9 @@ import {
   getOneRiderService,
   updateRiderService,
 } from "../services/rider.service";
+import { Middleware } from "../types/middleware.types";
 
-export const getAllRiders = async (req, res) => {
+export const getAllRiders: Middleware = async (req, res) => {
   try {
     const {
       page,
@@ -48,7 +49,7 @@ export const getAllRiders = async (req, res) => {
   }
 };
 
-export const getOneRider = async (req, res) => {
+export const getOneRider: Middleware = async (req, res) => {
   const { rider_id } = req.params;
   const requester_user_id = req.user.sub;
 
@@ -75,7 +76,7 @@ export const getOneRider = async (req, res) => {
   }
 };
 
-export const updateRider = async (req, res) => {
+export const updateRider: Middleware = async (req, res) => {
   const { rider_id } = req.params;
   const { vehicle_id } = req.body;
 
@@ -115,7 +116,7 @@ export const updateRider = async (req, res) => {
   }
 };
 
-export const deleteRider = async (req, res) => {
+export const deleteRider: Middleware = async (req, res) => {
   try {
     const { rider_id } = req.params;
     const deletedRider = await deleteRiderService(rider_id);

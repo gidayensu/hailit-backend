@@ -1,8 +1,9 @@
 
 import jwt from "jsonwebtoken";
 import { userIsUserRole } from "../../utils/util.js";
+import { Middleware } from "../../types/middleware.types";
 
-export const addingAdminAuth = async (req, res, next) => {
+export const addingAdminAuth: Middleware = async (req, res, next) => {
   try {
     const supaSecret = process.env.SUPABASE_JWT_SECRET;
     if (req.body && req.body.user_role === "Admin") {

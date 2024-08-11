@@ -8,12 +8,11 @@ import {
   updateUserService,
 } from "../services/user.service";
 import { emailValidator, phoneValidator } from "../utils/util";
-
 import { config } from "dotenv";
-
+import { Middleware } from "../types/middleware.types";
 config({ path: "../../../.env" });
 
-export const getAllUsers = async (req, res) => {
+export const getAllUsers : Middleware = async (req, res) => {
   
   const {
     page,
@@ -59,11 +58,11 @@ export const getAllUsers = async (req, res) => {
 };
 
 
-export const healthCheck = async (req, res) => {
+export const healthCheck : Middleware = async (req, res) => {
   return res.status(200).json({status: "successful", connected: true});
 };
 
-export const getOneUser = async (req, res) => {
+export const getOneUser : Middleware = async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -93,7 +92,7 @@ export const getOneUser = async (req, res) => {
   }
 };
 
-export const getUserIdUsingEmail = async (req, res) => {
+export const getUserIdUsingEmail : Middleware = async (req, res) => {
   try {
     const { email } = req.query;
 
@@ -119,7 +118,7 @@ export const getUserIdUsingEmail = async (req, res) => {
   }
 };
 
-export const addUser = async (req, res) => {
+export const addUser : Middleware = async (req, res) => {
   try {
     const { user_id, email } = req.body;
 
@@ -167,7 +166,7 @@ export const addUser = async (req, res) => {
   }
 };
 //updating user
-export const updateUser = async (req, res) => {
+export const updateUser : Middleware = async (req, res) => {
   try {
     const {
       first_name = "" | "unknown",
@@ -226,7 +225,7 @@ export const updateUser = async (req, res) => {
   }
 };
 //deleting user detail
-export const deleteUser = async (req, res) => {
+export const deleteUser : Middleware = async (req, res) => {
   try {
     const { userId } = req.params;
     const userDelete = await deleteUserService(userId);

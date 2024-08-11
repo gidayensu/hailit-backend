@@ -7,10 +7,11 @@ import {
   ALLOWED_TRIP_TYPES,
   MONTH_ORDER,
 } from "../../constants/tripConstants.js";
+import { Middleware } from "../../types/middleware.types.js";
 
 //validated requested property
 
-export const tripStatsColumnValidation = async (req, res, next) => {
+export const tripStatsColumnValidation: Middleware = async(req, res, next) => {
   const {
     month,
     trip_column,

@@ -1,6 +1,7 @@
 import { userIsUserRole } from "../../utils/util.js";
+import { Middleware } from "../../types/middleware.types";
 
-export const isUser = async (req, res, next) => {
+export const isUser: Middleware = async (req, res, next) => {
   try {
     
 

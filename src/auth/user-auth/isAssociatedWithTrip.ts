@@ -1,7 +1,8 @@
 import { userIsUserRole } from "../../utils/util.js";
 import { userAssociatedWithTrip } from "../../utils/util.js";
+import { Middleware } from "../../types/middleware.types";
 
-export const isAssociatedWithTrip = async (req, res, next) => {
+export const isAssociatedWithTrip: Middleware = async (req, res, next) => {
   try {
     const {trip_id} = req.params
 
@@ -26,7 +27,7 @@ export const isAssociatedWithTrip = async (req, res, next) => {
   }
 };
 
-export const userIsAdmin = async (req, res) => {
+export const userIsAdmin: Middleware = async(req, res) => {
   try {
     
 

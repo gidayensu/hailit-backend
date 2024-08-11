@@ -1,6 +1,14 @@
-import { SORT_DIRECTION } from "../constants/sharedConstants.js";
 
-export const getAllQueryValidation = (req, res, next, CLIENT_SORT_COLUMNS, CLIENT_COLS_DB_COLS_MAP) => {
+import { NextFunction, Request, Response } from 'express';
+import { SORT_DIRECTION } from "../constants/sharedConstants";
+
+export const getAllQueryValidation = <T extends Record<string, string>>(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  CLIENT_SORT_COLUMNS: string[],
+  CLIENT_COLS_DB_COLS_MAP: T
+) => {
     
     const errors = [];
 

@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
+import { Middleware } from '../types/middleware.types';
 
-export const supaAuth =  (req, res, next) => {
+export const supaAuth:Middleware =  (req, res, next) => {
    
        const supaSecret = process.env.SUPABASE_JWT_SECRET;
     const path = req.path;

@@ -4,8 +4,9 @@ import {
   getOneDriverService,
   updateDriverService,
 } from "../services/driver.service";
+import { Middleware } from "../types/middleware.types";
 
-export const getAllDrivers = async (req, res) => {
+export const getAllDrivers:Middleware = async (req, res) => {
   const {
     page,
     itemsPerPage: limit,
@@ -50,7 +51,7 @@ export const getAllDrivers = async (req, res) => {
   }
 };
 
-export const getOneDriver = async (req, res) => {
+export const getOneDriver: Middleware  = async (req, res) => {
   const { driver_id } = req.params;
   const requester_user_id = req.user.sub;
   try {
@@ -76,7 +77,7 @@ export const getOneDriver = async (req, res) => {
   }
 };
 
-export const updateDriver = async (req, res) => {
+export const updateDriver : Middleware = async (req, res) => {
   const { driver_id } = req.params;
   const { vehicle_id } = req.body;
 
@@ -100,7 +101,7 @@ export const updateDriver = async (req, res) => {
   }
 };
 
-export const deleteDriver = async (req, res) => {
+export const deleteDriver : Middleware = async (req, res) => {
   const { driver_id } = req.params;
   try {
     const deletedDriver = await deleteDriverService(driver_id);

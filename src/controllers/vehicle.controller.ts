@@ -5,8 +5,10 @@ import {
   getOneVehicleService,
   updateVehicleService,
 } from "../services/vehicle.service";
+import { Middleware } from "../types/middleware.types";
 
-export const getAllVehicles = async (req, res) => {
+
+export const getAllVehicles : Middleware = async (req, res) => {
   try {
     const {
       page,
@@ -36,7 +38,7 @@ export const getAllVehicles = async (req, res) => {
   }
 };
 
-export const getOneVehicle = async (req, res) => {
+export const getOneVehicle : Middleware = async (req, res) => {
   const {vehicle_id} = req.params;
   
 
@@ -54,7 +56,7 @@ export const getOneVehicle = async (req, res) => {
   res.status(200).json({ vehicle: getVehicle });
 };
 
-export const addVehicle = async (req, res) => {
+export const addVehicle : Middleware = async (req, res) => {
   const { vehicle_name, vehicle_model, plate_number, vehicle_type } = req.body;
   if (!vehicle_name || !vehicle_model || !plate_number || !vehicle_type) {
     return res
@@ -78,7 +80,7 @@ export const addVehicle = async (req, res) => {
   res.status(200).json({ vehicle: addedVehicle });
 };
 
-export const updateVehicle = async (req, res) => {
+export const updateVehicle : Middleware = async (req, res) => {
   try {
     const { vehicle_id } = req.params;
     const { vehicle_name, vehicle_model, plate_number, vehicle_type } =
@@ -108,7 +110,7 @@ export const updateVehicle = async (req, res) => {
   }
 };
 
-export const deleteVehicle = async (req, res) => {
+export const deleteVehicle : Middleware = async (req, res) => {
   try {
     const { vehicle_id } = req.params;
 

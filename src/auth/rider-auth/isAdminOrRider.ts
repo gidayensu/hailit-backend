@@ -1,8 +1,8 @@
 import { errorHandler } from '../../utils/errorHandler.js';
 import { userIsUserRole, riderUserId } from '../../utils/util.js';
+import { Middleware } from '../../types/middleware.types';
 
-
-export const isAdminOrRider = async (req, res, next) => {
+export const isAdminOrRider: Middleware = async (req, res, next) => {
     
     try {
         const path = req.path;
