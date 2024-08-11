@@ -1,10 +1,12 @@
 import {
   deleteDriverService,
+  DriverDetails,
   getAllDriversService,
   getOneDriverService,
   updateDriverService,
 } from "../services/driver.service";
 import { Middleware } from "../types/middleware.types";
+import { isErrorResponse } from "../utils/util";
 
 
 export const getAllDrivers:Middleware = async (req, res) => {
@@ -17,13 +19,13 @@ export const getAllDrivers:Middleware = async (req, res) => {
   } = req.query;
 
   try {
-    const allDrivers = await getAllDriversService(
-      {page,
+    const allDrivers = await getAllDriversService({
+      page,
       limit,
       sortColumn,
       sortDirection,
-      search}
-    );
+      search,
+    });
     if (res && res.status) {
       if (allDrivers.error) {
         
@@ -82,7 +84,7 @@ export const updateDriver : Middleware = async (req, res) => {
   const { driver_id } = req.params;
   const { vehicle_id } = req.body;
 
-  const driverDetails = { driver_id, ...req.body };
+  const driverDetails: DriverDetails = { driver_id, ...req.body };
 
   if (!driver_id && !vehicle_id) {
     return res.status(401).json({ error: "driver id or vehicle id missing" });
@@ -105,23 +107,23 @@ export const updateDriver : Middleware = async (req, res) => {
 export const deleteDriver : Middleware = async (req, res) => {
   const { driver_id } = req.params;
   try {
-    const deletedDriver = await deleteDriverService(driver_id);
-    if (deletedDriver.error) {
+    const driverDeleted = await deleteDriverService(driver_id);
+    if (isErrorResponse(driverDeleted)) {
       return res
-        .status(deletedDriver.errorCode)
+        .status(driverDeleted.errorCode)
         .json({
-          error: deletedDriver.error,
-          errorMessage: deletedDriver.errorMessage,
-          errorSource: deletedDriver.errorSource,
+          error: driverDeleted.error,
+          errorMessage: driverDeleted.errorMessage,
+          errorSource: driverDeleted.errorSource,
         });
     }
 
-    if (!deletedDriver) {
+    if (!driverDeleted) {
       return res
         .status(404)
         .json({ error: "driver not delete. Driver details was not found" });
     }
-    req.io.emit('deletedDriver', deletedDriver)
+    
     res.status(200).json({ success: "driver deleted", driver_id });
   } catch (err) {
     res

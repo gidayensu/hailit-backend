@@ -145,7 +145,12 @@ export const getSpecificRidersFromDB = async (specificColumn, condition) => {
 
 export const addRiderToDB = async (user_id:string) => {
   try {
-    const userIsRider = await getSpecificDetailsUsingId(RIDER_TABLE_NAME, user_id, USER_ID_COLUMN, RIDER_ID_COLUMN);
+    const userIsRider = await getSpecificDetailsUsingId({
+      tableName: RIDER_TABLE_NAME,
+      id: user_id,
+      idColumn: USER_ID_COLUMN,
+      columns: RIDER_ID_COLUMN,
+    });
     
     if (userIsRider.length >= 1) {
       return handleError({

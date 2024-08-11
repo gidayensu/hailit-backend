@@ -7,7 +7,8 @@ import {
 
 //types
 import { Middleware } from "../types/middleware.types";
-import { HandleError } from "../utils/handleError";
+import { ErrorResponse } from "../utils/handleError";
+import { isErrorResponse } from "../utils/util";
 
 
 export const getAllRiders: Middleware = async (req, res) => {
@@ -55,10 +56,10 @@ export const getAllRiders: Middleware = async (req, res) => {
 
 export const getOneRider: Middleware = async (req, res) => {
   const { rider_id } = req.params;
-  const requester_user_id = req.user.sub;
+  const requesterUserId = req.user.sub;
 
   try {
-    const rider = await getOneRiderService(rider_id, requester_user_id);
+    const rider = await getOneRiderService({riderId:rider_id, requesterUserId});
     if (rider.error) {
       return res
         .status(rider.errorCode)
@@ -124,14 +125,14 @@ export const deleteRider: Middleware = async (req, res) => {
   try {
     const { rider_id } = req.params;
     const deletedRider = await deleteRiderService(rider_id);
-    if ((deletedRider as HandleError).error) {
+    if (isErrorResponse(deletedRider)) {
       
       return res
-        .status((deletedRider as HandleError).errorCode)
+        .status(deletedRider.errorCode)
         .json({
-          error: (deletedRider as HandleError).error,
-          errorMessage: (deletedRider as HandleError).errorMessage,
-          errorSource: (deletedRider as HandleError).errorSource,
+          error: deletedRider.error,
+          errorMessage: deletedRider.errorMessage,
+          errorSource: deletedRider.errorSource,
         });
     }
 

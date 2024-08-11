@@ -1,11 +1,11 @@
-export interface HandleError {
+export interface ErrorResponse {
     error: string,
     errorMessage: string,
     errorCode: number,
     errorSource: string
 }
 
-export const handleError = ({error, errorMessage, errorCode, errorSource}: HandleError)=> {
+export const handleError = ({error, errorMessage, errorCode, errorSource}: ErrorResponse)=> {
     return {
         error, 
         errorMessage, 

@@ -4,7 +4,7 @@ import { getOneDriverFromDB } from "../model/driver.model";
 import { getOneRiderFromDB } from "../model/rider.model";
 import { associatedWithTrip } from "../model/trip.model";
 import { isUserRole } from "../model/user.model";
-
+import { ErrorResponse } from "./handleError";
 
 import { UserRole } from "../types/user.types";
 const EMAIL_REGEX =
@@ -102,3 +102,8 @@ export const isRightValue = ({value, data}:{value:string, data:string[]}) => {
   }
   return data.includes(value);
 };
+
+//for functions that return boolean or error
+export const isErrorResponse = (response: boolean | ErrorResponse): response is ErrorResponse => {
+  return typeof response === 'object' && response !== null && 'error' in response;
+}

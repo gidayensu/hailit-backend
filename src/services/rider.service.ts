@@ -1,8 +1,11 @@
+//constants
 import {
   ALLOWED_UPDATE_RIDER_PROPERTIES,
   RIDER_DETAILS,
 } from "../constants/riderConstants";
 import { DEFAULT_LIMIT } from "../constants/sharedConstants";
+
+//model functions
 import {
   addRiderToDB,
   deleteRiderFromDB,
@@ -13,8 +16,12 @@ import {
 } from "../model/rider.model";
 import { getSpecificUserDetailsUsingId } from "../model/user.model";
 import { getOneVehicleFromDB } from "../model/vehicle.model";
+
+//types
 import { GetAll } from "../types/getAll.types";
 import { DispatcherDetails } from "../types/shared.types";
+
+//helpers
 import { handleError } from "../utils/handleError";
 import { allowedPropertiesOnly, userIsUserRole } from "../utils/util";
 import { getAllEntitiesService } from "./helpers.service";
@@ -51,16 +58,16 @@ export const getAllRidersService = async (
   }
 };
 
-export const getOneRiderService = async (rider_id, requester_user_id) => {
+export const getOneRiderService = async ({riderId, requesterUserId}) => {
   try {
-    const rider = await getOneRiderFromDB(rider_id);
+    const rider = await getOneRiderFromDB(riderId);
     if (rider.error) {
       return { error: rider.error };
     }
     let riderDetails = { ...rider };
     const { user_id } = rider;
     //fetching rider name and related details
-    const isAdmin = await userIsUserRole({userId:requester_user_id, userRole:"Admin"});
+    const isAdmin = await userIsUserRole({userId:requesterUserId, userRole:"Admin"});
 
     isAdmin ? RIDER_DETAILS.push("email") : "";
     const riderOtherDetails = await getSpecificUserDetailsUsingId(

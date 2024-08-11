@@ -298,11 +298,17 @@ export const getSpecificDetails = async (
 };
 
 export const getSpecificDetailsUsingId = async (
-  tableName,
+  {tableName,
   id,
   idColumn,
   columns,
-  sortingColumn
+  sortingColumn} : {
+    tableName: TableNames,
+    id:string,
+    idColumn: string,
+    columns: string[] | string,
+    sortingColumn?: string
+  }
 ) => {
   try {
     await DB.query("BEGIN");

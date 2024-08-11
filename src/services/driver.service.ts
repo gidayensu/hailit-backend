@@ -98,8 +98,8 @@ export const getOneDriverService = async ({driverId, requesterUserId}:{driverId:
   }
 };
 
-export const addDriverService = async (user_id, vehicle_id) => {
-  const driverAdd = await addDriverToDB(user_id, vehicle_id);
+export const addDriverService = async ({userId, vehicleId}: {userId:string, vehicleId:string}) => {
+  const driverAdd = await addDriverToDB({userId, vehicleId});
   if (driverAdd.error) {
     return driverAdd.error; 
   }
@@ -135,9 +135,7 @@ export const updateDriverService = async (driverDetails:DriverDetails) => {
 export const deleteDriverService = async (driver_id:string) => {
   try {
     const driverDelete = await deleteDriverFromDB(driver_id);
-    if (driverDelete.error) {
-      return driverDelete.error;
-    }
+    
     return driverDelete;
   } catch (err) {
     return handleError(
@@ -152,6 +150,6 @@ export const deleteDriverService = async (driver_id:string) => {
   }
 };
 
-interface DriverDetails extends DispatcherDetails {
+export interface DriverDetails extends DispatcherDetails {
   driver_id?: string,
 }
