@@ -23,6 +23,7 @@ import {
   updateUserOnDB,
   userExists
 } from "../model/user.model";
+import { GetAll } from "../types/getAll.types";
 import { errorHandler } from "../utils/errorHandler";
 import { allowedPropertiesOnly } from "../utils/util";
 import {
@@ -36,22 +37,22 @@ import { getAllEntitiesService } from "./helpers.service";
 
 //GET ALL CUSTOMERS (USERS WITH CUSTOMER ROLE)
 export const getAllUsersService = async (
-  page,
+  {page,
   limit = DEFAULT_LIMIT,
   sortColumn,
   sortDirection,
-  search
+  search} :GetAll
 ) => {
   try {
     const users = await getAllEntitiesService(
-      page,
+      {page,
       limit,
       sortColumn,
       sortDirection,
       search,
-      getAllUsersFromDB,
-      getCustomerCount,
-      "users"
+      getAllEntitiesFromDB: getAllUsersFromDB,
+      getCount: getCustomerCount,
+      entityName: "users"}
     );
     return users;
   } catch (err) {

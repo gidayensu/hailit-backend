@@ -16,25 +16,26 @@ import { getOneVehicleFromDB } from "../model/vehicle.model";
 import { errorHandler } from "../utils/errorHandler";
 import { allowedPropertiesOnly, userIsUserRole } from "../utils/util";
 import { getAllEntitiesService } from "./helpers.service";
+import { GetAll } from "../types/getAll.types";
 
-export const getAllDriversService = async (
+export const getAllDriversService = async ({
   page,
   limit = DEFAULT_LIMIT,
   sortColumn,
   sortDirection,
-  search
+  search} : GetAll
 ) => {
   
   try {
     const drivers = await getAllEntitiesService(
-      page,
+      {page,
       limit ,
       sortColumn,
       sortDirection,
       search,
-      getAllDriversFromDB,
-      getDriversCount,
-      "drivers"
+      getAllEntitiesFromDB: getAllDriversFromDB,
+      getCount:getDriversCount,
+      entityName:"drivers"}
     );
     return drivers;
   } catch (err) {
@@ -51,9 +52,9 @@ export const getAllDriversService = async (
   }
 };
 
-export const getOneDriverService = async (driver_id, requester_user_id) => {
+export const getOneDriverService = async ({driverId, requesterUserId}:{driverId:string, requesterUserId:string}) => {
   try {
-    const driver = await getOneDriverFromDB(driver_id);
+    const driver = await getOneDriverFromDB(driverId);
     if (driver.error) {
       return { error: driver.error };
     }
@@ -62,7 +63,7 @@ export const getOneDriverService = async (driver_id, requester_user_id) => {
     const { user_id } = driver;
 
     //fetching driver name and related details
-    const isAdmin = await userIsUserRole({userId:requester_user_id, userRole:"Admin"});
+    const isAdmin = await userIsUserRole({userId:requesterUserId, userRole:"Admin"});
 
     isAdmin ? GET_DRIVER_COLUMNS.push("email") : "";
     const driverNamePhone = await getSpecificUserDetailsUsingId(

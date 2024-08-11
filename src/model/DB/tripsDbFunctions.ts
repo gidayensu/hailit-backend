@@ -1,7 +1,9 @@
-import { PAYMENT_STATUS, USER_ID_TRIP, USER_ID_USER, FIRST_NAME, LAST_NAME, TRIP_ID_COLUMN } from "../../constants/tripConstants";
+import { PAYMENT_STATUS, USER_ID_TRIP, USER_ID_USER, FIRST_NAME, LAST_NAME, TRIP_ID_COLUMN, TRIP_TABLE_NAME } from "../../constants/tripConstants";
 import { USERS_TABLE } from "../../constants/riderConstants";
 import { errorHandler } from "../../utils/errorHandler";
 import { DB } from "./connectDb";
+import { USER_TABLE_NAME } from "../../constants/usersConstants";
+import { GetAllFromDB } from "../../types/getAll.types";
 
 export const getOneTrip = async (
   tripTableName,
@@ -53,10 +55,10 @@ WHERE
   }
 };
 
-export const tripsCount = async (tripTable, search) => {
+export const tripsCount = async (search:string) => {
   try {
     let queryText = `SELECT COUNT(*) AS total_count
-FROM ${tripTable} 
+FROM ${TRIP_TABLE_NAME} 
 FULL OUTER JOIN ${USERS_TABLE} 
 ON ${USER_ID_TRIP} = ${USER_ID_USER} 
 WHERE ${TRIP_ID_COLUMN} IS NOT NULL;
@@ -69,7 +71,7 @@ WHERE ${TRIP_ID_COLUMN} IS NOT NULL;
       values.push(`%${search}%`);
       queryText = `
     SELECT COUNT(*) AS total_count
-FROM ${tripTable} 
+FROM ${TRIP_TABLE_NAME} 
 FULL OUTER JOIN ${USERS_TABLE} 
 ON ${USER_ID_TRIP} = ${USER_ID_USER} 
 WHERE ${TRIP_ID_COLUMN} IS NOT NULL AND ( 
@@ -312,38 +314,31 @@ export const getTwoMonthsTrip = async (tripTable, requestDateColumn) => {
   }
 };
 
-export const getTripsCustomersJoin = async (
-  tripTable,
-  usersTable,
-  firstName,
-  lastName,
-  userIdUser,
-  userIdTrip,
-  tripId,
-  limit,
+export const getTripsCustomersJoin = async (  
+  {limit,
   offset,
   sortColumn,
   sortDirection = "ASC",
-  search
+  search}: GetAllFromDB
 ) => {
   try {
     const values = [];
-    let queryText = `SELECT ${tripTable}.*, ${firstName}, 
-      ${lastName} FROM ${tripTable} FULL OUTER JOIN 
-      ${usersTable} ON ${userIdTrip} = ${userIdUser} 
-      WHERE ${tripId} IS NOT NULL ORDER BY ${sortColumn} 
+    let queryText = `SELECT ${TRIP_TABLE_NAME}.*, ${FIRST_NAME}, 
+      ${LAST_NAME} FROM ${TRIP_TABLE_NAME} FULL OUTER JOIN 
+      ${USERS_TABLE} ON ${USER_ID_TRIP} = ${USER_ID_USER} 
+      WHERE ${TRIP_ID_COLUMN} IS NOT NULL ORDER BY ${sortColumn} 
       ${sortDirection} LIMIT ${limit} OFFSET ${offset};`;
 
     if (search) {
       values.push(`%${search}%`);
       queryText = `
-    SELECT ${tripTable}.*, ${firstName}, 
-      ${lastName} FROM ${tripTable} FULL OUTER JOIN 
-      ${usersTable} ON ${userIdTrip} = ${userIdUser} 
-      WHERE ${tripId} IS NOT NULL AND ( 
+    SELECT ${TRIP_TABLE_NAME}.*, ${FIRST_NAME}, 
+      ${LAST_NAME} FROM ${TRIP_TABLE_NAME} FULL OUTER JOIN 
+      ${USERS_TABLE} ON ${USER_ID_TRIP} = ${USER_ID_USER} 
+      WHERE ${TRIP_ID_COLUMN} IS NOT NULL AND ( 
     trip_id ILIKE $1 OR
-    ${firstName} ILIKE $1 OR
-    ${lastName} ILIKE $1 OR
+    ${FIRST_NAME} ILIKE $1 OR
+    ${LAST_NAME} ILIKE $1 OR
     trips.trip_medium ILIKE $1 OR
     trips.trip_status ILIKE $1 OR
     trips.trip_type ILIKE $1 OR

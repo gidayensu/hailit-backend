@@ -5,7 +5,7 @@ import {
   updateRiderService,
 } from "../services/rider.service";
 import { Middleware } from "../types/middleware.types";
-
+import { GetAll } from "../types/getAll.types";
 export const getAllRiders: Middleware = async (req, res) => {
   try {
     const {
@@ -16,13 +16,13 @@ export const getAllRiders: Middleware = async (req, res) => {
       search
     } = req.query;
 
-    const allRiders = await getAllRidersService(
+    const allRiders = await getAllRidersService({
       page,
       limit,
       sortColumn,
       sortDirection,
-      search
-    );
+      search,
+    });
     if (allRiders.error) {
       return res && res
         .status(allRiders.errorCode)

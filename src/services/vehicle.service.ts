@@ -14,26 +14,27 @@ import {
 import { allowedPropertiesOnly } from "../utils/util";
 import { errorHandler } from "../utils/errorHandler";
 import { getAllEntitiesService } from "./helpers.service";
+import { GetAll } from "../types/getAll.types";
 
 export const getAllVehiclesService = async (
-  page,
+ { page,
   limit = DEFAULT_LIMIT,
   sortColumn,
   sortDirection,
-  search
+  search}:GetAll
 ) => {
   try {
     
     
     const allVehicles = await getAllEntitiesService(
-      page,
+      {page,
       limit,
       sortColumn,
       sortDirection,
       search,
-      getAllVehiclesFromDB,
-      getVehiclesCount,
-      "vehicles"
+      getAllEntitiesFromDB: getAllVehiclesFromDB,
+      getCount: getVehiclesCount,
+      entityName: "vehicles"}
     );
 
     if (allVehicles.error) {

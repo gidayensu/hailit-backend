@@ -17,8 +17,13 @@ export const getAllVehicles : Middleware = async (req, res) => {
       sortDirection,
       search
     } = req.query;
-    const allVehicles = await getAllVehiclesService(page, limit, sortColumn,
-      sortDirection, search);
+    const allVehicles = await getAllVehiclesService({
+      page,
+      limit,
+      sortColumn,
+      sortDirection,
+      search,
+    });
       
     if (allVehicles.error) {
       return res.status(allVehicles.errorCode).json( {

@@ -1,6 +1,7 @@
 import { errorHandler } from "../../utils/errorHandler";
 import { DB } from "./connectDb";
-
+import { VEHICLE_TABLE_NAME } from "../../constants/vehicleConstants";
+import { GetAll, GetAllFromDB } from "../../types/getAll.types";
 
 
 
@@ -53,30 +54,29 @@ export const getAll = async (
   }
 };
 export const getAllVehicles = async (
-  tableName,
-  limit,
+  {limit,
   offset,
   sortColumn,
   sortDirection = "ASC",
-  search
+  search}: GetAllFromDB
 ) => {
   
   try {
-    let queryText = `SELECT * FROM ${tableName}`;
+    let queryText = `SELECT * FROM ${VEHICLE_TABLE_NAME}`;
     const values = [];
     if (limit) {
-      queryText = `SELECT * FROM ${tableName} LIMIT ${limit} OFFSET ${offset}`;
+      queryText = `SELECT * FROM ${VEHICLE_TABLE_NAME} LIMIT ${limit} OFFSET ${offset}`;
       
     } 
 
     if(sortColumn && sortDirection) {
-      queryText = `SELECT * FROM ${tableName} ORDER BY ${sortColumn} ${sortDirection.toUpperCase()} LIMIT ${limit} OFFSET ${offset} `;
+      queryText = `SELECT * FROM ${VEHICLE_TABLE_NAME} ORDER BY ${sortColumn} ${sortDirection.toUpperCase()} LIMIT ${limit} OFFSET ${offset} `;
     }
 
     if(search) {
       values.push(`%${search}%`)
       queryText = `
-    SELECT * FROM ${tableName}
+    SELECT * FROM ${VEHICLE_TABLE_NAME}
     WHERE vehicle_name ILIKE $1
       OR plate_number ILIKE $1
       OR vehicle_type ILIKE $1
@@ -104,22 +104,15 @@ export const getAllVehicles = async (
     );
   }
 };
-export const vehiclesCount = async (
-  tableName,
-  search
-) => {
-  
-  
+export const vehiclesCount = async (search: string) => {
   try {
-    let queryText = `SELECT COUNT(*) AS total_count FROM ${tableName}`;
+    let queryText = `SELECT COUNT(*) AS total_count FROM ${VEHICLE_TABLE_NAME}`;
     const values = [];
-    
 
-    
-    if(search) {
-      values.push(`%${search}%`)
+    if (search) {
+      values.push(`%${search}%`);
       queryText = `
-    SELECT COUNT(*) AS total_count FROM ${tableName}
+    SELECT COUNT(*) AS total_count FROM ${VEHICLE_TABLE_NAME}
     WHERE vehicle_name ILIKE $1
       OR plate_number ILIKE $1
       OR vehicle_type ILIKE $1
@@ -128,21 +121,18 @@ export const vehiclesCount = async (
       OR road_worthy ILIKE $1
   `;
     }
-    
+
     const vehiclesCount = await DB.query(queryText, values);
     const data = vehiclesCount.rows;
-    
+
     return data[0];
   } catch (err) {
-    return errorHandler(
-      {
-        error: "Error occurred getting vehicle count",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "Database Functions: Getting vehicle count"
-      }
-      
-    );
+    return errorHandler({
+      error: "Error occurred getting vehicle count",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Database Functions: Getting vehicle count",
+    });
   }
 };
 

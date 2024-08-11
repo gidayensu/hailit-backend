@@ -6,6 +6,7 @@ import {
   USER_ROLE_COLUMN,
   USER_TABLE_NAME
 } from "../constants/usersConstants";
+import { GetAllFromDB } from "../types/getAll.types";
 import { errorHandler } from "../utils/errorHandler";
 import { addOne } from "./DB/addDbFunctions";
 import { deleteOne } from "./DB/deleteDbFunctions";
@@ -19,21 +20,20 @@ import { updateOne } from "./DB/updateDbFunctions";
 import { getAllCustomers } from "./DB/usersDbFunctions";
 import { customersCount } from "./DB/usersDbFunctions";
 
-export const getAllUsersFromDB = async (
+export const getAllUsersFromDB = async ({
   limit,
   offset,
   sortColumn,
   sortDirection,
-  search
+  search}:GetAllFromDB
 ) => {
   try {
     const allUsers = await getAllCustomers(
-      USER_TABLE_NAME,
-      limit,
+      {limit,
       offset,
       sortColumn,
       sortDirection,
-      search
+      search}
     );
 
     if (!allUsers) {
@@ -60,10 +60,9 @@ export const getAllUsersFromDB = async (
   }
 };
 
-export const getCustomerCount = async (search) => {
+export const getCustomerCount = async (search:string) => {
   try {
     const customerCount = await customersCount(
-      USER_TABLE_NAME,
       search
     );
 

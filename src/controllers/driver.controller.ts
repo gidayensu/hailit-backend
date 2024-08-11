@@ -6,6 +6,7 @@ import {
 } from "../services/driver.service";
 import { Middleware } from "../types/middleware.types";
 
+
 export const getAllDrivers:Middleware = async (req, res) => {
   const {
     page,
@@ -17,11 +18,11 @@ export const getAllDrivers:Middleware = async (req, res) => {
 
   try {
     const allDrivers = await getAllDriversService(
-      page,
+      {page,
       limit,
       sortColumn,
       sortDirection,
-      search
+      search}
     );
     if (res && res.status) {
       if (allDrivers.error) {
@@ -53,9 +54,9 @@ export const getAllDrivers:Middleware = async (req, res) => {
 
 export const getOneDriver: Middleware  = async (req, res) => {
   const { driver_id } = req.params;
-  const requester_user_id = req.user.sub;
+  const requesterUserId = req.user.sub;
   try {
-    const driver = await getOneDriverService(driver_id, requester_user_id);
+    const driver = await getOneDriverService({driverId:driver_id, requesterUserId});
     if (driver.error) {
       return res
         .status(driver.errorCode)

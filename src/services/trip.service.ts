@@ -48,26 +48,27 @@ import {
   updateDispatcherRating
 } from "./tripServiceHelpers";
 import { getOneUserService } from "./user.service";
+import { GetAll } from "../types/getAll.types";
 config({ path: "../../../.env" });
 
 //GET ALL TRIPS
 export const getAllTripsService = async (
-  page,
+  {page,
   limit = DEFAULT_LIMIT,
   sortColumn,
   sortDirection,
-  search
+  search}:GetAll
 ) => {
   try {
     const trips = await getAllEntitiesService(
-      page,
+      {page,
       limit,
       sortColumn,
       sortDirection,
       search,
-      getAllTripsFromDB,
-      getTripCount,
-      "trips"
+      getAllEntitiesFromDB: getAllTripsFromDB,
+      getCount: getTripCount,
+      entityName: "trips"}
     );
 
     return trips;

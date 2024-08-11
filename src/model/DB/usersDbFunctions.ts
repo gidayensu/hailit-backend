@@ -1,21 +1,47 @@
 import { errorHandler } from "../../utils/errorHandler";
 import { DB } from "./connectDb";
+import { USERS_TABLE } from "../../constants/riderConstants";
+import { GetAllFromDB } from "../../types/getAll.types";
+import {
+  DEFAULT_VEHICLE_ID,
+  EMAIL_COLUMN,
+  PHONE_NUMBER,
+  RIDER_COLUMNS_FOR_ADDING,
+  RIDER_ID_COLUMN,
+  RIDER_TABLE_NAME,
+  RIDER_VEHICLE_ID,
+  USER_FIRST_NAME,
+  USER_ID_RIDER,
+  USER_ID_USERS,
+  USER_LAST_NAME,
+  VEHICLE_ID,
+  VEHICLE_NAME_COLUMN,
+  VEHICLE_PLATE_COLUMN,
+} from "../../constants/riderConstants";
+import { DRIVER_ID_COLUMN, DRIVER_TABLE_NAME, DRIVER_VEHICLE_ID, USER_ID_DRIVER } from "../../constants/driverConstants";
+import { VEHICLE_TABLE_NAME } from "../../constants/vehicleConstants";
+import { FIRST_NAME, LAST_NAME } from "../../constants/tripConstants";
+
+interface DispatcherVehicleJoin extends GetAllFromDB {
+  dispatcherRole: "Rider" | "Driver"
+}
+
 
 
 
 export const customersCount = async (
-  tableName,
-  search
+  
+  search:string
 ) => {
   
   try {
-    let queryText = `SELECT COUNT(*) AS total_count FROM ${tableName} WHERE user_role = 'Customer'`;
+    let queryText = `SELECT COUNT(*) AS total_count FROM ${USERS_TABLE} WHERE user_role = 'Customer'`;
     const values = [];
 
     if(search) {
       values.push(`%${search}%`)
       queryText = `
-    SELECT COUNT(*) AS total_count FROM ${tableName}
+    SELECT COUNT(*) AS total_count FROM ${USERS_TABLE}
     WHERE user_role = 'Customer' AND (first_name ILIKE $1
       OR last_name ILIKE $1
       OR email ILIKE $1
@@ -42,29 +68,28 @@ export const customersCount = async (
   }
 };
 export const getAllCustomers = async (
-  tableName,
-  limit,
+  {limit,
   offset,
   sortColumn,
   sortDirection = "ASC",
-  search
+  search}: GetAllFromDB
 ) => {
   
   try {
-    let queryText = `SELECT * FROM ${tableName}`;
+    let queryText = `SELECT * FROM ${USERS_TABLE}`;
     const values = [];
     if (limit) {
-      queryText = `SELECT * FROM ${tableName} LIMIT ${limit} OFFSET ${offset}`;
+      queryText = `SELECT * FROM ${USERS_TABLE} LIMIT ${limit} OFFSET ${offset}`;
     } 
 
     if(sortColumn && sortDirection) {
-      queryText = `SELECT * FROM ${tableName} WHERE user_role = 'Customer' ORDER BY ${sortColumn} ${sortDirection.toUpperCase()} LIMIT ${limit} OFFSET ${offset} `;
+      queryText = `SELECT * FROM ${USERS_TABLE} WHERE user_role = 'Customer' ORDER BY ${sortColumn} ${sortDirection.toUpperCase()} LIMIT ${limit} OFFSET ${offset} `;
     }
 
     if(search) {
       values.push(`%${search}%`)
       queryText = `
-    SELECT * FROM ${tableName}
+    SELECT * FROM ${USERS_TABLE}
     WHERE user_role = 'Customer' AND (first_name ILIKE $1
       OR last_name ILIKE $1
       OR email ILIKE $1
@@ -94,42 +119,38 @@ export const getAllCustomers = async (
 
 
 
-export const getDispatchersVehicleJoin = async (
-  dispatcherTable,
-  usersTable,
-  vehicleTable,
-  firstName,
-  lastName,
-  phoneNumber,
-  email,
-  vehicleName,
-  vehiclePlate,
-  userIdDispatcher,
-  userIdUsers,
-  dispatcherVehicleId,
-  vehicleId,
-  dispatcherId,
-  limit,
+export const getDispatchersVehicleJoin = async (  
+  {limit,
   offset,
-  sortColumn = firstName,
+  sortColumn = FIRST_NAME,
   sortDirection = "ASC",
-  search
+  search,
+  dispatcherRole}: DispatcherVehicleJoin
 ) => {
+  let dispatcherTable =  RIDER_TABLE_NAME;
+  let userIdDispatcher = USER_ID_RIDER;
+  let dispatcherVehicleId = RIDER_VEHICLE_ID;
+  let dispatcherIdColumn = RIDER_ID_COLUMN;
 
-  
+  if(dispatcherRole === "Driver") {
+    dispatcherTable = DRIVER_TABLE_NAME;
+    userIdDispatcher = USER_ID_DRIVER;
+    dispatcherIdColumn = DRIVER_ID_COLUMN;
+    dispatcherVehicleId = DRIVER_VEHICLE_ID;
+  }
   try {
     const values = [];
-    let queryText = `SELECT ${dispatcherTable}.*, ${firstName}, ${lastName}, ${phoneNumber}, ${email}, ${vehicleName}, ${vehiclePlate} FROM ${dispatcherTable} FULL OUTER JOIN ${usersTable} on ${userIdDispatcher} = ${userIdUsers} FULL OUTER JOIN ${vehicleTable} on ${dispatcherVehicleId} = ${vehicleId} WHERE ${dispatcherId} IS NOT NULL ORDER BY ${sortColumn} ${sortDirection.toUpperCase()} LIMIT ${limit} OFFSET ${offset};`;
+    let queryText = `SELECT ${dispatcherTable}.*, ${FIRST_NAME}, ${LAST_NAME}, ${PHONE_NUMBER}, ${EMAIL_COLUMN}, ${PHONE_NUMBER}, ${VEHICLE_PLATE_COLUMN} FROM ${dispatcherTable} FULL OUTER JOIN ${USERS_TABLE} on ${userIdDispatcher} = ${USER_ID_USERS} FULL OUTER JOIN ${VEHICLE_TABLE_NAME} on ${dispatcherVehicleId} = ${VEHICLE_ID} WHERE ${dispatcherIdColumn} IS NOT NULL ORDER BY ${sortColumn} ${sortDirection.toUpperCase()} LIMIT ${limit} OFFSET ${offset};`;
     
     if(search) {
       values.push(`%${search}%`)
-      queryText = `SELECT ${dispatcherTable}.*, ${firstName}, ${lastName}, ${phoneNumber}, ${email}, ${vehicleName}, ${vehiclePlate} FROM ${dispatcherTable} FULL OUTER JOIN ${usersTable} on ${userIdDispatcher} = ${userIdUsers} FULL OUTER JOIN ${vehicleTable} on ${dispatcherVehicleId} = ${vehicleId} WHERE ${dispatcherId} IS NOT NULL AND (
-        ${firstName} ILIKE $1
-        OR ${lastName} ILIKE $1
-        OR ${phoneNumber} ILIKE $1
-        OR ${email} ILIKE $1
-        OR ${vehicleName} ILIKE $1
-        OR ${vehiclePlate} ILIKE $1
+      queryText = `SELECT ${dispatcherTable}.*, ${FIRST_NAME}, ${LAST_NAME}, ${PHONE_NUMBER}, ${EMAIL_COLUMN}, ${PHONE_NUMBER}, ${VEHICLE_PLATE_COLUMN} FROM ${dispatcherTable} FULL OUTER JOIN ${USERS_TABLE} on ${userIdDispatcher} = ${USER_ID_USERS} FULL OUTER JOIN ${VEHICLE_TABLE_NAME} on ${dispatcherVehicleId} = ${VEHICLE_ID} WHERE ${dispatcherIdColumn} IS NOT NULL AND (
+        ${FIRST_NAME} ILIKE $1
+        OR ${LAST_NAME} ILIKE $1
+        OR ${PHONE_NUMBER} ILIKE $1
+        OR ${EMAIL_COLUMN} ILIKE $1
+        OR ${VEHICLE_NAME_COLUMN} ILIKE $1
+        OR ${VEHICLE_PLATE_COLUMN} ILIKE $1
         OR ${dispatcherTable}.license_number ILIKE $1       
       )
       ORDER BY ${sortColumn} ${sortDirection.toUpperCase()} LIMIT ${limit} OFFSET ${offset};`;
@@ -154,55 +175,53 @@ export const getDispatchersVehicleJoin = async (
   }
 };
 
-export const getDispatcherCount = async (
-  dispatcherTable,
-  usersTable,
-  vehicleTable,
-  firstName,
-  lastName,
-  phoneNumber,
-  email,
-  vehicleName,
-  vehiclePlate,
-  userIdDispatcher,
-  userIdUsers,
-  dispatcherVehicleId,
-  vehicleId,
-  dispatcherId,
-  search
-) => {
+export const getDispatcherCount = async ({
+  search,
+  dispatcherRole,
+}: {
+  search: string;
+  dispatcherRole: "Driver" | "Rider";
+}) => {
+
+  let dispatcherTable = RIDER_TABLE_NAME;
+  let userIdDispatcher = USER_ID_RIDER;
+  let dispatcherVehicleId = RIDER_VEHICLE_ID;
+  let dispatcherIdColumn = RIDER_ID_COLUMN;
+
+  if (dispatcherRole === "Driver") {
+    dispatcherTable = DRIVER_TABLE_NAME;
+    userIdDispatcher = USER_ID_DRIVER;
+    dispatcherIdColumn = DRIVER_ID_COLUMN;
+    dispatcherVehicleId = DRIVER_VEHICLE_ID;
+  }
   try {
     const values = [];
-    let queryText = `SELECT COUNT(*) AS total_count FROM ${dispatcherTable} FULL OUTER JOIN ${usersTable} on ${userIdDispatcher} = ${userIdUsers} FULL OUTER JOIN ${vehicleTable} on ${dispatcherVehicleId} = ${vehicleId} WHERE ${dispatcherId} IS NOT NULL;`;
-    
-    if(search) {
-      values.push(`%${search}%`)
-      queryText = `SELECT COUNT(*) AS total_count FROM ${dispatcherTable} FULL OUTER JOIN ${usersTable} on ${userIdDispatcher} = ${userIdUsers} FULL OUTER JOIN ${vehicleTable} on ${dispatcherVehicleId} = ${vehicleId} WHERE ${dispatcherId} IS NOT NULL AND (
-        ${firstName} ILIKE $1
-        OR ${lastName} ILIKE $1
-        OR ${phoneNumber} ILIKE $1
-        OR ${email} ILIKE $1
-        OR ${vehicleName} ILIKE $1
-        OR ${vehiclePlate} ILIKE $1
+    let queryText = `SELECT COUNT(*) AS total_count FROM ${dispatcherTable} FULL OUTER JOIN ${USERS_TABLE} on ${userIdDispatcher} = ${USER_ID_USERS} FULL OUTER JOIN ${VEHICLE_TABLE_NAME} on ${dispatcherVehicleId} = ${VEHICLE_ID} WHERE ${dispatcherIdColumn} IS NOT NULL;`;
+
+    if (search) {
+      values.push(`%${search}%`);
+      queryText = `SELECT COUNT(*) AS total_count FROM ${dispatcherTable} FULL OUTER JOIN ${USERS_TABLE} on ${userIdDispatcher} = ${USER_ID_USERS} FULL OUTER JOIN ${VEHICLE_TABLE_NAME} on ${dispatcherVehicleId} = ${VEHICLE_ID} WHERE ${dispatcherIdColumn} IS NOT NULL AND (
+        ${FIRST_NAME} ILIKE $1
+        OR ${LAST_NAME} ILIKE $1
+        OR ${PHONE_NUMBER} ILIKE $1
+        OR ${EMAIL_COLUMN} ILIKE $1
+        OR ${VEHICLE_NAME_COLUMN} ILIKE $1
+        OR ${VEHICLE_PLATE_COLUMN} ILIKE $1
         OR ${dispatcherTable}.license_number ILIKE $1       
       )
       ;`;
     }
-    
+
     const dispatcherCount = await DB.query(queryText, values);
     const data = dispatcherCount.rows;
 
     return data[0];
   } catch (err) {
-    
-    return errorHandler(
-      {
-        error: "Error occurred getting dispatcher count",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "User Database Functions: dispatcher count"
-      }
-      
-    );
+    return errorHandler({
+      error: "Error occurred getting dispatcher count",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "User Database Functions: dispatcher count",
+    });
   }
 };

@@ -22,11 +22,13 @@ export const getAllUsers : Middleware = async (req, res) => {
     search
   } = req.query;
   try {
-    const allUsers = await getAllUsersService(page,
+    const allUsers = await getAllUsersService({
+      page,
       limit,
       sortColumn,
       sortDirection,
-      search);
+      search,
+    });
     if (allUsers.error) {
       return res
         .status(allUsers.errorCode)

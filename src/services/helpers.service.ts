@@ -1,15 +1,24 @@
 import { paginatedRequest } from "../utils/paginatedRequest";
 import { errorHandler } from "../utils/errorHandler";
+import { GetAll, GetAllFromDB } from "../types/getAll.types";
+
+
+type EntityName = "trips" | "riders" | "drivers" | "users" | "vehicles"
+interface GetAllEntities extends GetAll {
+  getAllEntitiesFromDB: ({...args}:GetAllFromDB)=>any,
+  getCount: (search:string)=>any,
+  entityName: EntityName
+}
 
 export const getAllEntitiesService = async (
-    page,
+    {page,
     limit,
     sortColumn,
     sortDirection,
     search,
     getAllEntitiesFromDB, 
     getCount, 
-    entityName 
+    entityName}: GetAllEntities 
   ) => {
     try {
       let offset = 0;
@@ -17,11 +26,11 @@ export const getAllEntitiesService = async (
       page > 1 ? (offset = limit * page - limit) : page;
   
       const entities = await getAllEntitiesFromDB(
-        limit,
+        {limit,
         offset,
         sortColumn,
         sortDirection,
-        search
+        search}
       );
       
       if (entities.error) {

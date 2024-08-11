@@ -1,22 +1,51 @@
-import { FIRST_NAME, LAST_NAME, LOCATION_TABLE_NAME, TRIP_ID_COLUMN, TRIP_TABLE_NAME, USER_ID_TRIP, USER_ID_USER } from '../constants/tripConstants.js';
-import { USER_TABLE_NAME } from "../constants/usersConstants";
+import { LOCATION_TABLE_NAME, TRIP_ID_COLUMN, TRIP_TABLE_NAME } from '../constants/tripConstants.js';
+import { GetAllFromDB } from '../types/getAll.types.js';
 import { errorHandler } from "../utils/errorHandler";
 import { addOne } from "./DB/addDbFunctions";
 import { deleteOne } from "./DB/deleteDbFunctions";
-import { getSpecificDetailsUsingId, selectOnCondition, getOne } from "./DB/getDbFunctions";
+import { getOne, getSpecificDetailsUsingId, selectOnCondition } from "./DB/getDbFunctions";
 import { increaseByValue } from "./DB/helperDbFunctions";
 import {
   getCountByMonth,
+  getIDsAndMedium,
   getOneTrip,
   getPreviousTwoMonthsCounts,
   getRevenueByMonth,
   getTripsCustomersJoin,
   getTripsMonths,
   tripsCount,
-  upToOneWeekTripCounts,
-  getIDsAndMedium
+  upToOneWeekTripCounts
 } from "./DB/tripsDbFunctions";
 import { updateOne } from "./DB/updateDbFunctions";
+  
+  export const getAllTripsFromDB = async ({limit, offset, sortColumn,
+    sortDirection, search}:GetAllFromDB ) => {
+    try {
+      
+      const allTrips = await getTripsCustomersJoin({
+        limit,
+        offset,
+        sortColumn,
+        sortDirection,
+        search,
+      }); 
+      
+      return allTrips; 
+    } catch (err) {
+      
+      return errorHandler(
+        {
+          error: "Server Error Occurred in getting all trips",
+          errorMessage: `${err}`,
+          errorCode: 500,
+          errorSource: "Trip Model: All Trips"
+        }
+        
+      );
+    }
+  };
+  
+  
 
 
 export const tripsMonths = async()=> {
@@ -31,14 +60,14 @@ export const tripsMonths = async()=> {
       errorMessage: `${err}`,
       errorCode: 500,
       errorSource: "Trips Months Trip Model"
-    }
+    }  
     )
-  }
-}
+  }  
+}  
 
-export const getTripCount = async(search)=> {
+export const getTripCount = async(search:string)=> {
   try {
-    const tripCounts = await tripsCount(TRIP_TABLE_NAME, search);
+    const tripCounts = await tripsCount(search);
 
     return tripCounts;
     
@@ -48,10 +77,10 @@ export const getTripCount = async(search)=> {
       errorMessage: `${err}`,
       errorCode: 500,
       errorSource: "Trips Count Trip Model"
-    }
+    }  
     )
-  }
-}
+  }  
+}  
 export const searchTrips = async(searchQuery, limit, offset)=> {
   try {
     
@@ -65,10 +94,10 @@ export const searchTrips = async(searchQuery, limit, offset)=> {
       errorMessage: `${err}`,
       errorCode: 500,
       errorSource: "Search Trips Trip Model"
-    }
+    }  
     )
-  }
-}
+  }  
+}  
 export const getSpecificTripDetailsUsingId = async (tripId, columns) => {
   try {
 
@@ -77,7 +106,7 @@ export const getSpecificTripDetailsUsingId = async (tripId, columns) => {
       tripId,
       TRIP_ID_COLUMN,
       columns
-    );
+    );  
     
     return specificDetails;
   } catch(err) {
@@ -87,53 +116,18 @@ export const getSpecificTripDetailsUsingId = async (tripId, columns) => {
         errorMessage: `${err}`,
         errorCode: 500,
         errorSource: "Trip Model: Get Specific Details"
-      }
+      }  
       
-    );
+    );  
 
-  }
-};
+  }  
+};  
 
 export const getIDsAndMediumFromDb = async (tripId)=> {
   const IDsAndMeidum = await getIDsAndMedium(tripId);
   
   return IDsAndMeidum;
-}
-
-export const getAllTripsFromDB = async (limit, offset, sortColumn,
-  sortDirection, search ) => {
-  try {
-    
-    const allTrips = await getTripsCustomersJoin(
-      TRIP_TABLE_NAME,
-      USER_TABLE_NAME,
-      FIRST_NAME,
-      LAST_NAME,
-      USER_ID_USER,
-      USER_ID_TRIP,
-      TRIP_ID_COLUMN,
-      limit,
-      offset,
-      sortColumn,
-      sortDirection,
-      search
-    ); 
-    
-    return allTrips; 
-  } catch (err) {
-    
-    return errorHandler(
-      {
-        error: "Server Error Occurred in getting all trips",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "Trip Model: All Trips"
-      }
-      
-    );
-  }
-};
-
+}  
 
 
 export const getOneTripFromDB = async (trip_id, tripIdColumn) => {

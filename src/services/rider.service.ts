@@ -13,27 +13,28 @@ import {
 } from "../model/rider.model";
 import { getSpecificUserDetailsUsingId } from "../model/user.model";
 import { getOneVehicleFromDB } from "../model/vehicle.model";
+import { GetAll } from "../types/getAll.types";
 import { errorHandler } from "../utils/errorHandler";
 import { allowedPropertiesOnly, userIsUserRole } from "../utils/util";
 import { getAllEntitiesService } from "./helpers.service";
 
 export const getAllRidersService = async (
-  page,
+  {page,
   limit = DEFAULT_LIMIT,
   sortColumn,
   sortDirection,
-  search
+  search} : GetAll
 ) => {
   try {
     const riders = await getAllEntitiesService(
-      page,
+      {page,
       limit,
       sortColumn,
       sortDirection,
       search,
-      getAllRiders,
-      getRidersCount,
-      "riders"
+      getAllEntitiesFromDB: getAllRiders,
+      getCount: getRidersCount,
+      entityName: "riders"}
     );
     return riders;
   } catch (err) {

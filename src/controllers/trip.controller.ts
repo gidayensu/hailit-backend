@@ -29,13 +29,13 @@ export const getAllTrips : Middleware = async (req, res) => {
       search
     } = req.query;
 
-    const allTrips = await getAllTripsService(
+    const allTrips = await getAllTripsService({
       page,
       limit,
       sortColumn,
       sortDirection,
-      search
-    );
+      search,
+    });
 
     if (allTrips.error) {
       return res

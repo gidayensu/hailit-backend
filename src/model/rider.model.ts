@@ -28,43 +28,31 @@ import {
 } from "./DB/getDbFunctions";
 import { updateOne } from "./DB/updateDbFunctions";
 import { getDispatchersVehicleJoin, getDispatcherCount } from "./DB/usersDbFunctions";
+import { GetAllFromDB } from "../types/getAll.types";
 
-
-export const getAllRiders = async (limit,
+export const getAllRiders = async ({
+  limit,
   offset,
   sortColumn,
   sortDirection,
-  search) => {
+  search,
+}:GetAllFromDB) => {
   try {
-    const allRiders = await getDispatchersVehicleJoin(
-      RIDER_TABLE_NAME,
-      USER_TABLE_NAME,
-      VEHICLE_TABLE_NAME,
-      USER_FIRST_NAME,
-      USER_LAST_NAME,
-      PHONE_NUMBER,
-      EMAIL_COLUMN,
-      VEHICLE_NAME_COLUMN,
-      VEHICLE_PLATE_COLUMN,
-      USER_ID_RIDER,
-      USER_ID_USERS,
-      RIDER_VEHICLE_ID,
-      VEHICLE_ID,
-      RIDER_ID_COLUMN,
+    const allRiders = await getDispatchersVehicleJoin({
       limit,
       offset,
       sortColumn,
       sortDirection,
-      search
-    );
+      search,
+      dispatcherRole: "Rider"
+    });
     if (allRiders.error) {
       return errorHandler({
         error: allRiders.error,
         errorMessage: null,
         errorCode: 500,
-        errorSource: "All Riders Model"
-      }
-      );
+        errorSource: "All Riders Model",
+      });
     }
     return allRiders;
   } catch (err) {
@@ -72,31 +60,17 @@ export const getAllRiders = async (limit,
       error: "Server error occurred getting all riders",
       errorMessage: `${err}`,
       errorCode: 500,
-      errorSource: "All Riders Model"
-    }
-    );
+      errorSource: "All Riders Model",
+    });
   }
 };
 
-export const getRidersCount = async(search)=> {
+export const getRidersCount = async(search:string)=> {
   try {
-    const ridersCount = await getDispatcherCount(
-      RIDER_TABLE_NAME,
-      USER_TABLE_NAME,
-      VEHICLE_TABLE_NAME,
-      USER_FIRST_NAME,
-      USER_LAST_NAME,
-      PHONE_NUMBER,
-      EMAIL_COLUMN,
-      VEHICLE_NAME_COLUMN,
-      VEHICLE_PLATE_COLUMN,
-      USER_ID_RIDER,
-      USER_ID_USERS,
-      RIDER_VEHICLE_ID,
-      VEHICLE_ID,
-      RIDER_ID_COLUMN,
-      search
-    );
+    const ridersCount = await getDispatcherCount({
+      search,
+      dispatcherRole: "Rider",
+    });
     
     return ridersCount;
     

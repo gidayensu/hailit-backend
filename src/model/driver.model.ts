@@ -19,34 +19,22 @@ import {
 } from "./DB/getDbFunctions";
 import { updateOne } from "./DB/updateDbFunctions";
 import { getDispatcherCount, getDispatchersVehicleJoin } from "./DB/usersDbFunctions";
+import { GetAllFromDB } from "../types/getAll.types.js";
 
-export const getAllDriversFromDB = async (limit,
+export const getAllDriversFromDB = async ({limit,
   offset,
   sortColumn,
   sortDirection,
-  search) => {
+  search}: GetAllFromDB) => {
   try {
-    const allDrivers = await getDispatchersVehicleJoin(
-      DRIVER_TABLE_NAME,
-      USER_TABLE_NAME,
-      VEHICLE_TABLE,
-      USER_FIRST_NAME,
-      USER_LAST_NAME,
-      PHONE_NUMBER,
-      EMAIL_COLUMN,
-      VEHICLE_NAME_COLUMN,
-      VEHICLE_PLATE_COLUMN,
-      USER_ID_DRIVER,
-      USER_ID_USERS,
-      DRIVER_VEHICLE_ID,
-      VEHICLE_ID_COLUMN,
-      DRIVER_ID_COLUMN,
+    const allDrivers = await getDispatchersVehicleJoin({
       limit,
       offset,
       sortColumn,
       sortDirection,
-      search
-    );
+      search,
+      dispatcherRole: "Driver"
+    });
     
     return allDrivers;
   } catch (err) {
@@ -57,24 +45,13 @@ export const getAllDriversFromDB = async (limit,
 };
 
 
-export const getDriversCount = async(search)=> {
+export const getDriversCount = async(search:string)=> {
   try {
     const driversCount = await getDispatcherCount(
-      DRIVER_TABLE_NAME,
-      USER_TABLE_NAME,
-      VEHICLE_TABLE,
-      USER_FIRST_NAME,
-      USER_LAST_NAME,
-      PHONE_NUMBER,
-      EMAIL_COLUMN,
-      VEHICLE_NAME_COLUMN,
-      VEHICLE_PLATE_COLUMN,
-      USER_ID_DRIVER,
-      USER_ID_USERS,
-      DRIVER_VEHICLE_ID,
-      VEHICLE_ID_COLUMN,
-      DRIVER_ID_COLUMN,
-      search
+      {
+        search,
+        dispatcherRole: "Driver"
+      }
     );
     
     return driversCount;
