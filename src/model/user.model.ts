@@ -84,10 +84,14 @@ export const getCustomerCount = async (search:string) => {
 
 
 
-export const getOneUserFromDB = async (userId) => {
+export const getOneUserFromDB = async (userId:string) => {
   try {
     
-    const user = await getOne(USER_TABLE_NAME, USER_ID_COLUMN, userId);
+    const user = await getOne({
+      tableName: USER_TABLE_NAME,
+      columnName: USER_ID_COLUMN,
+      condition: userId,
+    });
 
     if (user.error) {
       return user //returns error message and code
@@ -337,11 +341,11 @@ export const userExists = async (userId)=> {
     export const getUserIdUsingEmail = async (userEmail) => {
       try {
         
-        const userDetails = await getOne(
-          USER_TABLE_NAME,
-          USER_EMAIL_COLUMN,
-          userEmail
-        );
+        const userDetails = await getOne({
+          tableName: USER_TABLE_NAME,
+          columnName: USER_EMAIL_COLUMN,
+          condition: userEmail,
+        });
     
         if (userDetails.error) {
           return userDetails; //error message included

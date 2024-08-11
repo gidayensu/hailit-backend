@@ -1,8 +1,8 @@
+import { VEHICLE_TABLE_NAME } from "../../constants/vehicleConstants";
+import { GetAllFromDB } from "../../types/getAll.types";
 import { errorHandler } from "../../utils/errorHandler";
 import { DB } from "./connectDb";
-import { VEHICLE_TABLE_NAME } from "../../constants/vehicleConstants";
-import { GetAll, GetAllFromDB } from "../../types/getAll.types";
-
+import { TableNames } from "../../types/shared.types";
 
 
 export const getAll = async (
@@ -229,12 +229,24 @@ export const selectOnCondition = async (
   }
 };
 
-export const getOne = async (tableName, columnName, condition, secondConditionColumn, secondCondition) => {
+export const getOne = async ({
+  tableName,
+  columnName,
+  condition,
+  secondConditionColumn,
+  secondCondition,
+}: {
+  tableName: TableNames;
+  columnName: string;
+  condition: string;
+  secondConditionColumn?:string,
+  secondCondition?: string
+}) => {
   try {
     const values = [condition];
     let queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1`;
-    if(secondCondition) {
-      values.push(secondCondition)
+    if (secondCondition) {
+      values.push(secondCondition);
       queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1 AND ${secondConditionColumn} = $2`;
     }
     const result = await DB.query(queryText, values);
@@ -242,26 +254,20 @@ export const getOne = async (tableName, columnName, condition, secondConditionCo
     if (result.rowCount > 0) {
       return result.rows;
     } else {
-      return errorHandler(
-        {
-          error: "Detail does not exist",
-          errorMessage: null,
-          errorCode: 404,
-          errorSource: "Database Functions"
-        }
-        
-      );
+      return errorHandler({
+        error: "Detail does not exist",
+        errorMessage: null,
+        errorCode: 404,
+        errorSource: "Database Functions",
+      });
     }
   } catch (err) {
-    return errorHandler(
-      {
-        error: "Error occurred getting one detail",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "getOne Database Functions"
-      }
-      
-    );
+    return errorHandler({
+      error: "Error occurred getting one detail",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "getOne Database Functions",
+    });
   }
 };
 

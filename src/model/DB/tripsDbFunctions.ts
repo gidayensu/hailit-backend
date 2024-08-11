@@ -1,25 +1,19 @@
-import { PAYMENT_STATUS, USER_ID_TRIP, USER_ID_USER, FIRST_NAME, LAST_NAME, TRIP_ID_COLUMN, TRIP_TABLE_NAME } from "../../constants/tripConstants";
 import { USERS_TABLE } from "../../constants/riderConstants";
+import { FIRST_NAME, LAST_NAME, LOCATION_TABLE_NAME, PAYMENT_STATUS, TRIP_ID_COLUMN, TRIP_TABLE_NAME, USER_ID_TRIP, USER_ID_USER } from "../../constants/tripConstants";
+import { GetAllFromDB } from "../../types/getAll.types";
 import { errorHandler } from "../../utils/errorHandler";
 import { DB } from "./connectDb";
-import { USER_TABLE_NAME } from "../../constants/usersConstants";
-import { GetAllFromDB } from "../../types/getAll.types";
 
-export const getOneTrip = async (
-  tripTableName,
-  locationTableName,
-  columnName,
-  condition
-) => {
+export const getOneTrip = async (condition: string) => {
   try {
     const value = [condition];
     const queryText = `SELECT 
     t.*, 
     tl.pick_lat, tl.pick_long, tl.drop_lat, tl.drop_long
 FROM 
-    ${tripTableName} t
+    ${TRIP_TABLE_NAME} t
 FULL OUTER JOIN 
-    ${locationTableName} tl 
+    ${LOCATION_TABLE_NAME} tl 
 ON 
     t.trip_id = tl.trip_id
 WHERE 
@@ -31,27 +25,20 @@ WHERE
     if (result.rowCount > 0) {
       return result.rows;
     } else {
-      return errorHandler(
-        {
-          error: "Detail does not exist",
-          errorMessage: null,
-          errorCode: 404,
-          errorSource: "Database Functions"
-        }
-        
-      );
+      return errorHandler({
+        error: "Detail does not exist",
+        errorMessage: null,
+        errorCode: 404,
+        errorSource: "Database Functions",
+      });
     }
   } catch (err) {
-    
-    return errorHandler(
-      {
-        error: "Error occurred getting one Trip",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "Database Trip Functions: Get One Trip"
-      }
-      
-    );
+    return errorHandler({
+      error: "Error occurred getting one Trip",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Database Trip Functions: Get One Trip",
+    });
   }
 };
 
@@ -371,7 +358,7 @@ LIMIT ${limit} OFFSET ${offset};`;
   }
 };
 
-export const getIDsAndMedium = async (tripId)=> {
+export const getIDsAndMedium = async (tripId:string)=> {
   const value = [tripId]
   try {
     const queryText = 'SELECT dispatcher_id as dispatcher_id, customer_id as customer_id, trip_medium as trip_medium FROM trips WHERE trip_id = $1';

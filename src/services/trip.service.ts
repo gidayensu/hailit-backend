@@ -114,7 +114,7 @@ export const getOneTripService = async (trip_id, requester_user_id) => {
     //check if user is admin
     const isAdmin = await userIsUserRole({userId:requester_user_id, userRole:"Admin"});
 
-    let oneTrip =  await getOneTripFromDB(trip_id, TRIP_ID_COLUMN);
+    let oneTrip =  await getOneTripFromDB(trip_id);
     if (oneTrip.error) {
       return { error: oneTrip.error };
     }

@@ -1,34 +1,22 @@
 import { v4 as uuid } from "uuid";
 import {
   DEFAULT_VEHICLE_ID,
-  EMAIL_COLUMN,
-  PHONE_NUMBER,
   RIDER_COLUMNS_FOR_ADDING,
   RIDER_ID_COLUMN,
-  RIDER_TABLE_NAME,
-  RIDER_VEHICLE_ID,
-  USER_FIRST_NAME,
-  USER_ID_RIDER,
-  USER_ID_USERS,
-  USER_LAST_NAME,
-  VEHICLE_ID,
-  VEHICLE_NAME_COLUMN,
-  VEHICLE_PLATE_COLUMN,
+  RIDER_TABLE_NAME
 } from "../constants/riderConstants";
-import { USER_ID_COLUMN, USER_TABLE_NAME } from "../constants/usersConstants";
-import { VEHICLE_TABLE_NAME } from "../constants/vehicleConstants";
+import { USER_ID_COLUMN } from "../constants/usersConstants";
+import { GetAllFromDB } from "../types/getAll.types";
 import { errorHandler } from "../utils/errorHandler";
 import { addOne } from "./DB/addDbFunctions";
 import { deleteOne } from "./DB/deleteDbFunctions";
 import {
-  
   getOne,
   getSpecificDetails,
   getSpecificDetailsUsingId,
 } from "./DB/getDbFunctions";
 import { updateOne } from "./DB/updateDbFunctions";
-import { getDispatchersVehicleJoin, getDispatcherCount } from "./DB/usersDbFunctions";
-import { GetAllFromDB } from "../types/getAll.types";
+import { getDispatcherCount, getDispatchersVehicleJoin } from "./DB/usersDbFunctions";
 
 export const getAllRiders = async ({
   limit,
@@ -85,14 +73,14 @@ export const getRidersCount = async(search:string)=> {
   }
 }
 
-export const getOneRiderFromDB = async (rider_id) => {
+export const getOneRiderFromDB = async (rider_id:string) => {
   try {
     
-    const rider = await getOne(
-      RIDER_TABLE_NAME,
-      RIDER_ID_COLUMN,
-      rider_id
-    );
+    const rider = await getOne({
+      tableName: RIDER_TABLE_NAME,
+      columnName: RIDER_ID_COLUMN,
+      condition: rider_id,
+    });
     if (rider.error) {
       return rider;
     }
@@ -111,9 +99,9 @@ export const getOneRiderFromDB = async (rider_id) => {
 export const getRiderOnConditionFromDB = async (columnName, condition) => {
   try {
     const riderDetails = await getOne(
-      RIDER_TABLE_NAME,
+      {tableName: RIDER_TABLE_NAME,
       columnName,
-      condition
+      condition}
     );
     return riderDetails;
   } catch (err) {
@@ -146,7 +134,7 @@ export const getSpecificRidersFromDB = async (specificColumn, condition) => {
   }
 };
 
-export const addRiderToDB = async (user_id) => {
+export const addRiderToDB = async (user_id:string) => {
   try {
     const userIsRider = await getSpecificDetailsUsingId(RIDER_TABLE_NAME, user_id, USER_ID_COLUMN, RIDER_ID_COLUMN);
     

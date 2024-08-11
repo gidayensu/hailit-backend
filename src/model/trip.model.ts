@@ -123,16 +123,16 @@ export const getSpecificTripDetailsUsingId = async (tripId, columns) => {
   }  
 };  
 
-export const getIDsAndMediumFromDb = async (tripId)=> {
+export const getIDsAndMediumFromDb = async (tripId:string)=> {
   const IDsAndMeidum = await getIDsAndMedium(tripId);
   
   return IDsAndMeidum;
 }  
 
 
-export const getOneTripFromDB = async (trip_id, tripIdColumn) => {
+export const getOneTripFromDB = async (trip_id:string) => {
   try {
-    const oneTrip = await getOneTrip(TRIP_TABLE_NAME, LOCATION_TABLE_NAME, tripIdColumn, trip_id);
+    const oneTrip = await getOneTrip( trip_id);
 
     if (oneTrip.error) {
       return oneTrip //Error details returned 
@@ -299,7 +299,7 @@ export const updateTripOnDB = async (tripDetails) => {
   }
 };
 
-export const deleteTripFromDB = async (trip_id) => {
+export const deleteTripFromDB = async (trip_id:string) => {
   try {
     const tripDelete = await deleteOne(TRIP_TABLE_NAME, "trip_id", trip_id);
     return tripDelete;
@@ -337,13 +337,13 @@ export const ratingCountIncrease = async (
 export const associatedWithTrip = async (trip_id, condition, conditionColumn) => {
 
   try { 
-    const tripData = await getOne(
-      TRIP_TABLE_NAME,
-      TRIP_ID_COLUMN,
-      trip_id,
-      conditionColumn,
-      condition
-    );
+    const tripData = await getOne({
+      tableName: TRIP_TABLE_NAME,
+      columnName: TRIP_ID_COLUMN,
+      condition: trip_id,
+      secondConditionColumn: conditionColumn,
+      secondCondition: condition,
+    });
     if(tripData?.errorCode === 404) {
       return false;
     }

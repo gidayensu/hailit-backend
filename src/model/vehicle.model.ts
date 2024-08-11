@@ -59,7 +59,11 @@ export const getVehiclesCount = async(search:string)=> {
 export const getOneVehicleFromDB = async (vehicle_id) => {
   try {
     
-    const getVehicle = await getOne(VEHICLE_TABLE_NAME, VEHICLE_ID_COLUMN, vehicle_id);
+    const getVehicle = await getOne({
+      tableName: VEHICLE_TABLE_NAME,
+      columnName: VEHICLE_ID_COLUMN,
+      condition: vehicle_id,
+    });
     if (getVehicle.error) {
       
       return getVehicle

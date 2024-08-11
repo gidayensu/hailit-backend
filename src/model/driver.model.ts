@@ -62,10 +62,14 @@ export const getDriversCount = async(search:string)=> {
   }
 }
 
-export const getOneDriverFromDB = async (driver_id) => {
+export const getOneDriverFromDB = async (driver_id:string) => {
   try {
     
-    const driver = await getOne(DRIVER_TABLE_NAME, DRIVER_ID_COLUMN, driver_id);
+    const driver = await getOne({
+      tableName:DRIVER_TABLE_NAME,
+      columnName:DRIVER_ID_COLUMN,
+      condition:driver_id,
+    });
     if (driver.error) {
       return driver; //error details returned
     }
@@ -79,11 +83,11 @@ export const getOneDriverFromDB = async (driver_id) => {
 
 export const getDriverDetailOnCondition = async (columnName, condition) => {
   try {
-    const driverDetails = await getOne(
-      DRIVER_TABLE_NAME,
-      columnName,
-      condition
-    );
+    const driverDetails = await getOne({
+      tableName: DRIVER_TABLE_NAME,
+      columnName: columnName,
+      condition: condition,
+    });
 
        
 
@@ -169,7 +173,7 @@ export const updateDriverOnDB = async (driverDetails) => {
   }
 };
 
-export const deleteDriverFromDB = async (driver_id) => {
+export const deleteDriverFromDB = async (driver_id:string) => {
   try {
 
     const driverDelete = await deleteOne(
