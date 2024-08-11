@@ -4,7 +4,7 @@ import {
   DRIVER_ID_COLUMN,
   DRIVER_TABLE_COLUMNS,
   DRIVER_TABLE_NAME,
-} from "../constants/driverConstants.js";
+} from "../constants/driverConstants";
 import { USER_ID_COLUMN } from "../constants/usersConstants";
 
 //DB functions
@@ -23,11 +23,11 @@ import {
 
 //helpers
 import { v4 as uuid } from "uuid";
-import { handleError } from "../utils/handleError.js";
+import { handleError } from "../utils/handleError";
 
 //types
-import { DriverDetails } from "../services/driver.service.js";
-import { GetAllFromDB } from "../types/getAll.types.js";
+import { DriverDetails } from "../services/driver.service";
+import { GetAllFromDB } from "../types/getAll.types";
 
 export const getAllDriversFromDB = async ({
   limit,

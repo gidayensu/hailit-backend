@@ -6,8 +6,8 @@ import {
   ALLOWED_TRIP_STATUS,
   ALLOWED_TRIP_TYPES,
   MONTH_ORDER,
-} from "../../constants/tripConstants.js";
-import { Middleware } from "../../types/middleware.types.js";
+} from "../../constants/tripConstants";
+import { Middleware } from "../../types/middleware.types";
 
 //validated requested property
 

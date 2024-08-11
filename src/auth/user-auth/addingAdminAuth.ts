@@ -1,6 +1,6 @@
 
 import jwt from "jsonwebtoken";
-import { userIsUserRole } from "../../utils/util.js";
+import { userIsUserRole } from "../../utils/util";
 import { Middleware } from "../../types/middleware.types";
 
 export const addingAdminAuth: Middleware = async (req, res, next) => {

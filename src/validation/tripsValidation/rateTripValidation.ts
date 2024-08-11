@@ -1,4 +1,4 @@
-import { Middleware } from "../../types/middleware.types.js";
+import { Middleware } from "../../types/middleware.types";
 
 export const rateTripValidation: Middleware = async(req, res, next)=> {
     

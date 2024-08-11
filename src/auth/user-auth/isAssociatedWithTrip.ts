@@ -1,5 +1,5 @@
-import { userIsUserRole } from "../../utils/util.js";
-import { userAssociatedWithTrip } from "../../utils/util.js";
+import { userIsUserRole } from "../../utils/util";
+import { userAssociatedWithTrip } from "../../utils/util";
 import { Middleware } from "../../types/middleware.types";
 
 export const isAssociatedWithTrip: Middleware = async (req, res, next) => {

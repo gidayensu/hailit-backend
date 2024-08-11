@@ -1,4 +1,4 @@
-import { userIsUserRole } from "../../utils/util.js";
+import { userIsUserRole } from "../../utils/util";
 import { Middleware } from "../../types/middleware.types";
 
 export const isUserRole: Middleware = async (req, res, next) => {
