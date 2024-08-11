@@ -98,29 +98,32 @@ export const searchTrips = async(searchQuery, limit, offset)=> {
     )
   }  
 }  
-export const getSpecificTripDetailsUsingId = async (tripId, columns) => {
+export const getSpecificTripDetailsUsingId = async ({
+  tripId,
+  columns,
+  idColumn = TRIP_ID_COLUMN 
+}: {
+  tripId: string;
+  columns: string[] | string;
+  idColumn?: string
+}) => {
   try {
+    const specificDetails = await getSpecificDetailsUsingId({
+      tableName: TRIP_TABLE_NAME,
+      id: tripId,
+      idColumn,
+      columns: columns,
+    });
 
-    const specificDetails = await getSpecificDetailsUsingId(
-      TRIP_TABLE_NAME,
-      tripId,
-      TRIP_ID_COLUMN,
-      columns
-    );  
-    
     return specificDetails;
-  } catch(err) {
-    return handleError(
-      {
-        error: "Error occurred getting specific trip details",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "Trip Model: Get Specific Details"
-      }  
-      
-    );  
-
-  }  
+  } catch (err) {
+    return handleError({
+      error: "Error occurred getting specific trip details",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Trip Model: Get Specific Details",
+    });
+  }
 };  
 
 export const getIDsAndMediumFromDb = async (tripId:string)=> {
@@ -152,21 +155,26 @@ export const getOneTripFromDB = async (trip_id:string) => {
 };
 
 export const getUserTripsFromDB = async (
-  id,
+  {id,
   idColumn,
   tripFieldsToSelect,
-  sortingColumn,
+  sortingColumn,} : 
+  {
+    id: string,
+    idColumn: string,
+    tripFieldsToSelect: string[],
+    sortingColumn?: string
+  }
   
 ) => {
   try {
-    const userTrips = await getSpecificDetailsUsingId(
-      TRIP_TABLE_NAME,
-      id,
-      idColumn,
-      tripFieldsToSelect,
-      sortingColumn,
-      
-    );
+    const userTrips = await getSpecificDetailsUsingId({
+      tableName: TRIP_TABLE_NAME,
+      id: id,
+      idColumn: idColumn,
+      columns: tripFieldsToSelect,
+      sortingColumn: sortingColumn,
+    });
     
     if ( userTrips.length === 0) {
       return handleError({
@@ -192,16 +200,20 @@ export const getUserTripsFromDB = async (
 };
 
 export const getSpecificTripDetailsUsingIdFromDB = async (
-  user_id,
+  {userId,
   idColumn,
-  returningColumn
+  returningColumn} : {
+    userId: string,
+    idColumn: string,
+    returningColumn: string
+  }
 ) => {
   try {
     const specificTripDetail = await getSpecificDetailsUsingId(
-      TRIP_TABLE_NAME,
-      user_id,
+      {tableName: TRIP_TABLE_NAME,
+      id: userId,
       idColumn,
-      returningColumn
+      columns: returningColumn}
     );
     
     return specificTripDetail;

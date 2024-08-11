@@ -32,10 +32,12 @@ import {
   allowedPropertiesOnly,
   currencyFormatter,
   getDayFromDate,
+  isErrorResponse,
   userIsUserRole
 } from "../utils/util";
 import { getAllEntitiesService } from "./helpers.service";
 import {
+  calculatePending,
   dispatcherTrips,
   getCustomerTrips,
   getDispatcherDetails,
@@ -49,6 +51,8 @@ import {
 } from "./tripServiceHelpers";
 import { getOneUserService } from "./user.service";
 import { GetAll } from "../types/getAll.types";
+import { Server } from "socket.io";
+import { MonthName, MonthsData, Trip, TripMonth } from "../types/trips.types";
 config({ path: "../../../.env" });
 
 //GET ALL TRIPS
@@ -109,22 +113,22 @@ export const searchTripService = async (search, page, limit = DEFAULT_LIMIT) => 
 
 //GET ONE TRIP
 
-export const getOneTripService = async (trip_id, requester_user_id) => {
+export const getOneTripService = async ({tripId, requesterUserId}: {tripId: string, requesterUserId:string}) => {
   try {
     //check if user is admin
-    const isAdmin = await userIsUserRole({userId:requester_user_id, userRole:"Admin"});
+    const isAdmin = await userIsUserRole({userId: requesterUserId, userRole:"Admin"});
 
-    let oneTrip =  await getOneTripFromDB(trip_id);
+    let oneTrip =  await getOneTripFromDB(tripId);
     if (oneTrip.error) {
       return { error: oneTrip.error };
     }
 
     //exclude sender and recipient phone numbers from data sent
-    if (!requester_user_id ||  (requester_user_id !== oneTrip.customer_id && !isAdmin) ) {
+    if (!requesterUserId ||  (requesterUserId !== oneTrip.customer_id && !isAdmin) ) {
       oneTrip = allowedPropertiesOnly({data:oneTrip, allowedProperties:ANONYMOUS_USER_PROPS});
     }
     const { dispatcher_id, trip_medium } = oneTrip;
-    const dispatcherDetails = await getDispatcherDetails({dispatcher_id, trip_medium})
+    const dispatcherDetails = await getDispatcherDetails({dispatcherId: dispatcher_id, tripMedium:trip_medium})
       
     if (dispatcherDetails.error) {
       return { ...oneTrip, dispatcher: "Not assigned" };
@@ -147,7 +151,7 @@ export const getOneTripService = async (trip_id, requester_user_id) => {
 
 // GET USER TRIPS
 
-export const getUserTripsService = async (user_id) => {
+export const getUserTripsService = async (user_id:string) => {
   try {
     const userData = await getOneUserFromDB(user_id);
 
@@ -179,7 +183,7 @@ export const getUserTripsService = async (user_id) => {
 };
 
 //ADD TRIP
-export const addTripService = async (user_id, tripDetails, io) => {
+export const addTripService = async ({userId, tripDetails, io}: {userId:string; tripDetails: Trip, io: Server}) => {
   try {
     const { pick_lat, pick_long, drop_lat, drop_long } = tripDetails;
 
@@ -207,7 +211,7 @@ export const addTripService = async (user_id, tripDetails, io) => {
 
     const finalTripDetails = {
       trip_id,
-      customer_id: user_id,
+      customer_id: userId,
       ...tripDetailsWithoutLocation,
       ...tripStatusDetails,
     };
@@ -217,7 +221,7 @@ export const addTripService = async (user_id, tripDetails, io) => {
       return newTrip; //with error details
     }
     //adds name of user to trips details for dashboard
-    const {first_name, last_name} = await getOneUserService(user_id)
+    const {first_name, last_name} = await getOneUserService(userId)
     newTrip.first_name = first_name;
     newTrip.last_name = last_name;
 
@@ -225,10 +229,9 @@ export const addTripService = async (user_id, tripDetails, io) => {
     
     io && await tripsRealTimeUpdate({
       io,
-      reqUserId: user_id,
       trip: newTrip,
       dispatcherUserId: newTrip.dispatcher_id,
-      customerUserId: user_id,
+      customerUserId: userId,
       tripType: "tripAdded",
     });
 
@@ -244,19 +247,13 @@ export const addTripService = async (user_id, tripDetails, io) => {
         errorCode: 500,
         errorSource: "Trip Service"
       }
-      
     );
   }
 };
 
 //UPDATE TRIP
-export const updateTripService = async (
-  tripDetails,
-  reqUserId,
-  io,
-) => {
+export const updateTripService = async ({ tripDetails, requesterUserId, io }: {tripDetails: Trip; requesterUserId: string, io:Server}) => {
   try {
-    
     const validTripDetails = allowedPropertiesOnly({
       data: tripDetails,
       allowedProperties: ALLOWED_UPDATE_PROPERTIES,
@@ -266,38 +263,49 @@ export const updateTripService = async (
     if (updatedTrip.error) {
       return updatedTrip; //with error details
     }
-    
-    let dispatcherUserId = ''; //for fetching data for real time update
+
+    let dispatcherUserId = ""; //for fetching data for real time update
     const customerUserId = updatedTrip?.customer_id; //for fetching data for real time update
     const { dispatcher_id, trip_medium } = updatedTrip;
 
-    if(dispatcher_id) {
-      const dispatcherDetails = await getDispatcherDetails({dispatcher_id, trip_medium})
-      dispatcherUserId = dispatcherDetails?.user_id
-      updatedTrip = { ...updatedTrip, dispatcher: dispatcherDetails }
+    if (dispatcher_id) {
+      const dispatcherDetails = await getDispatcherDetails({
+        dispatcherId:dispatcher_id,
+        tripMedium:trip_medium,
+      });
+      dispatcherUserId = dispatcherDetails?.user_id;
+      updatedTrip = { ...updatedTrip, dispatcher: dispatcherDetails };
     }
     //emit reall time update
-     io && await tripsRealTimeUpdate({io, reqUserId, trip: updatedTrip, dispatcherUserId, customerUserId, tripType: "tripUpdated"})
-    
-    
+    io &&
+      (await tripsRealTimeUpdate({
+        io,
+        trip: updatedTrip,
+        dispatcherUserId,
+        customerUserId,
+        tripType: "tripUpdated",
+      }));
 
     return updatedTrip;
-
   } catch (err) {
-    return handleError(
-      {
-        error: "Server error occurred updating trip",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "Trip Service"
-      }
-      
-    );
+    return handleError({
+      error: "Server error occurred updating trip",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Trip Service",
+    });
   }
 };
 
 //RATE TRIP
-export const rateTripService = async (ratingDetails, io, reqUserId) => {
+export const rateTripService = async ({
+  ratingDetails, 
+  io, 
+  requesterUserId
+}: {
+  ratingDetails: Trip, 
+  io: Server; 
+  requesterUserId: string}) => {
   try {
     const ratingDetailsWithRatingStatus = { ...ratingDetails, rated: true };
 
@@ -306,50 +314,54 @@ export const rateTripService = async (ratingDetails, io, reqUserId) => {
       allowedProperties: ALLOWED_RATE_TRIP_PROPS,
     });
 
-    const { trip_id, dispatcher_id } = validTripDetails;
+    const { trip_id, dispatcher_id } = validTripDetails as any; //TODO: Fix type
     const updateTrip = await updateTripOnDB(validTripDetails);
     if (updateTrip.error) {
       return updateTrip; //Error details returned
     }
 
-    const tripMedium = await getSpecificTripDetailsUsingId(
-      trip_id,
-      "trip_id",
-      "trip_medium"
-    );
+    const tripMedium = await getSpecificTripDetailsUsingId({
+      tripId: trip_id,
+      columns: "trip_medium",
+    });
+    
     const cumulativeDispatcherRating =
-      await getSpecificTripDetailsUsingId(
-        dispatcher_id,
-        "dispatcher_id",
-        "AVG(dispatcher_rating)"
+      await getSpecificTripDetailsUsingId({
+        tripId: dispatcher_id,
+        idColumn: "dispatcher_id",
+        columns: "AVG(dispatcher_rating)"}  //TODO: make getSpecificTripDetail generic
       );
     const averageDispatcherRating = cumulativeDispatcherRating[0].avg;
     const { trip_medium } = tripMedium[0];
 
-    const ratedTrip = await updateDispatcherRating(
-      trip_medium,
-      dispatcher_id,
-      averageDispatcherRating
-    );
+    const ratedTrip = await updateDispatcherRating({
+      tripMedium: trip_medium,
+      dispatcherId: dispatcher_id,
+      averageDispatcherRating,
+    });
     if (ratedTrip.error) {
       return ratedTrip; //error details returned
     }
 
     const ratingCountUpdate = await increaseRatingCount(
-      trip_medium,
-      dispatcher_id
+      {tripMedium: trip_medium,
+      dispatcherId: dispatcher_id}
     );
-    if (ratingCountUpdate.error) {
+    if (isErrorResponse(ratingCountUpdate)) {
       return ratingCountUpdate; //error details included
     }
 
     const { customer_id: customerUserId, } = ratedTrip;
-    const dispatcherDetails = dispatcher_id && await getDispatcherDetails({dispatcher_id, trip_medium})
+    const dispatcherDetails =
+      dispatcher_id &&
+      (await getDispatcherDetails({
+        dispatcherId: dispatcher_id,
+        tripMedium: trip_medium,
+      }));
     const {user_id: dispatcherUserId} = dispatcherDetails;
     //check for user role and emit based on the user role
     io && await tripsRealTimeUpdate({
       io,
-      reqUserId,
       dispatcherUserId,
       customerUserId,
       tripType: "tripRated",
@@ -373,29 +385,28 @@ export const rateTripService = async (ratingDetails, io, reqUserId) => {
 };
 
 //DELETE TRIP
-export const deleteTripService = async (trip_id, user_id, io) => {
+export const deleteTripService = async ({tripId, io}: {tripId: string, io: Server}) => {
   try {
     
-    const IDsANdMedium = await getIDsAndMediumFromDb (trip_id);
+    const IDsANdMedium = await getIDsAndMediumFromDb (tripId);
     
     
-    const {dispatcher_id, customer_id: customerUserId, trip_medium} = IDsANdMedium;
-    const dispatcherDetails = dispatcher_id && await getDispatcherDetails({dispatcher_id, trip_medium})
+    const {dispatcher_id: dispatcherId, customer_id: customerUserId, trip_medium: tripMedium} = IDsANdMedium;
+    const dispatcherDetails = dispatcherId && await getDispatcherDetails({dispatcherId, tripMedium})
     const {user_id: dispatcherUserId} = dispatcherDetails;
     
     
-    const deletedTrip = dispatcherUserId && await deleteTripFromDB(trip_id);
-    if(deletedTrip?.error) {
+    const deletedTrip = dispatcherUserId && await deleteTripFromDB(tripId);
+    if(isErrorResponse(deletedTrip)) {
       return deletedTrip;
     }
 
     io && await tripsRealTimeUpdate({
       io,
-      reqUserId: user_id,
       dispatcherUserId,
       customerUserId,
       tripType: "tripDeleted",
-      trip_id
+      tripId
     });
 
     
@@ -421,9 +432,9 @@ export const getTripMonthsService = async () => {
     if (tripMonthsData.error) {
       return tripMonthsData; //error message returned
     }
-    const monthsArray = tripMonthsData.map((tripsMonth) => tripsMonth.month);
+    const monthsArray = tripMonthsData.map((tripsMonth: TripMonth) => tripsMonth.month);
     
-    monthsArray.sort((a, b) => MONTH_ORDER.indexOf(a) - MONTH_ORDER.indexOf(b));
+    monthsArray.sort((a:MonthName, b:MonthName) => MONTH_ORDER.indexOf(a) - MONTH_ORDER.indexOf(b));
 
     return monthsArray;
   } catch (err) {
@@ -455,55 +466,66 @@ export const currentMonthTripsCountService = async () => {
       revenue_previous_month,
     } = currentMonthTripsCount;
 
-    //_percentage_difference = PercentageDifference
+    
 
-    const pending_current_month =
-      +total_trips_current_month -
-      (+delivered_current_month + +cancelled_current_month);
-    const pending_previous_month =
-      +total_trips_previous_month -
-      (+delivered_previous_month + +cancelled_previous_month);
+     
+    const pending_previous_month = calculatePending({
+      total: total_trips_current_month,
+      delivered: delivered_current_month,
+      cancelled: cancelled_current_month,
+    })
 
-    const pending_percentage_difference = percentageDifference(
-      +pending_current_month,
-      +pending_previous_month
-    );
+    const pending_current_month = calculatePending({
+      total: total_trips_previous_month,
+      delivered: delivered_previous_month,
+      cancelled: cancelled_previous_month,
+    })
+    
+    const metrics = [
+      {
+        name: "pending",
+        current: pending_current_month,
+        previous: pending_previous_month,
+      },
+      {
+        name: "delivered",
+        current: delivered_current_month,
+        previous: delivered_previous_month,
+      },
+      {
+        name: "total_trips",
+        current: total_trips_current_month,
+        previous: total_trips_previous_month,
+      },
+      {
+        name: "revenue",
+        current: revenue_current_month,
+        previous: revenue_previous_month,
+      },
+      {
+        name: "cancelled",
+        current: cancelled_current_month,
+        previous: cancelled_previous_month,
+      },
+    ];
 
-    const delivered_percentage_difference = percentageDifference(
-      +delivered_current_month,
-      +delivered_previous_month
-    );
+    
+    const percentageDifferences = metrics.reduce((acc, { name, current, previous }) => {
+        acc[`${name}_percentage_difference`] = percentageDifference({ currentMonth: current, previousMonth: previous });
+      return acc;
+    }, {});
 
-    const total_trips_percentage_difference = percentageDifference(
-      total_trips_current_month,
-      total_trips_previous_month
-    );
+    
+    const revenue_with_currency = currencyFormatter.format(revenue_current_month);
 
-    const revenue_percentage_difference = percentageDifference(
-      +revenue_current_month,
-      +revenue_previous_month
-    );
-
-    const cancelled_percentage_difference = percentageDifference(
-      cancelled_current_month,
-      cancelled_previous_month
-    );
-
-    const revenue_with_currency = currencyFormatter.format(
-      revenue_current_month
-    );
-
+    
     return {
       total_trips_current_month,
       revenue_current_month: revenue_with_currency,
       cancelled_current_month,
       delivered_current_month,
       pending_current_month,
-      delivered_percentage_difference,
-      revenue_percentage_difference,
-      pending_percentage_difference,
-      total_trips_percentage_difference,
-      cancelled_percentage_difference,
+      ...percentageDifferences,
     };
   } catch (err) {
     return handleError(
@@ -519,7 +541,7 @@ export const currentMonthTripsCountService = async () => {
 };
 
 //MONTH +ALLTIME TRIPS COUNT
-export const tripsCountByMonth = async (tripDataColumn, condition, month) => {
+export const tripsCountByMonth = async ({tripDataColumn, condition, month} : {tripDataColumn: string; condition:string; month: MonthName}) => {
   try {
     const monthTripCount = await getTripCountByMonth(
       tripDataColumn,
@@ -531,13 +553,13 @@ export const tripsCountByMonth = async (tripDataColumn, condition, month) => {
       return monthTripCount; //with error details
     }
 
-    const tripMonths = await getTripMonthsService();
-    const tripCounts = [];
+    const tripMonths: TripMonth[]  = await getTripMonthsService();
+    const tripCounts: number[] = [];
 
 
-    const sortedMonthsData = sortByCalendarMonths(monthTripCount);
+    const sortedMonthsData: MonthsData[] = sortByCalendarMonths(monthTripCount);
 
-    sortedMonthsData.forEach((monthTripCount) => {
+    sortedMonthsData.forEach((monthTripCount:MonthsData) => {
       //this is to make room for 0s
       tripCounts.push(+monthTripCount.trip_count || 0);
     });

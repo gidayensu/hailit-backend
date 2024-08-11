@@ -1,6 +1,8 @@
 
-
+//constants
 import { DEFAULT_USER_ID } from "../constants/usersConstants";
+
+//trip service functions
 import {
   addTripService,
   currentMonthTripsCountService,
@@ -16,6 +18,12 @@ import {
   tripsCountByMonth,
   updateTripService,
 } from "../services/trip.service";
+
+
+//helpers
+import { isErrorResponse } from "../utils/util";
+
+//types
 import { Middleware } from "../types/middleware.types";
 
 
@@ -63,9 +71,9 @@ export const getOneTrip : Middleware = async (req, res) => {
   try {
     const { trip_id } = req.params;
 
-    const user_id = req.user?.sub;
+    const userId = req.user?.sub;
 
-    const oneTrip = await getOneTripService(trip_id, user_id);
+    const oneTrip = await getOneTripService({tripId:trip_id, requesterUserId:userId});
     if (oneTrip.error) {
       return res
       .status(400)
@@ -121,10 +129,10 @@ export const addTrip : Middleware = async (req, res) => {
 
   try {
     const tripDetails = req.body;
-    const user_id = req.user?.sub || DEFAULT_USER_ID;
+    const userId = req.user?.sub || DEFAULT_USER_ID;
     const io = req.io;
     
-    const tripAdded = await addTripService(user_id, tripDetails, io);
+    const tripAdded = await addTripService({userId, tripDetails, io});
     if (tripAdded.error) {
       return res
         .status(400)
@@ -219,7 +227,7 @@ export const deleteTrip : Middleware = async (req, res) => {
     const io = req.io;
     const tripDelete = await deleteTripService(trip_id, user_id, io);
 
-    if (tripDelete.error) {
+    if (isErrorResponse(tripDelete)) {
       return res
         .status(tripDelete.errorCode)
         .json({

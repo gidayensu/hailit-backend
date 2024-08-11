@@ -1,3 +1,4 @@
+//constants
 import {
   DRIVER_ID_COLUMN,
   DRIVER_TABLE_NAME,
@@ -18,6 +19,9 @@ import {
   TRIP_REQUEST_DATE_COLUMN,
 } from "../constants/tripConstants";
 import { USER_ID_COLUMN } from "../constants/usersConstants";
+
+
+//DB functions
 import {
   getDriverDetailOnCondition,
   getSpecificDriversFromDB,
@@ -32,8 +36,8 @@ import {
   getUserTripsFromDB,
   ratingCountIncrease,
 } from "../model/trip.model";
-import { handleError } from "../utils/handleError";
-import { currencyFormatter } from "../utils/util";
+
+//service functions
 import {
   currentMonthTripsCountService,
   currentWeekTrip,
@@ -45,7 +49,18 @@ import {
 import { getOneDriverService } from "./driver.service";
 import { getOneRiderService } from "./rider.service";
 
-export const tripsRealTimeUpdate = async ({io,  trip, dispatcherUserId, customerUserId, tripType, trip_id} )=> {
+//helpers
+import { ErrorResponse, handleError } from "../utils/handleError";
+import { currencyFormatter, isErrorResponse } from "../utils/util";
+
+//types
+import { Server } from "socket.io";
+import { CustomerTrips, MonthsData, Trip, TripMedium, TripsCount, TripsRealTimeUpdate } from "../types/trips.types";
+import { UserRole } from "../types/user.types";
+;
+
+
+export const tripsRealTimeUpdate = async ({io,  trip, dispatcherUserId, customerUserId, tripType, tripId} : TripsRealTimeUpdate )=> {
   
     
     const IDs = [customerUserId, dispatcherUserId];
@@ -65,8 +80,8 @@ export const tripsRealTimeUpdate = async ({io,  trip, dispatcherUserId, customer
       }
 
       if(tripType === "tripDeleted") {
-        IDs.forEach(id=>io.to(id).emit("tripDeleted", trip_id))
-        io.of('/admins').emit("tripDeleted", trip_id)
+        IDs.forEach(id=>io.to(id).emit("tripDeleted", tripId))
+        io.of('/admins').emit("tripDeleted", tripId)
       }
       
       const customerTrips = await getUserTripsService(customerUserId);
@@ -99,13 +114,12 @@ export const tripsRealTimeUpdate = async ({io,  trip, dispatcherUserId, customer
     }
   }
 
-export const getDispatcherDetails = async ({trip_medium, dispatcher_id})=> {
+export const getDispatcherDetails = async ({tripMedium, dispatcherId}: {tripMedium: TripMedium, dispatcherId: string})=> {
   try {
 
   
-  const dispatcherService =
-        trip_medium === "Motor" ? getOneRiderService : getOneDriverService;
-      let dispatcherDetails = await dispatcherService(dispatcher_id);
+  
+      let dispatcherDetails = tripMedium === "Motor" ? await getOneRiderService({riderId: dispatcherId}) : await getOneDriverService({driverId: dispatcherId})
   
       if (dispatcherDetails.error) {
         dispatcherDetails = "Not assigned";
@@ -135,12 +149,12 @@ export const getDispatcherDetails = async ({trip_medium, dispatcher_id})=> {
 
 //CALCULATE TRIPS == breaks away from camel case to match the database case
 
-export const increaseRatingCount = async (trip_medium, dispatcher_id) => {
-  let tableName, idColumn;
-  if (trip_medium === "motor") {
+export const increaseRatingCount = async ({tripMedium, dispatcherId}: {tripMedium: TripMedium, dispatcherId: string}) => {
+  let tableName:string, idColumn:string;
+  if (tripMedium === "Motor") {
     tableName = RIDER_TABLE_NAME;
     idColumn = RIDER_ID_COLUMN;
-  } else if (trip_medium === "car" || trip_medium === "truck") {
+  } else if (tripMedium === "Car" || tripMedium === "Truck") {
     tableName = DRIVER_TABLE_NAME;
     idColumn = DRIVER_ID_COLUMN;
   } else {
@@ -157,23 +171,24 @@ export const increaseRatingCount = async (trip_medium, dispatcher_id) => {
 
   const countIncrease = await ratingCountIncrease(
     tableName,
-    dispatcher_id,
+    dispatcherId,
     idColumn,
     RATING_COUNT_COLUMN
   );
-  if (countIncrease.error) {
+  if (isErrorResponse( countIncrease)) {
     return countIncrease; //error details returned
   }
-  return { success: true };
+  return true;
 };
-export const tripsCount = (trips) => {
-  let total_earnings = 0;
-  let total_payment = 0;
-  let delivered_trips = 0;
-  let current_trips = 0;
-  let cancelled_trips = 0;
 
-  trips.forEach((trip) => {
+export const tripsCount = (trips:Trip[]): TripsCount => {
+  let total_earnings:number = 0;
+  let total_payment: number = 0;
+  let delivered_trips:number = 0;
+  let current_trips:number = 0;
+  let cancelled_trips:number = 0;
+
+  trips.forEach((trip:Trip) => {
     if (trip.trip_status === "Delivered") {
       total_earnings += Math.ceil(trip.trip_cost * 0.8);
       delivered_trips++;
@@ -186,7 +201,7 @@ export const tripsCount = (trips) => {
       total_payment += Math.ceil(trip.trip_cost);
     }
   });
-  total_earnings = currencyFormatter.format(total_earnings);
+  total_earnings = +currencyFormatter.format(total_earnings);
   const total_trip_count = trips.length;
 
   return {
@@ -199,29 +214,43 @@ export const tripsCount = (trips) => {
   };
 };
 
-export const percentageDifference = (currentMonth, previousMonth) => {
+export const percentageDifference = ({currentMonth, previousMonth}:{currentMonth:number, previousMonth:number}): number => {
   return +(((+currentMonth - +previousMonth) / +previousMonth) * 100).toFixed(
     2
   );
 };
 
+export const calculatePending = ({
+  total,
+  delivered,
+  cancelled,
+}: {
+  total: number;
+  delivered: number;
+  cancelled: number;
+}): number => +total - (+delivered + +cancelled);
+
 export const updateDispatcherRating = async (
-  trip_medium,
-  dispatcher_id,
-  averageDispatcherRating
-) => {
-  if (trip_medium === "motor") {
+  {tripMedium,
+  dispatcherId,
+  averageDispatcherRating} : {
+    tripMedium: TripMedium;
+    dispatcherId: string,
+    averageDispatcherRating: number
+  }
+): Promise<{success: boolean}> => {
+  if (tripMedium === "Motor") {
     const riderUpdate = await updateRiderOnDB({
       cumulative_rating: averageDispatcherRating,
-      rider_id: dispatcher_id,
+      rider_id: dispatcherId,
     });
     if (riderUpdate.error) {
       return riderUpdate; //Error details returned
     }
-  } else if (trip_medium === "car" || trip_medium === "truck") {
+  } else if (tripMedium === "Car" || tripMedium === "Truck") {
     const driverUpdate = await updateDriverOnDB({
       cumulative_rating: averageDispatcherRating,
-      driver_id: dispatcher_id,
+      driver_id: dispatcherId,
     });
     if (driverUpdate.error) {
       return driverUpdate; //Error details returned
@@ -231,14 +260,14 @@ export const updateDispatcherRating = async (
 };
 
 //CUSTOMER TRIPS (HELPER FUNCTION)
-export const getCustomerTrips = async (user_id) => {
+export const getCustomerTrips = async (userId:string): Promise<Trip[] | ErrorResponse | CustomerTrips> => {
   try {
-    const trips = await getUserTripsFromDB(
-      user_id,
-      CUSTOMER_ID_COLUMN,
-      CUSTOMER_TRIP_FIELDS,
-      TRIP_REQUEST_DATE_COLUMN
-    );
+    const trips:Trip[] = await getUserTripsFromDB({
+      id: userId,
+      idColumn: CUSTOMER_ID_COLUMN,
+      tripFieldsToSelect: CUSTOMER_TRIP_FIELDS,
+      sortingColumn: TRIP_REQUEST_DATE_COLUMN,
+    });
 
     if (trips.length > 0) {
       const {
@@ -272,61 +301,52 @@ export const getCustomerTrips = async (user_id) => {
   }
 };
 //GET DISPATHCER TRIPS
-export const dispatcherTrips = async (user_role, user_id) => {
+export const dispatcherTrips = async ({userRole, userId}: {userRole: UserRole, userId:string}) => {
   try {
     //dispatcher is used to represent drivers and riders except user role
 
-    let dispatcherData = {};
-    let dispatcher_id = "";
-    if (user_role === "Rider") {
-      dispatcherData = await getRiderOnConditionFromDB(USER_ID_COLUMN, user_id);
+    const dispatcherData =
+      userRole === "Rider"
+        ? await getRiderOnConditionFromDB(USER_ID_COLUMN, userId)
+        : await getDriverDetailOnCondition(USER_ID_COLUMN, userId); ;
+        
+        if (dispatcherData.error) {
+          return { error: dispatcherData.error };
+        }
 
-      if (dispatcherData.error) {
-        return { error: dispatcherData.error };
-      }
-
-      dispatcher_id = dispatcherData[0].rider_id;
-    }
-
-    if (user_role === "Driver") {
-      dispatcherData = await getDriverDetailOnCondition(
-        USER_ID_COLUMN,
-        user_id
+    const dispatcherId = userRole === "Rider"
+      ? dispatcherData[0].rider_id
+      : dispatcherData[0].driver_id
+    
+    
+      const dispatcherTrips = await getUserTripsFromDB(
+        {id:dispatcherId,
+        idColumn: DISPATCHER_ID_COLUMN,
+        tripFieldsToSelect: DISPATCHER_TRIP_FIELDS}
       );
-
-      if (dispatcherData.error) {
-        return { error: dispatcherData.error };
+  
+      if (dispatcherTrips.length > 0) {
+        const {
+          total_trip_count,
+          delivered_trips,
+          cancelled_trips,
+          current_trips,
+          total_earnings,
+        } = tripsCount(dispatcherTrips);
+        return {
+          dispatcher_trips: dispatcherTrips,
+          total_trip_count,
+          delivered_trips,
+          cancelled_trips,
+          current_trips,
+          total_earnings,
+        };
       }
-      //could be  a source of bug
-      dispatcher_id = dispatcherData[0].driver_id;
+      //DISPATCHER_ID_COLUMN: this is because dispatcher is used to represent rider and driver in the trips table
+      return dispatcherTrips;
     }
 
-    //DISPATCHER_ID_COLUMN: this is because dispatcher is used to represent rider and driver in the trips table
-    const dispatcherTrips = await getUserTripsFromDB(
-      dispatcher_id,
-      DISPATCHER_ID_COLUMN,
-      DISPATCHER_TRIP_FIELDS
-    );
-
-    if (dispatcherTrips.length > 0) {
-      const {
-        total_trip_count,
-        delivered_trips,
-        cancelled_trips,
-        current_trips,
-        total_earnings,
-      } = tripsCount(dispatcherTrips);
-      return {
-        dispatcher_trips: dispatcherTrips,
-        total_trip_count,
-        delivered_trips,
-        cancelled_trips,
-        current_trips,
-        total_earnings,
-      };
-    }
-    return dispatcherTrips;
-  } catch (err) {
+ catch (err) {
     return handleError(
       {
         error: "Error occurred getting dispatcher trips",
@@ -339,57 +359,54 @@ export const dispatcherTrips = async (user_role, user_id) => {
   }
 };
 
-export const getDispatcherId = async (trip_medium) => {
-  let dispatcher_id = DEFAULT_DISPATCHER_ID;
+export const getDispatcherId = async (tripMedium: TripMedium) => {
+  let dispatcherId = DEFAULT_DISPATCHER_ID;
 
-  if (trip_medium === "car" || trip_medium === "truck") {
+  if (tripMedium === "Car" || tripMedium === "Truck") {
     const availableDrivers = await getSpecificDriversFromDB(
       DISPATCHER_AVAILABLE_COLUMN,
       true
     );
     if (availableDrivers && availableDrivers.length > 0) {
-      dispatcher_id = availableDrivers[0].driver_id;
+      dispatcherId = availableDrivers[0].driver_id;
     }
   }
 
-  if (trip_medium === "motor") {
+  if (tripMedium === "Motor") {
     const availableRiders = await getSpecificRidersFromDB(
       DISPATCHER_AVAILABLE_COLUMN,
       true
     );
     if (availableRiders && availableRiders.length > 0) {
-      dispatcher_id = availableRiders[0].rider_id;
+      dispatcherId = availableRiders[0].rider_id;
     }
   }
 
-  return dispatcher_id;
+  return dispatcherId;
 };
 
 
 
-export const sortByCalendarMonths= (monthCountData) => {
+export const sortByCalendarMonths= (monthCountData: MonthsData[]) => {
   
-  const monthOrder = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
-  
-  
-  monthCountData.sort((a, b) => {
+  monthCountData.sort((a:MonthsData, b:MonthsData) => {
     return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
   });
 
   return monthCountData;
 }
  
+const monthOrder = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+] 
