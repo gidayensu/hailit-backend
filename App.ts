@@ -5,13 +5,15 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import http from 'http';
 import { Server } from 'socket.io';
-
 // routes
 import { driverRouter } from './src/v1/routes/driver.routes';
 import { userRouter } from './src/v1/routes/user.routes';
 import { riderRouter } from './src/v1/routes/rider.routes';
 import { tripRouter } from './src/v1/routes/trip.routes';
 import { vehicleRouter } from './src/v1/routes/vehicle.routes';
+
+//types
+import {Request, Response, NextFunction} from 'express';
 
 const PORT = process.env.PORT || 5000;
 
@@ -23,7 +25,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const server = http.createServer(app);
-const io = new Server(server, {
+const io: Server = new Server(server, {
   cors: {
     origin: '*',
     methods: ['GET', 'POST'],
@@ -36,7 +38,7 @@ const io = new Server(server, {
 
 
 
-io.engine.use((req, res, next) => {
+io.engine.use((req: Request, res:Response , next: NextFunction) => {
   const user_id = req._query.user_id;
   if (!user_id) {
     io.disconnectSockets(true);
@@ -56,7 +58,7 @@ io.use((socket, next) => {
 });
 
 
-app.use((req, res, next)=> {
+app.use((req: Request, res: Response, next: NextFunction)=> {
   
   req.io = io;
   next()
