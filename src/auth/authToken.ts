@@ -1,7 +1,7 @@
 // import jwt from 'jsonwebtoken'
 // import { isAdmin } from '../model/user.model.js'
 
-// export const authenticateToken = async (req, res, next)=> {
+// export const authenticateToken: Middleware = async(req, res, next)=> {
 //     try {
 //     const authHeader =  req.headers.authorization;
 //     if (!authHeader) {
@@ -79,7 +79,7 @@
 
 // // const jwt = require('jsonwebtoken')
 
-// // const authenticateToken = async (req, res, next)=> {
+// // const authenticateToken: Middleware = async(req, res, next)=> {
 // //     try {
 // //     const authHeader = req.headers.authorization;
     

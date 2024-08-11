@@ -31,7 +31,7 @@ export const addTripValidation: Middleware = async(req, res, next) => {
   };
 
   //missing values
-  !trip_medium && errorReturner(errors, "Trip medium not provided");
+  !trip_medium && errorReturner("Trip medium not provided");
   !trip_type && errorReturner("Trip type not provided");
   !package_type && errorReturner("Package type not provided");
   !trip_area && errorReturner("Trip area not provided");
