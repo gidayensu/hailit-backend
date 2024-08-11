@@ -4,8 +4,12 @@ import {
   getOneRiderService,
   updateRiderService,
 } from "../services/rider.service";
+
+//types
 import { Middleware } from "../types/middleware.types";
-import { GetAll } from "../types/getAll.types";
+import { HandleError } from "../utils/handleError";
+
+
 export const getAllRiders: Middleware = async (req, res) => {
   try {
     const {
@@ -120,13 +124,14 @@ export const deleteRider: Middleware = async (req, res) => {
   try {
     const { rider_id } = req.params;
     const deletedRider = await deleteRiderService(rider_id);
-    if ((deletedRider).error) {
+    if ((deletedRider as HandleError).error) {
+      
       return res
-        .status(deletedRider.errorCode)
+        .status((deletedRider as HandleError).errorCode)
         .json({
-          error: deletedRider.error,
-          errorMessage: deletedRider.errorMessage,
-          errorSource: deletedRider.errorSource,
+          error: (deletedRider as HandleError).error,
+          errorMessage: (deletedRider as HandleError).errorMessage,
+          errorSource: (deletedRider as HandleError).errorSource,
         });
     }
 

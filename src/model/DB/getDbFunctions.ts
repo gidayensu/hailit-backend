@@ -1,6 +1,6 @@
 import { VEHICLE_TABLE_NAME } from "../../constants/vehicleConstants";
 import { GetAllFromDB } from "../../types/getAll.types";
-import { errorHandler } from "../../utils/errorHandler";
+import { handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 import { TableNames } from "../../types/shared.types";
 
@@ -42,7 +42,7 @@ export const getAll = async (
     return allItems.rows; 
   
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting all details",
         errorMessage: `${err}`,
@@ -93,7 +93,7 @@ export const getAllVehicles = async (
 
     return data;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting all details",
         errorMessage: `${err}`,
@@ -127,7 +127,7 @@ export const vehiclesCount = async (search: string) => {
 
     return data[0];
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred getting vehicle count",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -155,7 +155,7 @@ export const getCountOnOneCondition = async (
 
     return data.rows[0];
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting count on one condition",
         errorMessage: `${err}`,
@@ -180,7 +180,7 @@ export const getAllDateSort = async (tableName, dateColumn, limit) => {
     const data = allItems.rows;
     return data;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting all date sort",
         errorMessage: `${err}`,
@@ -217,7 +217,7 @@ export const selectOnCondition = async (
 
     return result.rows;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred selecting on condition",
         errorMessage: `${err}`,
@@ -254,7 +254,7 @@ export const getOne = async ({
     if (result.rowCount > 0) {
       return result.rows;
     } else {
-      return errorHandler({
+      return handleError({
         error: "Detail does not exist",
         errorMessage: null,
         errorCode: 404,
@@ -262,7 +262,7 @@ export const getOne = async ({
       });
     }
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred getting one detail",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -285,7 +285,7 @@ export const getSpecificDetails = async (
     return rows;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return errorHandler(
+    return handleError(
       {
         error: "Server Error occurred, data not retrieved",
         errorMessage: `${err}`,
@@ -315,7 +315,7 @@ export const getSpecificDetailsUsingId = async (
     const value = [id];
     const { rows } = await DB.query(queryText, value);
     if (!rows) {
-      return errorHandler({
+      return handleError({
         error: "Detail not found",
         errorMessage: null,
         errorCode: 404,
@@ -328,7 +328,7 @@ export const getSpecificDetailsUsingId = async (
     return rows;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return errorHandler(
+    return handleError(
       {
         error: "Server Error occurred, data not retrieved",
         errorMessage: `${err}`,

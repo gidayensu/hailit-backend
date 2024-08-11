@@ -13,7 +13,7 @@ import {
 } from "../model/driver.model";
 import { getSpecificUserDetailsUsingId } from "../model/user.model";
 import { getOneVehicleFromDB } from "../model/vehicle.model";
-import { errorHandler } from "../utils/errorHandler";
+import { handleError } from "../utils/handleError";
 import { allowedPropertiesOnly, userIsUserRole } from "../utils/util";
 import { getAllEntitiesService } from "./helpers.service";
 
@@ -43,7 +43,7 @@ export const getAllDriversService = async ({
     return drivers;
   } catch (err) {
     
-    return errorHandler(
+    return handleError(
       {
         error: "Server error occurred getting drivers",
         errorMessage: `${err}`,
@@ -86,7 +86,7 @@ export const getOneDriverService = async ({driverId, requesterUserId}:{driverId:
     }
     return { ...driverDetails, vehicle: vehicleDetails };
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting one driver",
         errorMessage: `${err}`,
@@ -120,7 +120,7 @@ export const updateDriverService = async (driverDetails:DriverDetails) => {
     }
     return driverUpdate;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred updating driver details",
         errorMessage: `${err}`,
@@ -140,7 +140,7 @@ export const deleteDriverService = async (driver_id:string) => {
     }
     return driverDelete;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Server Error occurred deleting driver",
         errorMessage: `${err}`,

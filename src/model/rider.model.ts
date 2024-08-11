@@ -10,7 +10,7 @@ import {
 import { USER_ID_COLUMN } from "../constants/usersConstants";
 
 //helpers
-import { errorHandler } from "../utils/errorHandler";
+import { handleError } from "../utils/handleError";
 
 //DB functions
 import { addOne } from "./DB/addDbFunctions";
@@ -44,7 +44,7 @@ export const getAllRiders = async ({
       dispatcherRole: "Rider"
     });
     if (allRiders.error) {
-      return errorHandler({
+      return handleError({
         error: allRiders.error,
         errorMessage: null,
         errorCode: 500,
@@ -53,7 +53,7 @@ export const getAllRiders = async ({
     }
     return allRiders;
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Server error occurred getting all riders",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -72,7 +72,7 @@ export const getRidersCount = async(search:string)=> {
     return ridersCount;
     
   } catch(err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred getting Riders Count",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -95,7 +95,7 @@ export const getOneRiderFromDB = async (rider_id:string) => {
     }
     return rider[0];
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred. Rider not fetched",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -114,7 +114,7 @@ export const getRiderOnConditionFromDB = async (columnName, condition) => {
     );
     return riderDetails;
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred getting rider",
       errorMessage: null,
       errorCode: 404,
@@ -133,7 +133,7 @@ export const getSpecificRidersFromDB = async (specificColumn, condition) => {
     );
     return specificRiders;
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred in retrieving riders",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -148,7 +148,7 @@ export const addRiderToDB = async (user_id:string) => {
     const userIsRider = await getSpecificDetailsUsingId(RIDER_TABLE_NAME, user_id, USER_ID_COLUMN, RIDER_ID_COLUMN);
     
     if (userIsRider.length >= 1) {
-      return errorHandler({
+      return handleError({
         error: "User is rider",
         errorMessage: "User already exists",
         errorCode: 400,
@@ -167,7 +167,7 @@ export const addRiderToDB = async (user_id:string) => {
       return addingMotor;
     
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred adding rider",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -195,7 +195,7 @@ export const updateRiderOnDB = async (riderDetails:RiderDetails) => {
       return riderUpdate //error details returned
     }
     if (riderUpdate.rowCount === 0) {
-      return errorHandler({
+      return handleError({
         error: "Rider details not updated",
         errorMessage: "Rider detail not found",
         errorCode: 400,
@@ -205,7 +205,7 @@ export const updateRiderOnDB = async (riderDetails:RiderDetails) => {
     }
     return riderUpdate.rows[0];
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred in updating rider details",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -228,7 +228,7 @@ export const deleteRiderFromDB = async (rider_id:string) => {
     
     
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred deleting rider",
       errorMessage: `${err}`,
       errorCode: 500,

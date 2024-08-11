@@ -1,4 +1,4 @@
-import { errorHandler } from '../../utils/errorHandler.js';
+import { handleError } from '../../utils/handleError.js';
 import { userIsUserRole, riderUserId } from '../../utils/util.js';
 import { Middleware } from '../../types/middleware.types';
 
@@ -19,7 +19,7 @@ export const isAdminOrRider: Middleware = async (req, res, next) => {
          return  res.status(401).json({error:`Unauthorized to access ${path}`})
         }
     } catch (err) {
-        return errorHandler({ error: 'Authorization error', errorMessage:`${err}`, errorCode:403, errorSource: "Admin/Rider Auth" })
+        return handleError({ error: 'Authorization error', errorMessage:`${err}`, errorCode:403, errorSource: "Admin/Rider Auth" })
     }
 }
 

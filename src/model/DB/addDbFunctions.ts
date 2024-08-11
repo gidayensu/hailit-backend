@@ -1,4 +1,4 @@
-import { errorHandler } from "../../utils/errorHandler";
+import { handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 
 //...args changed to args
@@ -18,7 +18,7 @@ export const addOne = async (tableName, columns, values) => {
     await DB.query("COMMIT");
     if (!result.rows) {
       await DB.query("ROLLBACK");
-      return errorHandler(
+      return handleError(
         {
           error: "Error occurred adding detail",
           errorMessage: null,
@@ -31,7 +31,7 @@ export const addOne = async (tableName, columns, values) => {
     return result.rows;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return errorHandler(
+    return handleError(
       {
         error: "Server Error occurred",
         errorMessage: `${err}`,

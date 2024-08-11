@@ -12,7 +12,7 @@ import {
   updateVehicleOnDB,
 } from "../model/vehicle.model";
 import { allowedPropertiesOnly } from "../utils/util";
-import { errorHandler } from "../utils/errorHandler";
+import { handleError } from "../utils/handleError";
 import { getAllEntitiesService } from "./helpers.service";
 import { GetAll } from "../types/getAll.types";
 
@@ -44,7 +44,7 @@ export const getAllVehiclesService = async (
     return allVehicles;
 
   } catch (err) {
-    return errorHandler({ error:
+    return handleError({ error:
       "Server error occurred getting all vehicles",
       errorMessage: 
       `${err}`,
@@ -59,7 +59,7 @@ export const getOneVehicleService = async (vehicle_id) => {
     const getVehicle = await getOneVehicleFromDB(vehicle_id);
     return getVehicle;
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error:"Server error occurred",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -85,7 +85,7 @@ export const addVehicleService = async (vehicleDetails) => {
     const addVehicleResult = await addVehicleToDB(validVehicleDetails);
     return addVehicleResult;
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error:"Error occurred. Vehicle not added",
       errorMessage:`${err}`,
       errorCode:500,
@@ -109,7 +109,7 @@ export const updateVehicleService = async (
 
     return updateVehicle;
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error:"Server Error. Vehicle not updated",
       errorMessage:`${err}`,
       errorCode:500,
@@ -123,7 +123,7 @@ export const deleteVehicleService = async (vehicle_id) => {
     const deleteVehicle = await deleteVehicleFromDB(vehicle_id);
     return deleteVehicle;
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Server Error. Vehicle not deleted",
       errorMessage: `${err}`,
       errorCode: 500,

@@ -27,7 +27,7 @@ import {
   updateTripOnDB
 } from "../model/trip.model";
 import { getOneUserFromDB } from "../model/user.model";
-import { errorHandler } from "../utils/errorHandler";
+import { handleError } from "../utils/handleError";
 import {
   allowedPropertiesOnly,
   currencyFormatter,
@@ -74,7 +74,7 @@ export const getAllTripsService = async (
     return trips;
     
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred in getting trips detail",
         errorMessage: `${err}`,
@@ -98,7 +98,7 @@ export const searchTripService = async (search, page, limit = DEFAULT_LIMIT) => 
 
     return searchResults;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       "Error Occurred in getting Trips Detail",
       `${err}`,
       500,
@@ -133,7 +133,7 @@ export const getOneTripService = async (trip_id, requester_user_id) => {
     
     return { ...oneTrip, dispatcher: dispatcherDetails };
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred in getting one trip detail",
         errorMessage: `${err}`,
@@ -169,7 +169,7 @@ export const getUserTripsService = async (user_id) => {
       return tripsOfDispatcher;
     }
   } catch (err) {
-    return errorHandler(
+    return handleError(
       "Error occurred getting user trips details",
       `${err}`,
       500,
@@ -237,7 +237,7 @@ export const addTripService = async (user_id, tripDetails, io) => {
 
     return newTrip;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Server error occurred adding trip",
         errorMessage: `${err}`,
@@ -284,7 +284,7 @@ export const updateTripService = async (
     return updatedTrip;
 
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Server error occurred updating trip",
         errorMessage: `${err}`,
@@ -360,7 +360,7 @@ export const rateTripService = async (ratingDetails, io, reqUserId) => {
 
     return ratedTrip;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: `Server error occurred adding rating: ${err}`,
         errorMessage: `${err}`,
@@ -402,7 +402,7 @@ export const deleteTripService = async (trip_id, user_id, io) => {
         
     return deletedTrip;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred deleting trip",
         errorMessage: `${err}`,
@@ -427,7 +427,7 @@ export const getTripMonthsService = async () => {
 
     return monthsArray;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting trips months",
         errorMessage: `${err}`,
@@ -506,7 +506,7 @@ export const currentMonthTripsCountService = async () => {
       cancelled_percentage_difference,
     };
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting trips months",
         errorMessage: `${err}`,
@@ -544,7 +544,7 @@ export const tripsCountByMonth = async (tripDataColumn, condition, month) => {
 
     return { tripMonths, tripCounts };
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting current week trips count",
         errorMessage: `${err}`,
@@ -574,7 +574,7 @@ export const getRevenueByMonth = async () => {
     
     return { tripMonths, revenue };
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting revenue by month",
         errorMessage: `${err}`,
@@ -607,7 +607,7 @@ export const currentWeekTrip = async () => {
     tripDays[tripDays.length - 2] = "Yesterday";
     return { tripDays, tripCounts };
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting current week trips count",
         errorMessage: `${err}`,

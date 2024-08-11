@@ -1,4 +1,4 @@
-import { errorHandler } from "../../utils/errorHandler";
+import { handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 
 export const deleteOne = async (tableName, columnName, id) => {
@@ -8,11 +8,11 @@ export const deleteOne = async (tableName, columnName, id) => {
     const values = [id];
     const deletion = await DB.query(queryText, values);
     await DB.query("COMMIT");
-
+    
     return deletion.rowCount ? true : false;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return errorHandler({
+    return handleError({
       error: "Error occurred",
       errorMessage: `${err}`,
       errorCode: 500,

@@ -9,7 +9,7 @@ import {
   deleteRiderFromDB,
   getRiderOnConditionFromDB,
 } from "../model/rider.model";
-import { errorHandler } from "../utils/errorHandler";
+import { handleError } from "../utils/handleError";
 
 export const riderOrDriverDetails = async (user_role, userId) => {
   if (user_role === "Driver") {
@@ -50,7 +50,7 @@ export const addRiderIfApplicable = async (user_id, addedUser) => {
     if (addRider.error) return addRider;
     return { ...addedUser, rider: addRider[0] };
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error adding rider",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -66,7 +66,7 @@ export const addDriverIfApplicable = async (user_id, addedUser) => {
     if (addDriver.error) return addDriver;
     return { ...addedUser, driver: addDriver[0] };
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error. User not updated",
         errorMessage: `${err}`,
@@ -91,7 +91,7 @@ export const updateRiderRole = async (userId, updatedDetails) => {
     const addRider = await addRiderToDB(userId);
     return { ...updatedDetails, rider: addRider[0] };
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error updating rider role",
         errorMessage: `${err}`,
@@ -118,7 +118,7 @@ export const updateDriverRole = async (userId, updatedDetails) => {
     const addDriver = await addDriverToDB(userId);
     return { ...updatedDetails, driver: addDriver[0] };
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error updating driver role",
         errorMessage: `${err}`,

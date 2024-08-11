@@ -1,6 +1,6 @@
 import { LOCATION_TABLE_NAME, TRIP_ID_COLUMN, TRIP_TABLE_NAME } from '../constants/tripConstants.js';
 import { GetAllFromDB } from '../types/getAll.types.js';
-import { errorHandler } from "../utils/errorHandler";
+import { handleError } from "../utils/handleError.js";
 import { addOne } from "./DB/addDbFunctions";
 import { deleteOne } from "./DB/deleteDbFunctions";
 import { getOne, getSpecificDetailsUsingId, selectOnCondition } from "./DB/getDbFunctions";
@@ -33,7 +33,7 @@ import { updateOne } from "./DB/updateDbFunctions";
       return allTrips; 
     } catch (err) {
       
-      return errorHandler(
+      return handleError(
         {
           error: "Server Error Occurred in getting all trips",
           errorMessage: `${err}`,
@@ -55,7 +55,7 @@ export const tripsMonths = async()=> {
     return tripMonthsData;
     
   } catch(err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred getting Trips Months",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -72,7 +72,7 @@ export const getTripCount = async(search:string)=> {
     return tripCounts;
     
   } catch(err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred getting Trip Count",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -89,7 +89,7 @@ export const searchTrips = async(searchQuery, limit, offset)=> {
     return searchResults;
     
   } catch(err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred searching Trips",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -110,7 +110,7 @@ export const getSpecificTripDetailsUsingId = async (tripId, columns) => {
     
     return specificDetails;
   } catch(err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting specific trip details",
         errorMessage: `${err}`,
@@ -139,7 +139,7 @@ export const getOneTripFromDB = async (trip_id:string) => {
     }
     return oneTrip[0];
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Server Error Occurred in getting data from Database",
         errorMessage: err,
@@ -169,7 +169,7 @@ export const getUserTripsFromDB = async (
     );
     
     if ( userTrips.length === 0) {
-      return errorHandler({
+      return handleError({
         error: "No user trip found",
         errorMessage: null,
         errorCode: 404,
@@ -179,7 +179,7 @@ export const getUserTripsFromDB = async (
     }
     return userTrips;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Server Error Occurred in getting user trips from DB",
         errorMessage: err,
@@ -206,7 +206,7 @@ export const getSpecificTripDetailsUsingIdFromDB = async (
     
     return specificTripDetail;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Server Error Occurred in getting specific trip from DB",
         errorMessage: err,
@@ -245,7 +245,7 @@ export const addTripToDB = async (tripDetailsWithoutLocation, locationDetails) =
     return {...trip, location} //if there is an error adding tripLocation, it will be included
 
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Server Error Occurred in adding trip to DB",
         errorMessage: err,
@@ -276,7 +276,7 @@ export const updateTripOnDB = async (tripDetails) => {
 
       return updatedTrip;
     } catch (err) {
-      return errorHandler(
+      return handleError(
         {
           error: "Error occurred in updating rider details",
           errorMessage: err,
@@ -287,7 +287,7 @@ export const updateTripOnDB = async (tripDetails) => {
       );
     }
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Server Error Occurred updating trip details on DB",
         errorMessage: err,
@@ -305,7 +305,7 @@ export const deleteTripFromDB = async (trip_id:string) => {
     return tripDelete;
     
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred deleting trip",
         errorMessage: err,
@@ -351,7 +351,7 @@ export const associatedWithTrip = async (trip_id, condition, conditionColumn) =>
     return tripData;
     
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred while confirming user's relation to trip",
         errorMessage: err,
@@ -370,7 +370,7 @@ export const oneWeekTripsCount = async ()=> {
     const oneWeekTripsCount = await upToOneWeekTripCounts();
     return oneWeekTripsCount;
   } catch (err){
-    return errorHandler(
+    return handleError(
       {
         error: "Server Error Occurred in getting previous week trips count",
         errorMessage: `${err}`,
@@ -390,7 +390,7 @@ export const getCurrentMonthTripsCount = async ()=> {
     return currentMonthTripsCount;
   } catch (err) {
 
-    return errorHandler(
+    return handleError(
       {
         error: "Server Error Occurred in retrieving current month trips count",
         errorMessage: `${err}`,
@@ -409,7 +409,7 @@ export const getTripCountByMonth = async (dataColumn, condition, month)=> {
     const tripCount = await getCountByMonth(dataColumn, condition, month);
     return tripCount;
   } catch(err) {
-    return errorHandler(
+    return handleError(
       {
         error: `Server Error Occurred in retrieving ${dataColumn ? dataColumn : 'trips'} data`,
         errorMessage: `${err}`,
@@ -427,7 +427,7 @@ export const revenueByMonth = async ()=> {
     const revenue = await getRevenueByMonth();
     return revenue;
   } catch(err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Server Error Occurred in retrieving trips revenue data",
         errorMessage: `${err}`,

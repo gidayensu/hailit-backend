@@ -1,6 +1,6 @@
 import { PLATE_NUMBER_COLUMN, VEHICLE_ID_COLUMN, VEHICLE_TABLE_NAME } from "../constants/vehicleConstants";
 import { GetAllFromDB } from "../types/getAll.types";
-import { errorHandler } from "../utils/errorHandler";
+import { handleError } from "../utils/handleError";
 import { addOne } from "./DB/addDbFunctions";
 import { deleteOne } from "./DB/deleteDbFunctions";
 import { getAllVehicles, getOne, vehiclesCount } from "./DB/getDbFunctions";
@@ -26,7 +26,7 @@ export const getAllVehiclesFromDB = async (
 
     return allVehicles;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting all vehicles",
         errorMessage: `${err}`,
@@ -46,7 +46,7 @@ export const getVehiclesCount = async(search:string)=> {
     return count;
     
   } catch(err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred getting vehicles count",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -71,7 +71,7 @@ export const getOneVehicleFromDB = async (vehicle_id) => {
 
     return getVehicle[0];
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -94,7 +94,7 @@ export const addVehicleToDB = async (completeVehicleDetails) => {
     );
 
     if (vehicleExists) {
-      return errorHandler(
+      return handleError(
         {
           error: "Vehicle exists. It has already been added",
           errorMessage: null,
@@ -116,7 +116,7 @@ export const addVehicleToDB = async (completeVehicleDetails) => {
 
     return addVehicleResult[0];
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -145,7 +145,7 @@ export const updateVehicleOnDB = async (vehicle_id, vehicleUpdateDetails) => {
 
     return vehicleUpdate.rows[0];
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -164,7 +164,7 @@ export const deleteVehicleFromDB = async (vehicle_id) => {
     );
     return vehicleDeletion;
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred",
       errorMessage: `${err}`,
       errorCode: 500,

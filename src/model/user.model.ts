@@ -7,7 +7,7 @@ import {
   USER_TABLE_NAME
 } from "../constants/usersConstants";
 import { GetAllFromDB } from "../types/getAll.types";
-import { errorHandler } from "../utils/errorHandler";
+import { handleError } from "../utils/handleError";
 import { addOne } from "./DB/addDbFunctions";
 import { deleteOne } from "./DB/deleteDbFunctions";
 import {
@@ -37,7 +37,7 @@ export const getAllUsersFromDB = async ({
     );
 
     if (!allUsers) {
-      return errorHandler({
+      return handleError({
         error: "No user found",
         errorMessage: null,
         errorCode: 404,
@@ -48,7 +48,7 @@ export const getAllUsersFromDB = async ({
 
     return allUsers;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Server error occurred getting all users",
         errorMessage: err,
@@ -70,7 +70,7 @@ export const getCustomerCount = async (search:string) => {
 
     return customerCount;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Server error occurred getting customer count",
         errorMessage: err,
@@ -98,7 +98,7 @@ export const getOneUserFromDB = async (userId:string) => {
     }
     return user[0];
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting user details",
         errorMessage: err,
@@ -132,7 +132,7 @@ export const addUserToDB = async (userDetails) => {
         return insertedDetails;
       }
     } else {
-      return errorHandler(
+      return handleError(
         {
           error: "User email or number exists",
           errorMessage: null,
@@ -143,7 +143,7 @@ export const addUserToDB = async (userDetails) => {
       );
     }
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred adding user",
         errorMessage: `${err}`,
@@ -175,7 +175,7 @@ export const updateUserOnDB = async (userId, userDetails) => {
     return updatedDetails;
     
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred: this error",
         errorMessage: `${err}`,
@@ -196,7 +196,7 @@ export const getSpecificUserDetailsUsingId = async (userId, columns) => {
     columns
   );
   if (specificDetails.error) {
-    return errorHandler(
+    return handleError(
       {
         error: `Error occurred: ${specificDetails.error}`,
         errorMessage: null,
@@ -220,7 +220,7 @@ export const deleteUserFromDB = async (userId) => {
       return userExist 
     }
     // if(userExist.error || !userExist) {
-    //   userExist.error ? userExist : errorHandler("User does not exist", null, 404, "User Mode: Delete User")
+    //   userExist.error ? userExist : handleError("User does not exist", null, 404, "User Mode: Delete User")
     // }
 
     //delete if user exists
@@ -229,7 +229,7 @@ export const deleteUserFromDB = async (userId) => {
       return { success: "user deleted" };
     } 
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Server Error occurred",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -251,7 +251,7 @@ export const getCustomersCount = async () => {
 
     return customersCount;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting customers count",
         errorMessage: `${err}`,
@@ -271,7 +271,7 @@ export const emailExists = async (email) => {
     const columnName = USER_COLUMNS_FOR_ADDING[3];
     return await detailExists(USER_TABLE_NAME, columnName, email);
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error checking if email exists",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -287,7 +287,7 @@ export const phoneNumberExists = async (phoneNumber) => {
     const phoneNumberColumn = USER_COLUMNS_FOR_ADDING[4];
     return await detailExists(USER_TABLE_NAME, phoneNumberColumn, phoneNumber);
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error checking if phone number exists",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -305,7 +305,7 @@ export const userExists = async (userId)=> {
    
     
     if(!exists) {
-      return errorHandler({
+      return handleError({
         error: "User does not exist",
         errorMessage: null,
         errorCode: 404,
@@ -316,7 +316,7 @@ export const userExists = async (userId)=> {
     
     return exists //will return error or true;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Server error occurred",
         errorMessage: `${err}`,
@@ -354,7 +354,7 @@ export const userExists = async (userId)=> {
           return userId;
         }
       } catch (err) {
-        return errorHandler(
+        return handleError(
           {
             error: "Error occurred getting user ID",
             errorMessage: `${err}`,

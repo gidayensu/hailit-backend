@@ -1,4 +1,4 @@
-import { errorHandler } from "../../utils/errorHandler";
+import { handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 import { USERS_TABLE } from "../../constants/riderConstants";
 import { GetAllFromDB } from "../../types/getAll.types";
@@ -56,7 +56,7 @@ export const customersCount = async (
 
     return data[0];
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting customer count",
         errorMessage: `${err}`,
@@ -105,7 +105,7 @@ export const getAllCustomers = async (
 
     return data;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting all details",
         errorMessage: `${err}`,
@@ -163,7 +163,7 @@ export const getDispatchersVehicleJoin = async (
     return dispatchers;
   } catch (err) {
     
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting dispatcher vehicle data",
         errorMessage: `${err}`,
@@ -217,7 +217,7 @@ export const getDispatcherCount = async ({
 
     return data[0];
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred getting dispatcher count",
       errorMessage: `${err}`,
       errorCode: 500,

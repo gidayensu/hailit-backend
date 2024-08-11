@@ -1,5 +1,5 @@
 import { paginatedRequest } from "../utils/paginatedRequest";
-import { errorHandler } from "../utils/errorHandler";
+import { handleError } from "../utils/handleError";
 import { GetAll, GetAllFromDB } from "../types/getAll.types";
 
 
@@ -49,7 +49,7 @@ export const getAllEntitiesService = async (
       return await paginatedRequest(totalCount, entities, offset, limit, entityName);
     } catch (err) {
       
-      return errorHandler(
+      return handleError(
         {
           error: `Error occurred getting all ${entityName}`,
           errorMessage: `${err}`,

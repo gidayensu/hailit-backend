@@ -5,7 +5,7 @@ import {
   DRIVER_TABLE_NAME
 } from '../constants/driverConstants.js';
 import { USER_ID_COLUMN } from "../constants/usersConstants";
-import { errorHandler } from "../utils/errorHandler";
+import { handleError } from "../utils/handleError.js";
 
 import { GetAllFromDB } from "../types/getAll.types.js";
 import { addOne } from "./DB/addDbFunctions";
@@ -36,7 +36,7 @@ export const getAllDriversFromDB = async ({limit,
     return allDrivers;
   } catch (err) {
     
-    return errorHandler({error:"server error occurred getting drivers", errorMessage: `${err}`, errorCode:500, errorSource: "Driver Model"});
+    return handleError({error:"server error occurred getting drivers", errorMessage: `${err}`, errorCode:500, errorSource: "Driver Model"});
 
   }
 };
@@ -55,7 +55,7 @@ export const getDriversCount = async(search:string)=> {
     
   } catch(err) {
     
-    return errorHandler("Error occurred getting drivers count", `${err}`, 500, "Driver Model: Drivers Count")
+    return handleError("Error occurred getting drivers count", `${err}`, 500, "Driver Model: Drivers Count")
   }
 }
 
@@ -73,7 +73,7 @@ export const getOneDriverFromDB = async (driver_id:string) => {
 
     return driver[0];
   } catch (err) {
-    return errorHandler("Error occurred. Driver not fetched", `${err}`, 500, "Driver Model");
+    return handleError("Error occurred. Driver not fetched", `${err}`, 500, "Driver Model");
 
   }
 };
@@ -90,7 +90,7 @@ export const getDriverDetailOnCondition = async (columnName, condition) => {
 
     return driverDetails
   } catch (err) {
-    return errorHandler("Error occurred finding driver details", `${err}`, 500, "Driver Model");
+    return handleError("Error occurred finding driver details", `${err}`, 500, "Driver Model");
 
   }
 };
@@ -103,7 +103,7 @@ export const getSpecificDriversFromDB = async (specificColumn, condition) => {
     );
     return specificDrivers;
   } catch (err) {
-    return errorHandler("Error occurred in retrieving drivers", `${err}`, 500, "Driver Model");
+    return handleError("Error occurred in retrieving drivers", `${err}`, 500, "Driver Model");
 
   }
 };
@@ -116,7 +116,7 @@ export const addDriverToDB = async (user_id, vehicle_id) => {
     DRIVER_ID_COLUMN
   );
   if (userIsDriver.length >= 1) {
-    return errorHandler("User is driver", "User already exists as driver", 400, "Driver Model");
+    return handleError("User is driver", "User already exists as driver", 400, "Driver Model");
 
   }
 
@@ -136,7 +136,7 @@ export const addDriverToDB = async (user_id, vehicle_id) => {
   return addedDriver;
   
   } catch (err) {
-    return errorHandler("Error occurred adding driver", `${err}`, 500, "Driver Model");
+    return handleError("Error occurred adding driver", `${err}`, 500, "Driver Model");
 
   }
 };
@@ -160,13 +160,13 @@ export const updateDriverOnDB = async (driverDetails) => {
       return driverUpdate; //Error details returned
     }
     if (driverUpdate.rowCount === 0) {
-      return errorHandler({error:"Driver details not updated", errorMessage:"Driver detail not found", errorCode: 400, errorSource: "Driver Model"});
+      return handleError({error:"Driver details not updated", errorMessage:"Driver detail not found", errorCode: 400, errorSource: "Driver Model"});
 
     }
     return driverUpdate.rows[0];
   } catch (err) {
     
-    return errorHandler({error:"Error occurred in updating driver details", errorMessage: `${err}`, errorCode :500, errorSource: "Driver Model"});
+    return handleError({error:"Error occurred in updating driver details", errorMessage: `${err}`, errorCode :500, errorSource: "Driver Model"});
   }
 };
 
@@ -182,6 +182,6 @@ export const deleteDriverFromDB = async (driver_id:string) => {
       return driverDelete;
     
   } catch (err) {
-    return errorHandler({error:"Server Error occurred deleting driver", errorMessage: `${err}`, errorCode: 500, errorSource: "Driver Model"})
+    return handleError({error:"Server Error occurred deleting driver", errorMessage: `${err}`, errorCode: 500, errorSource: "Driver Model"})
   }
 };

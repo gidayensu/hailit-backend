@@ -1,4 +1,4 @@
-import { errorHandler } from "../../utils/errorHandler";
+import { handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 
 export const detailExists = async (tableName, columnName, detail) => {
@@ -10,7 +10,7 @@ export const detailExists = async (tableName, columnName, detail) => {
 
     return results.rowCount > 0 ? true : false;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred checking if detail exists",
         errorMessage: `${err}`,
@@ -37,7 +37,7 @@ export const increaseByValue = async (
     return increaseValue.rowCount ? true : false;
   } catch (err) {
     DB.query("ROLLBACK");
-    return errorHandler({
+    return handleError({
       error: "Error occurred increasing by Value",
       errorMessage: `${err}`,
       errorCode: 500,

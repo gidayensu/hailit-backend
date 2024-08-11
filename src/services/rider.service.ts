@@ -15,7 +15,7 @@ import { getSpecificUserDetailsUsingId } from "../model/user.model";
 import { getOneVehicleFromDB } from "../model/vehicle.model";
 import { GetAll } from "../types/getAll.types";
 import { DispatcherDetails } from "../types/shared.types";
-import { errorHandler } from "../utils/errorHandler";
+import { handleError } from "../utils/handleError";
 import { allowedPropertiesOnly, userIsUserRole } from "../utils/util";
 import { getAllEntitiesService } from "./helpers.service";
 
@@ -39,7 +39,7 @@ export const getAllRidersService = async (
     );
     return riders;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting all riders",
         errorMessage: `${err}`,
@@ -79,7 +79,7 @@ export const getOneRiderService = async (rider_id, requester_user_id) => {
     }
     return { ...riderDetails, vehicle: vehicleDetails };
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting rider",
         errorMessage: `${err}`,
@@ -96,7 +96,7 @@ export const addRiderService = async (userId:string) => {
     const riderAdd = await addRiderToDB(userId);
     return riderAdd;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Server error occurred",
         errorMessage: `${err}`,
@@ -119,7 +119,7 @@ export const updateRiderService = async (riderDetails: RiderDetails) => {
 
     return riderUpdate;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred updating rider details",
         errorMessage: `${err}`,
@@ -134,9 +134,10 @@ export const updateRiderService = async (riderDetails: RiderDetails) => {
 export const deleteRiderService = async (rider_id:string) => {
   try {
     const riderDelete = await deleteRiderFromDB(rider_id); //returns true/false or error
+    
     return riderDelete;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred deleting rider",
         errorMessage: `${err}`,

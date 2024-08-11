@@ -1,5 +1,5 @@
 import { Middleware } from '../../types/middleware.types';
-import { errorHandler } from '../../utils/errorHandler';
+import { handleError } from '../../utils/handleError';
 import { driverUserId, userIsUserRole } from '../../utils/util';
 
 export const isAdminOrRider: Middleware = async (req, res, next) => {
@@ -17,7 +17,7 @@ export const isAdminOrRider: Middleware = async (req, res, next) => {
          return  res.status(401).json({error:`Unauthorized to access ${path}`})
         }
     } catch (err) {
-        return errorHandler({ error: 'Authorization error', errorMessage:`${err}`, errorCode:403, errorSource: "Admin/Driver Auth" })
+        return handleError({ error: 'Authorization error', errorMessage:`${err}`, errorCode:403, errorSource: "Admin/Driver Auth" })
     }
 }
 

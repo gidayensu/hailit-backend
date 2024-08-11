@@ -1,4 +1,4 @@
-import { errorHandler } from "../../utils/errorHandler";
+import { handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 
 export const updateOne = async (
@@ -24,7 +24,7 @@ export const updateOne = async (
     return updatedData;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return errorHandler({
+    return handleError({
       error: "Error occurred",
       errorMessage: `${err}`,
       errorCode: 500,

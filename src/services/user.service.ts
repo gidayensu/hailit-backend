@@ -24,7 +24,7 @@ import {
   userExists
 } from "../model/user.model";
 import { GetAll } from "../types/getAll.types";
-import { errorHandler } from "../utils/errorHandler";
+import { handleError } from "../utils/handleError";
 import { allowedPropertiesOnly } from "../utils/util";
 import {
   addDriverIfApplicable,
@@ -56,7 +56,7 @@ export const getAllUsersService = async (
     );
     return users;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting all users",
         errorMessage: `${err}`,
@@ -85,7 +85,7 @@ export const getOneUserService = async (userId) => {
 
     return user;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Server error occurred in getting user",
         errorMessage: `${err}`,
@@ -104,7 +104,7 @@ export const getUserIdUsingEmailService = async (userEmail) => {
     const user = await getUserIdUsingEmail(userEmail);
     return user;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred in getting user",
         errorMessage: `${err}`,
@@ -146,7 +146,7 @@ export const addUserService = async (userDetails) => {
 
     return addedUser;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred in adding user",
         errorMessage: `${err}`,
@@ -167,7 +167,7 @@ export const updateUserService = async (userId, userDetails) => {
       allowedProperties:ALLOWED_PROPERTIES}
     );
     if (validUserDetails.length < 1) {
-      return errorHandler(
+      return handleError(
         {
           error: "No valid details added",
           errorMessage: null,
@@ -227,7 +227,7 @@ export const updateUserService = async (userId, userDetails) => {
 
     return updatedDetails;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error: User not updated",
         errorMessage: `${err}`,
@@ -272,7 +272,7 @@ export const deleteUserService = async (userId) => {
 
     return deleteUser;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred deleting user",
         errorMessage: `${err}`,
@@ -295,7 +295,7 @@ export const detailExistsUserAssociation = async (
 
     const userDetail = userData[detailProp];
     if (detail && detailExists && detail !== userDetail) {
-      return errorHandler(
+      return handleError(
         {
           error: `User not updated, use a different ${detailProp}`,
           errorMessage: null,
@@ -307,7 +307,7 @@ export const detailExistsUserAssociation = async (
     }
     return detailExists;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error checking ${detailProp} association",
         errorMessage: `${err}`,

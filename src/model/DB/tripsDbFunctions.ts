@@ -1,7 +1,7 @@
 import { USERS_TABLE } from "../../constants/riderConstants";
 import { FIRST_NAME, LAST_NAME, LOCATION_TABLE_NAME, PAYMENT_STATUS, TRIP_ID_COLUMN, TRIP_TABLE_NAME, USER_ID_TRIP, USER_ID_USER } from "../../constants/tripConstants";
 import { GetAllFromDB } from "../../types/getAll.types";
-import { errorHandler } from "../../utils/errorHandler";
+import { handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 
 export const getOneTrip = async (condition: string) => {
@@ -25,7 +25,7 @@ WHERE
     if (result.rowCount > 0) {
       return result.rows;
     } else {
-      return errorHandler({
+      return handleError({
         error: "Detail does not exist",
         errorMessage: null,
         errorCode: 404,
@@ -33,7 +33,7 @@ WHERE
       });
     }
   } catch (err) {
-    return errorHandler({
+    return handleError({
       error: "Error occurred getting one Trip",
       errorMessage: `${err}`,
       errorCode: 500,
@@ -85,7 +85,7 @@ WHERE ${TRIP_ID_COLUMN} IS NOT NULL AND (
 
     return data[0];
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting trip count",
         errorMessage: `${err}`,
@@ -124,7 +124,7 @@ ORDER BY
 
     return data.rows;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting one week trip counts",
         errorMessage: `${err}`,
@@ -143,7 +143,7 @@ export const getTripsMonths = async () => {
     const months = await DB.query(queryText);
     return months.rows;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting months",
         errorMessage: `${err}`,
@@ -168,7 +168,7 @@ export const getRevenueByMonth = async () => {
     const data = await DB.query(queryText, values);
     return data.rows;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting revenue",
         errorMessage: `${err}`,
@@ -206,7 +206,7 @@ export const getCountByMonth = async (dataColumn, condition, month) => {
 
     return data.rows;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting revenue",
         errorMessage: `${err}`,
@@ -260,7 +260,7 @@ export const getPreviousTwoMonthsCounts = async (
     const selectedTrips = await DB.query(queryText, values);
     return selectedTrips.rows[0];
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting previous two months trip counts",
         errorMessage: `${err}`,
@@ -289,7 +289,7 @@ export const getTwoMonthsTrip = async (tripTable, requestDateColumn) => {
     const selectedTrips = await DB.query(queryText);
     return selectedTrips.rows;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting two months trip",
         errorMessage: `${err}`,
@@ -346,7 +346,7 @@ LIMIT ${limit} OFFSET ${offset};`;
     const trips = allTrips.rows;
     return trips;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting customer trips",
         errorMessage: `${err}`,
@@ -364,7 +364,7 @@ export const getIDsAndMedium = async (tripId:string)=> {
     const queryText = 'SELECT dispatcher_id as dispatcher_id, customer_id as customer_id, trip_medium as trip_medium FROM trips WHERE trip_id = $1';
     const IDsAndMedium = await DB.query(queryText, value);
     if(IDsAndMedium.rowCount < 1) {
-      return errorHandler({
+      return handleError({
         error: "dispatcherId not found",
         errorMessage: null,
         errorCode: 404,
@@ -377,7 +377,7 @@ export const getIDsAndMedium = async (tripId:string)=> {
       return IDsAndMedium.rows[0];
     }
   } catch (err) {
-    return errorHandler( 
+    return handleError( 
       {
         error: "Error occurred getting dispatcherId",
         errorMessage: `${err}`,

@@ -32,7 +32,7 @@ import {
   getUserTripsFromDB,
   ratingCountIncrease,
 } from "../model/trip.model";
-import { errorHandler } from "../utils/errorHandler";
+import { handleError } from "../utils/handleError";
 import { currencyFormatter } from "../utils/util";
 import {
   currentMonthTripsCountService,
@@ -123,7 +123,7 @@ export const getDispatcherDetails = async ({trip_medium, dispatcher_id})=> {
       };
       return dispatcherDetails;
     } catch (err) {
-      return errorHandler({        
+      return handleError({        
         error: "Error occurred getting Dispatcher details",
         errorMessage: `${err}`,
         errorCode: 500,
@@ -144,7 +144,7 @@ export const increaseRatingCount = async (trip_medium, dispatcher_id) => {
     tableName = DRIVER_TABLE_NAME;
     idColumn = DRIVER_ID_COLUMN;
   } else {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred increasing rating count",
         errorMessage: "Invalid trip medium",
@@ -260,7 +260,7 @@ export const getCustomerTrips = async (user_id) => {
 
     return trips;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting customer trips",
         errorMessage: `${err}`,
@@ -327,7 +327,7 @@ export const dispatcherTrips = async (user_role, user_id) => {
     }
     return dispatcherTrips;
   } catch (err) {
-    return errorHandler(
+    return handleError(
       {
         error: "Error occurred getting dispatcher trips",
         errorMessage: `${err}`,
