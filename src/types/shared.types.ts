@@ -5,4 +5,5 @@ export interface DispatcherDetails {
     vehicle_id?: string,
     license_number?: string,
     available?: boolean,
+    cumulative_rating?:number
   }

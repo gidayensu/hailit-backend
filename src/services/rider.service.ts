@@ -58,7 +58,7 @@ export const getAllRidersService = async (
   }
 };
 
-export const getOneRiderService = async ({riderId, requesterUserId}) => {
+export const getOneRiderService = async ({riderId, requesterUserId}: {riderId:string, requesterUserId?:string}) => {
   try {
     const rider = await getOneRiderFromDB(riderId);
     if (rider.error) {
@@ -67,7 +67,7 @@ export const getOneRiderService = async ({riderId, requesterUserId}) => {
     let riderDetails = { ...rider };
     const { user_id } = rider;
     //fetching rider name and related details
-    const isAdmin = await userIsUserRole({userId:requesterUserId, userRole:"Admin"});
+    const isAdmin = requesterUserId && await userIsUserRole({userId: requesterUserId, userRole:"Admin"});
 
     isAdmin ? RIDER_DETAILS.push("email") : "";
     const riderOtherDetails = await getSpecificUserDetailsUsingId(

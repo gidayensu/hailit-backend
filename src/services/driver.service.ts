@@ -55,7 +55,7 @@ export const getAllDriversService = async ({
   }
 };
 
-export const getOneDriverService = async ({driverId, requesterUserId}:{driverId:string, requesterUserId:string}) => {
+export const getOneDriverService = async ({driverId, requesterUserId}:{driverId:string, requesterUserId?:string}) => {
   try {
     const driver = await getOneDriverFromDB(driverId);
     if (driver.error) {
@@ -66,7 +66,7 @@ export const getOneDriverService = async ({driverId, requesterUserId}:{driverId:
     const { user_id } = driver;
 
     //fetching driver name and related details
-    const isAdmin = await userIsUserRole({userId: requesterUserId, userRole: "Admin"});
+    const isAdmin = requesterUserId && await userIsUserRole({userId: requesterUserId, userRole: "Admin"});
 
     isAdmin ? GET_DRIVER_COLUMNS.push("email") : "";
     const driverNamePhone = await getSpecificUserDetailsUsingId(
