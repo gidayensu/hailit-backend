@@ -111,7 +111,7 @@ export const searchTripService = async (search, page, limit = DEFAULT_LIMIT) => 
 export const getOneTripService = async (trip_id, requester_user_id) => {
   try {
     //check if user is admin
-    const isAdmin = await userIsUserRole(requester_user_id, "Admin");
+    const isAdmin = await userIsUserRole({userId:requester_user_id, userRole:"Admin"});
 
     let oneTrip =  await getOneTripFromDB(trip_id, TRIP_ID_COLUMN);
     if (oneTrip.error) {
@@ -120,7 +120,7 @@ export const getOneTripService = async (trip_id, requester_user_id) => {
 
     //exclude sender and recipient phone numbers from data sent
     if (!requester_user_id ||  (requester_user_id !== oneTrip.customer_id && !isAdmin) ) {
-      oneTrip = allowedPropertiesOnly(oneTrip, ANONYMOUS_USER_PROPS);
+      oneTrip = allowedPropertiesOnly({data:oneTrip, allowedProperties:ANONYMOUS_USER_PROPS});
     }
     const { dispatcher_id, trip_medium } = oneTrip;
     const dispatcherDetails = await getDispatcherDetails({dispatcher_id, trip_medium})
@@ -190,10 +190,10 @@ export const addTripService = async (user_id, tripDetails, io) => {
       drop_lat,
       drop_long,
     };
-    const tripDetailsWithoutLocation = allowedPropertiesOnly(
-      tripDetails,
-      NO_LOCATION_PROPS
-    );
+    const tripDetailsWithoutLocation = allowedPropertiesOnly({
+      data: tripDetails,
+      allowedProperties: NO_LOCATION_PROPS,
+    });
 
     const dispatcher_id = await getDispatcherId(tripDetails.trip_medium);
 
@@ -256,10 +256,10 @@ export const updateTripService = async (
 ) => {
   try {
     
-    const validTripDetails = allowedPropertiesOnly(
-      tripDetails,
-      ALLOWED_UPDATE_PROPERTIES
-    );
+    const validTripDetails = allowedPropertiesOnly({
+      data: tripDetails,
+      allowedProperties: ALLOWED_UPDATE_PROPERTIES,
+    });
 
     let updatedTrip = await updateTripOnDB(validTripDetails);
     if (updatedTrip.error) {
@@ -300,10 +300,10 @@ export const rateTripService = async (ratingDetails, io, reqUserId) => {
   try {
     const ratingDetailsWithRatingStatus = { ...ratingDetails, rated: true };
 
-    const validTripDetails = allowedPropertiesOnly(
-      ratingDetailsWithRatingStatus,
-      ALLOWED_RATE_TRIP_PROPS
-    );
+    const validTripDetails = allowedPropertiesOnly({
+      data: ratingDetailsWithRatingStatus,
+      allowedProperties: ALLOWED_RATE_TRIP_PROPS,
+    });
 
     const { trip_id, dispatcher_id } = validTripDetails;
     const updateTrip = await updateTripOnDB(validTripDetails);

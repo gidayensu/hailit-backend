@@ -75,10 +75,10 @@ export const addVehicleService = async (vehicleDetails) => {
     ...vehicleDetails,
   };
 
-  const validVehicleDetails = allowedPropertiesOnly(
-    completeVehicleDetails,
-    ALLOWED_VEHICLE_PROPERTIES
-  );
+  const validVehicleDetails = allowedPropertiesOnly({
+    data: completeVehicleDetails,
+    allowedProperties: ALLOWED_VEHICLE_PROPERTIES,
+  });
 
   try {
     const addVehicleResult = await addVehicleToDB(validVehicleDetails);

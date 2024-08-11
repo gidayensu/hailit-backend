@@ -6,7 +6,7 @@ export const isAdmin: Middleware = async (req, res, next) => {
   
   const user_id = req.user?.sub;
   
-  const adminStatus = await userIsUserRole(user_id, "Admin");
+  const adminStatus = await userIsUserRole({userId:user_id, userRole:"Admin"});
   
 
   try {

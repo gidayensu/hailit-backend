@@ -54,10 +54,10 @@ export const addTripValidation: Middleware = async(req, res, next) => {
   }
 
   //wrong values
-  const validTripMedium = isRightValue(trip_medium, ALLOWED_TRIP_MEDIUMS);
-  const validTripArea = isRightValue(trip_area, ALLOWED_TRIP_AREAS);
-  const validPackageType = isRightValue(package_type, ALLOWED_PACKAGE_TYPES);
-  const validTripType = isRightValue(trip_type, ALLOWED_TRIP_TYPES);
+  const validTripMedium = isRightValue({value:trip_medium, data:ALLOWED_TRIP_MEDIUMS});
+  const validTripArea = isRightValue({value:trip_area, data:ALLOWED_TRIP_AREAS});
+  const validPackageType = isRightValue({value:package_type, data:ALLOWED_PACKAGE_TYPES});
+  const validTripType = isRightValue({value:trip_type, data:ALLOWED_TRIP_TYPES});
   // const validTripStatus = isRightValue(trip_status, ALLOWED_TRIP_STATUS);
 
   !validTripMedium && errorReturner(`Wrong trip medium provided. Trip medium should be one of these: ${[...ALLOWED_TRIP_MEDIUMS ]}`);
@@ -78,8 +78,8 @@ export const addTripValidation: Middleware = async(req, res, next) => {
   const tripDetails = req.body;
 
   const validTripDetails = allowedPropertiesOnly(
-    tripDetails,
-    ALLOWED_ADD_TRIP_PROPERTIES
+    {data:tripDetails,
+    allowedProperties:ALLOWED_ADD_TRIP_PROPERTIES}
   );
   req.body = validTripDetails;
   

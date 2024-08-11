@@ -14,7 +14,7 @@ export const tripAuth: Middleware = async (req, res, next)=> {
       } = req.user;
 
       const { trip_id } = req.params;
-      const isAdmin = await userIsUserRole(user_id, "Admin");
+      const isAdmin = await userIsUserRole({userId:user_id, userRole:"Admin"});
 
       //in trips 'dispatcher' represents both rider and driver
 
@@ -29,14 +29,14 @@ export const tripAuth: Middleware = async (req, res, next)=> {
 
       user_role === "Rider" || user_role === "Driver"
         ? (tripAssociation = await userAssociatedWithTrip(
-            dispatcher_id,
-            trip_id,
+            {requesterId:dispatcher_id,
+            tripId:trip_id,}
             
           ))
         : (tripAssociation = await userAssociatedWithTrip(
-            user_id,
-            trip_id,
-            user_role
+            {requesterId:user_id,
+            tripId:trip_id,
+            requesterRole:user_role}
           ));
 
       if (tripAssociation === true || isAdmin) {

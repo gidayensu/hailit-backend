@@ -8,7 +8,7 @@ export const isAdminOrRider: Middleware = async (req, res, next) => {
         const path = req.path;
         const { driver_id } = req.params;
         const jwtUserId = req.user.user_id;
-        const isAdmin = await userIsUserRole(jwtUserId, 'Admin');
+        const isAdmin = await userIsUserRole({userId:jwtUserId, userRole:'Admin'});
         const driver_user_id = await driverUserId(driver_id);
         
         if (driver_user_id === jwtUserId || isAdmin) {

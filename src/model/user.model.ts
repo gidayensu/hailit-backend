@@ -325,10 +325,10 @@ export const userExists = async (userId)=> {
     }; 
 
 
-    export const isUserRole = async (userId, user_role) => {
+    export const isUserRole = async (userId, userRole) => {
       const data = await getOneUserFromDB(userId);
     
-      if (data.user_role === user_role) {
+      if (data.user_role === userRole) {
         return true;
       } else {
         return false;

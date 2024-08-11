@@ -14,8 +14,8 @@ export const isUserRole: Middleware = async (req, res, next) => {
     }
     const jwtUserId = req.user.sub;
 
-    const isAdmin = await userIsUserRole(jwtUserId, "Admin");
-    const isRole = await userIsUserRole(jwtUserId, userRole);
+    const isAdmin = await userIsUserRole({userId:jwtUserId, userRole:"Admin"});
+    const isRole = await userIsUserRole({userId:jwtUserId, userRole:userRole});
     if ((userId === jwtUserId && isRole) || isAdmin) {
       next();
     } else {
@@ -34,7 +34,8 @@ export const userIsAdmin: Middleware = async(req, res) => {
 
     const { userId } = req.params;
     const jwtUserId = req.user.sub;
-    const isAdmin = await userIsUserRole(jwtUserId, "Admin");
+    const isAdmin = await userIsUserRole({userId:jwtUserId, userRole:"Admin"});
+
 
     if (userId === jwtUserId && isAdmin) {
       return res.status(200).json({ admin: true });

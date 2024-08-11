@@ -62,7 +62,7 @@ export const getOneDriverService = async (driver_id, requester_user_id) => {
     const { user_id } = driver;
 
     //fetching driver name and related details
-    const isAdmin = await userIsUserRole(requester_user_id, "Admin");
+    const isAdmin = await userIsUserRole({userId:requester_user_id, userRole:"Admin"});
 
     isAdmin ? GET_DRIVER_COLUMNS.push("email") : "";
     const driverNamePhone = await getSpecificUserDetailsUsingId(
@@ -105,8 +105,8 @@ export const addDriverService = async (user_id, vehicle_id) => {
 export const updateDriverService = async (driverDetails) => {
   try {
     const validDriverDetails = allowedPropertiesOnly(
-      driverDetails,
-      ALLOWED_DRIVER_UPDATE_PROPERTIES
+      {data:driverDetails,
+      allowedProperties:ALLOWED_DRIVER_UPDATE_PROPERTIES}
     );
     const driverUpdate = await updateDriverOnDB(validDriverDetails);
     if (driverUpdate.error) {

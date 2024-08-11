@@ -5,13 +5,15 @@ import { getOneRiderFromDB } from "../model/rider.model";
 import { associatedWithTrip } from "../model/trip.model";
 import { isUserRole } from "../model/user.model";
 
+
+import { UserRole } from "../types/user.types";
 const EMAIL_REGEX =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-export const emailValidator = (email) =>
+export const emailValidator = (email:string) =>
   !EMAIL_REGEX.test(email) ? false : true;
 
-export const phoneValidator = (phone_number) => {
+export const phoneValidator = (phone_number:string) => {
   const phoneNumber = parsePhoneNumberFromString(phone_number, {
     defaultCountry: "GH",
     extract: false,
@@ -24,11 +26,9 @@ export const phoneValidator = (phone_number) => {
   return false;
 };
 
-export const excludeNonMatchingElements = (firstArray, secondArray) => {
-  return secondArray.filter((element) => firstArray.includes(element));
-};
 
-export const allowedPropertiesOnly = (data, allowedProperties) => {
+
+export const allowedPropertiesOnly = ({data, allowedProperties}:{data:any, allowedProperties:string[]}) => {
   try {
     if (!allowedProperties) {
       return {};
@@ -45,45 +45,38 @@ export const allowedPropertiesOnly = (data, allowedProperties) => {
   }
 };
 
-export const excludeProperties = (data, propertiesToExclude) => {
-  return Object.keys(data)
-    .filter((key) => !propertiesToExclude.includes(key))
-    .reduce((obj, key) => {
-      obj[key] = data[key];
-      return obj;
-    });
-};
 
-export const userIsUserRole = async (user_id, user_role) => {
-  return await isUserRole(user_id, user_role);
+export const userIsUserRole = async ({userId, userRole}:{userId:string, userRole:UserRole}) => {
+  return await isUserRole(userId, userRole);
 };
 
 
-export const userAssociatedWithTrip = async (trip_id, requester_id, requester_role,) => {
+export const userAssociatedWithTrip = async ({tripId, requesterId, requesterRole}:{tripId:string, requesterId:string, requesterRole?:UserRole}) => {
   let requesterIdColumn = "customer_id"
 
-  if (requester_role === "Dispatcher") {
+  if (requesterRole === "Dispatcher") {
     requesterIdColumn = "dispatcher_id";
   }
   
-  const tripData = await associatedWithTrip(trip_id, requester_id, requesterIdColumn);
+  const tripData = await associatedWithTrip(tripId, requesterId, requesterIdColumn);
   
   if (!tripData || tripData.error) {
     return false;
   }
 
-  if (requester_role === "Dispatcher") {
-    return tripData[0]?.dispatcher_id === requester_id ? true : false;
+  if (requesterRole === "Dispatcher") {
+    return tripData[0]?.dispatcher_id === requesterId ? true : false;
   }
 
-  return tripData[0]?.customer_id === requester_id ? true : false;
+  return tripData[0]?.customer_id === requesterId ? true : false;
 };
 
-export const riderUserId = async (rider_id) => {
+export const riderUserId = async (rider_id:string) => {
   const riderData = await getOneRiderFromDB(rider_id);
   return riderData.user_id;
 };
-export const driverUserId = async (driver_id) => {
+
+export const driverUserId = async (driver_id:string) => {
   const driverData = await getOneDriverFromDB(driver_id);
   return driverData.user_id;
 };
@@ -95,7 +88,7 @@ export const currencyFormatter = new Intl.NumberFormat("gh-GA", {
   maximumFractionDigits: 2,
 });
 
-export const getDayFromDate = (dateString) => {
+export const getDayFromDate = (dateString:string) => {
   const date = new Date(`${dateString}`);
   const day = date.getDay();
   const days = ["Sun.", "Mon.", "Tue.", "Wed.", "Thu.", "Fri.", "Sat."];
@@ -103,7 +96,7 @@ export const getDayFromDate = (dateString) => {
   return dayName;
 };
 
-export const isRightValue = (value, data) => {
+export const isRightValue = ({value, data}:{value:string, data:string[]}) => {
   if (!data || !value) {
     return null;
   }

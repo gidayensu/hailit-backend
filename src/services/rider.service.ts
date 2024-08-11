@@ -58,7 +58,7 @@ export const getOneRiderService = async (rider_id, requester_user_id) => {
     let riderDetails = { ...rider };
     const { user_id } = rider;
     //fetching rider name and related details
-    const isAdmin = await userIsUserRole(requester_user_id, "Admin");
+    const isAdmin = await userIsUserRole({userId:requester_user_id, userRole:"Admin"});
 
     isAdmin ? RIDER_DETAILS.push("email") : "";
     const riderOtherDetails = await getSpecificUserDetailsUsingId(
@@ -108,10 +108,10 @@ export const addRiderService = async (user_id, vehicle_id) => {
 
 export const updateRiderService = async (riderDetails) => {
   try {
-    const validRiderDetails = allowedPropertiesOnly(
-      riderDetails,
-      ALLOWED_UPDATE_RIDER_PROPERTIES
-    );
+    const validRiderDetails = allowedPropertiesOnly({
+      data: riderDetails,
+      allowedProperties: ALLOWED_UPDATE_RIDER_PROPERTIES,
+    });
 
     const riderUpdate = await updateRiderOnDB(validRiderDetails);
 

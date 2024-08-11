@@ -15,7 +15,7 @@ export const addingAdminAuth: Middleware = async (req, res, next) => {
       const token = authHeader.split(" ")[1];
       const user = jwt.verify(token, supaSecret);
       const { user_id } = user;
-      const isAdmin = await userIsUserRole(user_id, "Admin");
+      const isAdmin = await userIsUserRole({userId:user_id, userRole:"Admin"});
 
       if (!isAdmin) {
         return res.status(401).json({ error: "unauthorized" });

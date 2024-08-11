@@ -12,8 +12,8 @@ export const isAssociatedWithTrip: Middleware = async (req, res, next) => {
     const jwtUserId = req.user.sub;
     const requesterId = dispatcherId ? dispatcherId : jwtUserId;
     const requesterRole = dispatcherId ? "Dispatcher" : "Customer";
-    const isAdmin = await userIsUserRole(jwtUserId, "Admin");
-    const isAssociated = await userAssociatedWithTrip(trip_id, requesterId, requesterRole)
+    const isAdmin = await userIsUserRole({userId:jwtUserId, userRole:"Admin"});
+    const isAssociated = await userAssociatedWithTrip({tripId:trip_id, requesterId, requesterRole})
     
     if (isAssociated || isAdmin) {
       next();
@@ -33,7 +33,7 @@ export const userIsAdmin: Middleware = async(req, res) => {
 
     const { userId } = req.params;
     const jwtUserId = req.user.sub;
-    const isAdmin = await userIsUserRole(jwtUserId, "Admin");
+    const isAdmin = await userIsUserRole({userId:jwtUserId, userRole:"Admin"});
 
     if (userId === jwtUserId && isAdmin) {
       return res.status(200).json({ admin: true });

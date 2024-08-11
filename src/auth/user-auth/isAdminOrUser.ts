@@ -7,10 +7,10 @@ export const isAdminOrUserAuth: Middleware = async (req, res, next) => {
         const { userId } = req.params;
         const jwtUserId = req.user.user_id;
         
-        const isAdmin = await userIsUserRole(jwtUserId, 'Admin');
-        const isDriver = await userIsUserRole(jwtUserId, 'Driver');
-        const isRider =  await userIsUserRole(jwtUserId, 'Rider');
-        const isClient  =  await userIsUserRole(jwtUserId, 'Customer');
+        const isAdmin = await userIsUserRole({userId:jwtUserId, userRole:'Admin'});
+        const isDriver = await userIsUserRole({userId:jwtUserId, userRole:'Driver'});
+        const isRider =  await userIsUserRole({userId:jwtUserId, userRole:'Rider'});
+        const isClient  =  await userIsUserRole({userId:jwtUserId, userRole:'Customer'});
       
         
             const userDetails = req.body;

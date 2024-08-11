@@ -9,7 +9,7 @@ export const isUser: Middleware = async (req, res, next) => {
     
     const jwtUserId = req.user.sub;
 
-    const isAdmin = await userIsUserRole(jwtUserId, "Admin");
+    const isAdmin = await userIsUserRole({userId:jwtUserId, userRole:"Admin"});
     
     if ((userId === jwtUserId ) || isAdmin) {
       next();

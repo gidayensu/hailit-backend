@@ -124,8 +124,8 @@ export const addUserService = async (userDetails) => {
     const user_id = userDetails.user_id;
     const userDetailsWithId = { user_id, ...userDetails };
     const validUserDetailsWithId = allowedPropertiesOnly(
-      userDetailsWithId,
-      ALLOWED_PROPERTIES
+      {data:userDetailsWithId,
+      allowedProperties:ALLOWED_PROPERTIES}
     );
 
     const addedUser = await addUserToDB(validUserDetailsWithId);
@@ -162,8 +162,8 @@ export const updateUserService = async (userId, userDetails) => {
   try {
     //VALIDATION - SHOULD BE MOVED TO A SEPARATE MIDDLEWARE
     let validUserDetails = allowedPropertiesOnly(
-      userDetails,
-      ALLOWED_PROPERTIES
+      {data:userDetails,
+      allowedProperties:ALLOWED_PROPERTIES}
     );
     if (validUserDetails.length < 1) {
       return errorHandler(

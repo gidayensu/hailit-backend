@@ -9,42 +9,42 @@ describe("allowedPropertiesOnly", () => {
   test("should return an object with only the allowed properties", () => {
     const data = { a: 1, b: 2, c: 3 };
     const allowedProperties = ["a", "c"];
-    const result = allowedPropertiesOnly(data, allowedProperties);
+    const result = allowedPropertiesOnly({data, allowedProperties});
     expect(result).toEqual({ a: 1, c: 3 });
   });
 
   test("should return an empty object if no properties are allowed", () => {
     const data = { a: 1, b: 2, c: 3 };
     const allowedProperties = [];
-    const result = allowedPropertiesOnly(data, allowedProperties);
+    const result = allowedPropertiesOnly({data, allowedProperties});
     expect(result).toEqual({});
   });
 
   test("should return an empty object if data is empty", () => {
     const data = {};
     const allowedProperties = ["a", "b"];
-    const result = allowedPropertiesOnly(data, allowedProperties);
+    const result = allowedPropertiesOnly({data, allowedProperties});
     expect(result).toEqual({});
   });
 
   test("should ignore properties not in the allowed list", () => {
     const data = { a: 1, b: 2, c: 3 };
     const allowedProperties = ["d", "e"];
-    const result = allowedPropertiesOnly(data, allowedProperties);
+    const result = allowedPropertiesOnly({data, allowedProperties});
     expect(result).toEqual({});
   });
 
   test("should work with nested objects", () => {
     const data = { a: 1, b: { c: 3, d: 4 }, e: 5 };
     const allowedProperties = ["a", "b"];
-    const result = allowedPropertiesOnly(data, allowedProperties);
+    const result = allowedPropertiesOnly({data, allowedProperties});
     expect(result).toEqual({ a: 1, b: { c: 3, d: 4 } });
   });
 
   test("should work with array properties", () => {
     const data = { a: [1, 2, 3], b: 2, c: 3 };
     const allowedProperties = ["a"];
-    const result = allowedPropertiesOnly(data, allowedProperties);
+    const result = allowedPropertiesOnly({data, allowedProperties});
     expect(result).toEqual({ a: [1, 2, 3] });
   });
 
@@ -57,7 +57,7 @@ describe("allowedPropertiesOnly", () => {
   test("should return the original object if all properties are allowed", () => {
     const data = { a: 1, b: 2, c: 3 };
     const allowedProperties = ["a", "b", "c"];
-    const result = allowedPropertiesOnly(data, allowedProperties);
+    const result = allowedPropertiesOnly({data, allowedProperties});
     expect(result).toEqual({ a: 1, b: 2, c: 3 });
   });
 });
