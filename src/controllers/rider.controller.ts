@@ -120,7 +120,7 @@ export const deleteRider: Middleware = async (req, res) => {
   try {
     const { rider_id } = req.params;
     const deletedRider = await deleteRiderService(rider_id);
-    if (deletedRider.error) {
+    if ((deletedRider).error) {
       return res
         .status(deletedRider.errorCode)
         .json({

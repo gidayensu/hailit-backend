@@ -2,14 +2,12 @@ import { v4 as uuid } from "uuid";
 import {
   DEFAULT_VEHICLE_ID, DRIVER_ID_COLUMN,
   DRIVER_TABLE_COLUMNS,
-  DRIVER_TABLE_NAME,
-  DRIVER_VEHICLE_ID, EMAIL_COLUMN, PHONE_NUMBER,
-  USER_FIRST_NAME, USER_ID_DRIVER, USER_ID_USERS, USER_LAST_NAME, VEHICLE_ID_COLUMN, VEHICLE_NAME_COLUMN,
-  VEHICLE_PLATE_COLUMN, VEHICLE_TABLE,
+  DRIVER_TABLE_NAME
 } from '../constants/driverConstants.js';
-import { USER_ID_COLUMN, USER_TABLE_NAME } from "../constants/usersConstants";
+import { USER_ID_COLUMN } from "../constants/usersConstants";
 import { errorHandler } from "../utils/errorHandler";
 
+import { GetAllFromDB } from "../types/getAll.types.js";
 import { addOne } from "./DB/addDbFunctions";
 import { deleteOne } from "./DB/deleteDbFunctions";
 import {
@@ -19,7 +17,6 @@ import {
 } from "./DB/getDbFunctions";
 import { updateOne } from "./DB/updateDbFunctions";
 import { getDispatcherCount, getDispatchersVehicleJoin } from "./DB/usersDbFunctions";
-import { GetAllFromDB } from "../types/getAll.types.js";
 
 export const getAllDriversFromDB = async ({limit,
   offset,
@@ -39,7 +36,7 @@ export const getAllDriversFromDB = async ({limit,
     return allDrivers;
   } catch (err) {
     
-    return errorHandler("server error occurred getting drivers", `${err}`, 500, "Driver Model");
+    return errorHandler({error:"server error occurred getting drivers", errorMessage: `${err}`, errorCode:500, errorSource: "Driver Model"});
 
   }
 };
@@ -163,13 +160,13 @@ export const updateDriverOnDB = async (driverDetails) => {
       return driverUpdate; //Error details returned
     }
     if (driverUpdate.rowCount === 0) {
-      return errorHandler("Driver details not updated", "Driver detail not found", 400, "Driver Model");
+      return errorHandler({error:"Driver details not updated", errorMessage:"Driver detail not found", errorCode: 400, errorSource: "Driver Model"});
 
     }
     return driverUpdate.rows[0];
   } catch (err) {
     
-    return errorHandler("Error occurred in updating driver details", `${err}`, 500, "Driver Model");
+    return errorHandler({error:"Error occurred in updating driver details", errorMessage: `${err}`, errorCode :500, errorSource: "Driver Model"});
   }
 };
 
@@ -185,6 +182,6 @@ export const deleteDriverFromDB = async (driver_id:string) => {
       return driverDelete;
     
   } catch (err) {
-    return errorHandler("Server Error occurred deleting driver", `${err}`, 500, "Driver Model")
+    return errorHandler({error:"Server Error occurred deleting driver", errorMessage: `${err}`, errorCode: 500, errorSource: "Driver Model"})
   }
 };

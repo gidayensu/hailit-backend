@@ -14,6 +14,7 @@ import {
 import { getSpecificUserDetailsUsingId } from "../model/user.model";
 import { getOneVehicleFromDB } from "../model/vehicle.model";
 import { GetAll } from "../types/getAll.types";
+import { DispatcherDetails } from "../types/shared.types";
 import { errorHandler } from "../utils/errorHandler";
 import { allowedPropertiesOnly, userIsUserRole } from "../utils/util";
 import { getAllEntitiesService } from "./helpers.service";
@@ -90,9 +91,9 @@ export const getOneRiderService = async (rider_id, requester_user_id) => {
   }
 };
 
-export const addRiderService = async (user_id, vehicle_id) => {
+export const addRiderService = async (userId:string) => {
   try {
-    const riderAdd = await addRiderToDB(user_id, vehicle_id);
+    const riderAdd = await addRiderToDB(userId);
     return riderAdd;
   } catch (err) {
     return errorHandler(
@@ -107,9 +108,9 @@ export const addRiderService = async (user_id, vehicle_id) => {
   }
 };
 
-export const updateRiderService = async (riderDetails) => {
+export const updateRiderService = async (riderDetails: RiderDetails) => {
   try {
-    const validRiderDetails = allowedPropertiesOnly({
+    const validRiderDetails:RiderDetails = allowedPropertiesOnly({
       data: riderDetails,
       allowedProperties: ALLOWED_UPDATE_RIDER_PROPERTIES,
     });
@@ -130,10 +131,9 @@ export const updateRiderService = async (riderDetails) => {
   }
 };
 
-export const deleteRiderService = async (rider_id) => {
+export const deleteRiderService = async (rider_id:string) => {
   try {
     const riderDelete = await deleteRiderFromDB(rider_id); //returns true/false or error
-      
     return riderDelete;
   } catch (err) {
     return errorHandler(
@@ -147,3 +147,7 @@ export const deleteRiderService = async (rider_id) => {
     );
   }
 };
+
+export interface RiderDetails extends DispatcherDetails {
+  rider_id?: string,
+}

@@ -16,7 +16,10 @@ import { getOneVehicleFromDB } from "../model/vehicle.model";
 import { errorHandler } from "../utils/errorHandler";
 import { allowedPropertiesOnly, userIsUserRole } from "../utils/util";
 import { getAllEntitiesService } from "./helpers.service";
+
+//types
 import { GetAll } from "../types/getAll.types";
+import { DispatcherDetails } from "../types/shared.types";
 
 export const getAllDriversService = async ({
   page,
@@ -63,7 +66,7 @@ export const getOneDriverService = async ({driverId, requesterUserId}:{driverId:
     const { user_id } = driver;
 
     //fetching driver name and related details
-    const isAdmin = await userIsUserRole({userId:requesterUserId, userRole:"Admin"});
+    const isAdmin = await userIsUserRole({userId: requesterUserId, userRole: "Admin"});
 
     isAdmin ? GET_DRIVER_COLUMNS.push("email") : "";
     const driverNamePhone = await getSpecificUserDetailsUsingId(
@@ -103,7 +106,9 @@ export const addDriverService = async (user_id, vehicle_id) => {
   return driverAdd;
 };
 
-export const updateDriverService = async (driverDetails) => {
+
+
+export const updateDriverService = async (driverDetails:DriverDetails) => {
   try {
     const validDriverDetails = allowedPropertiesOnly(
       {data:driverDetails,
@@ -127,7 +132,7 @@ export const updateDriverService = async (driverDetails) => {
   }
 };
 
-export const deleteDriverService = async (driver_id) => {
+export const deleteDriverService = async (driver_id:string) => {
   try {
     const driverDelete = await deleteDriverFromDB(driver_id);
     if (driverDelete.error) {
@@ -146,3 +151,7 @@ export const deleteDriverService = async (driver_id) => {
     );
   }
 };
+
+interface DriverDetails extends DispatcherDetails {
+  driver_id?: string,
+}

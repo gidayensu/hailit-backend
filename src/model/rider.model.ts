@@ -1,4 +1,6 @@
 import { v4 as uuid } from "uuid";
+
+//constants
 import {
   DEFAULT_VEHICLE_ID,
   RIDER_COLUMNS_FOR_ADDING,
@@ -6,8 +8,11 @@ import {
   RIDER_TABLE_NAME
 } from "../constants/riderConstants";
 import { USER_ID_COLUMN } from "../constants/usersConstants";
-import { GetAllFromDB } from "../types/getAll.types";
+
+//helpers
 import { errorHandler } from "../utils/errorHandler";
+
+//DB functions
 import { addOne } from "./DB/addDbFunctions";
 import { deleteOne } from "./DB/deleteDbFunctions";
 import {
@@ -17,6 +22,10 @@ import {
 } from "./DB/getDbFunctions";
 import { updateOne } from "./DB/updateDbFunctions";
 import { getDispatcherCount, getDispatchersVehicleJoin } from "./DB/usersDbFunctions";
+
+//types
+import { GetAllFromDB } from "../types/getAll.types";
+import { RiderDetails } from "../services/rider.service";
 
 export const getAllRiders = async ({
   limit,
@@ -168,7 +177,7 @@ export const addRiderToDB = async (user_id:string) => {
   }
 };
 
-export const updateRiderOnDB = async (riderDetails) => {
+export const updateRiderOnDB = async (riderDetails:RiderDetails) => {
   const { rider_id } = riderDetails;
   
   const tableColumns = Object.keys(riderDetails);
