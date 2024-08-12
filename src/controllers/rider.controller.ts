@@ -7,7 +7,6 @@ import {
 
 //types
 import { Middleware } from "../types/middleware.types";
-import { ErrorResponse } from "../utils/handleError";
 import { isErrorResponse } from "../utils/util";
 
 

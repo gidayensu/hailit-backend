@@ -171,8 +171,8 @@ export const addUser : Middleware = async (req, res) => {
 export const updateUser : Middleware = async (req, res) => {
   try {
     const {
-      first_name = "" | "unknown",
-      last_name = "" | "unknown",
+      first_name = "no name" ,
+      last_name = "no name" ,
       email = "",
       phone_number = "",
       user_role = "",
