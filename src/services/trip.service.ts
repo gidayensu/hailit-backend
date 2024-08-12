@@ -485,13 +485,13 @@ export const currentMonthTripsCountService = async () => {
     
 
      
-    const pending_previous_month = calculatePending({
+    const pending_current_month = calculatePending({
       total: total_trips_current_month,
       delivered: delivered_current_month,
       cancelled: cancelled_current_month,
     })
 
-    const pending_current_month = calculatePending({
+    const pending_previous_month = calculatePending({
       total: total_trips_previous_month,
       delivered: delivered_previous_month,
       cancelled: cancelled_previous_month,

@@ -182,7 +182,7 @@ export const increaseRatingCount = async ({tripMedium, dispatcherId}: {tripMediu
 };
 
 export const tripsCount = (trips:Trip[]): TripsCount => {
-  let total_earnings:number = 0;
+  let initial_total_earnings:number  = 0;
   let total_payment: number = 0;
   let delivered_trips:number = 0;
   let current_trips:number = 0;
@@ -190,7 +190,7 @@ export const tripsCount = (trips:Trip[]): TripsCount => {
 
   trips.forEach((trip:Trip) => {
     if (trip.trip_status === "Delivered") {
-      total_earnings += Math.ceil(trip.trip_cost * 0.8);
+      initial_total_earnings += Math.ceil(trip.trip_cost * 0.8);
       delivered_trips++;
     } else if (trip.trip_status === "Cancelled") {
       cancelled_trips++;
@@ -201,11 +201,13 @@ export const tripsCount = (trips:Trip[]): TripsCount => {
       total_payment += Math.ceil(trip.trip_cost);
     }
   });
-  total_earnings = +currencyFormatter.format(total_earnings);
+  
+  const total_earnings = currencyFormatter.format(initial_total_earnings);
+  
   const total_trip_count = trips.length;
 
   return {
-    total_trip_count,
+    total_trip_count, 
     delivered_trips,
     cancelled_trips,
     current_trips,
@@ -246,7 +248,7 @@ export const updateDispatcherRating = async (
         cumulative_rating: averageDispatcherRating,
         rider_id: dispatcherId,
       });
-      if (riderUpdate.error) {
+      if (isErrorResponse(riderUpdate)) {
         return riderUpdate; //Error details returned
       }
     } else if (tripMedium === "Car" || tripMedium === "Truck") {
