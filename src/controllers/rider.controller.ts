@@ -98,7 +98,7 @@ export const updateRider: Middleware = async (req, res) => {
 
   try {
     const updatedRider = await updateRiderService(riderDetails);
-    if (updatedRider.error) {
+    if (isErrorResponse(updatedRider)) {
       return res
       .status(updatedRider.errorCode)
       .json({
@@ -107,7 +107,7 @@ export const updateRider: Middleware = async (req, res) => {
         errorSource: updatedRider.errorSource,
       });
     } 
-    req.io.emit('updatedRider', updatedRider)
+    
     res.status(200).json({ rider: updatedRider });
   } catch (err) {
     return res
@@ -140,7 +140,7 @@ export const deleteRider: Middleware = async (req, res) => {
         .status(404)
         .json({ success: false, error: "rider not deleted." });
     }
-    req.io.emit('deletedRider', deletedRider)
+    
     res.status(200).json({ success: true, rider_id  });
   } catch (err) {
     return res

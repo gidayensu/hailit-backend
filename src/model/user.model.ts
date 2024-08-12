@@ -8,6 +8,7 @@ import {
 } from "../constants/usersConstants";
 import { GetAllFromDB } from "../types/getAll.types";
 import { handleError } from "../utils/handleError";
+import { isErrorResponse } from "../utils/util";
 import { addOne } from "./DB/addDbFunctions";
 import { deleteOne } from "./DB/deleteDbFunctions";
 import {
@@ -187,14 +188,14 @@ export const updateUserOnDB = async (userId, userDetails) => {
   }
 };
 
-export const getSpecificUserDetailsUsingId = async (userId, columns) => {
+export const getSpecificUserDetailsUsingId = async ({userId, columns}: {userId:string, columns: string[] | string}) => {
   
-  const specificDetails = await getSpecificDetailsUsingId(
-    USER_TABLE_NAME,
-    userId,
-    USER_ID_COLUMN,
-    columns
-  );
+  const specificDetails = await getSpecificDetailsUsingId({
+    tableName: USER_TABLE_NAME,
+    id: userId,
+    idColumn: USER_ID_COLUMN,
+    columns: columns,
+  });
   if (specificDetails.error) {
     return handleError(
       {
@@ -216,12 +217,10 @@ export const deleteUserFromDB = async (userId) => {
     //check if user exists
     const userExist = await userExists(userId); //returns true/false or error
     
-    if(userExist.error ) {
+    if(isErrorResponse(userExist) ) {
       return userExist 
     }
-    // if(userExist.error || !userExist) {
-    //   userExist.error ? userExist : handleError("User does not exist", null, 404, "User Mode: Delete User")
-    // }
+    
 
     //delete if user exists
     if (userExist) {

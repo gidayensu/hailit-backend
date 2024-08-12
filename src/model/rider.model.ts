@@ -10,7 +10,7 @@ import {
 import { USER_ID_COLUMN } from "../constants/usersConstants";
 
 //helpers
-import { handleError } from "../utils/handleError";
+import { ErrorResponse, handleError } from "../utils/handleError";
 
 //DB functions
 import { addOne } from "./DB/addDbFunctions";
@@ -26,6 +26,7 @@ import { getDispatcherCount, getDispatchersVehicleJoin } from "./DB/usersDbFunct
 //types
 import { GetAllFromDB } from "../types/getAll.types";
 import { RiderDetails } from "../services/rider.service";
+import { isErrorResponse } from "../utils/util";
 
 export const getAllRiders = async ({
   limit,
@@ -163,13 +164,13 @@ export const addRiderToDB = async (user_id:string) => {
     }
     const rider_id = uuid();
     const riderDetails = [rider_id, DEFAULT_VEHICLE_ID, user_id];
-    const addingMotor = await addOne(
+    const addingRider = await addOne(
       RIDER_TABLE_NAME,
       RIDER_COLUMNS_FOR_ADDING,
       riderDetails
     );
     
-      return addingMotor;
+      return addingRider;
     
   } catch (err) {
     return handleError({
@@ -196,7 +197,8 @@ export const updateRiderOnDB = async (riderDetails:RiderDetails) => {
       RIDER_ID_COLUMN,
       ...riderDetailsArray
     );
-    if (riderUpdate.error) {
+
+    if (isErrorResponse (riderUpdate)) {
       return riderUpdate //error details returned
     }
     if (riderUpdate.rowCount === 0) {
@@ -208,7 +210,8 @@ export const updateRiderOnDB = async (riderDetails:RiderDetails) => {
       }
       );
     }
-    return riderUpdate.rows[0];
+    const updatedRider: RiderDetails | ErrorResponse = riderUpdate.rows[0];
+    return updatedRider;
   } catch (err) {
     return handleError({
       error: "Error occurred in updating rider details",

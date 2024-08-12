@@ -128,7 +128,7 @@ export interface TripsCount {
     delivered_trips: number,
     cancelled_trips: number,
     current_trips: number,
-    total_earnings: number,
+    total_earnings: string,
     total_payment: number,
 }
 

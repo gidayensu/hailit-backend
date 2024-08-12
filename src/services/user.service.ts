@@ -25,7 +25,7 @@ import {
 } from "../model/user.model";
 import { GetAll } from "../types/getAll.types";
 import { handleError } from "../utils/handleError";
-import { allowedPropertiesOnly } from "../utils/util";
+import { allowedPropertiesOnly, isErrorResponse } from "../utils/util";
 import {
   addDriverIfApplicable,
   addRiderIfApplicable,
@@ -180,17 +180,17 @@ export const updateUserService = async (userId, userDetails) => {
     const date_updated = "now()";
     validUserDetails = { ...validUserDetails, date_updated };
 
-    //check if user exists
+    
     const userExist = await userExists(userId);
-    if (userExist.error || !userExist) {
+    if (isErrorResponse(userExist) || !userExist) {
       return userExist; //returns with error message and code
     }
 
-    //get user data to check for existing email/phone_number
+    
     const userData = await getOneUserFromDB(userId);
 
     const { email = "", phone_number = "" } = validUserDetails;
-    //check if email exists and it belongs to the user being updated
+    
     const emailExist = await detailExistsUserAssociation(
       email,
       "email",
