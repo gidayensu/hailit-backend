@@ -70,8 +70,8 @@ export const getOneDriverService = async ({driverId, requesterUserId}:{driverId:
 
     isAdmin ? GET_DRIVER_COLUMNS.push("email") : "";
     const driverNamePhone = await getSpecificUserDetailsUsingId(
-      user_id,
-      GET_DRIVER_COLUMNS
+      {userId: user_id,
+      columns: GET_DRIVER_COLUMNS}
     );
     if (driverNamePhone.error) {
       return { error: driverNamePhone.error };

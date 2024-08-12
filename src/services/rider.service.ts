@@ -70,10 +70,10 @@ export const getOneRiderService = async ({riderId, requesterUserId}: {riderId:st
     const isAdmin = requesterUserId && await userIsUserRole({userId: requesterUserId, userRole:"Admin"});
 
     isAdmin ? RIDER_DETAILS.push("email") : "";
-    const riderOtherDetails = await getSpecificUserDetailsUsingId(
-      user_id,
-      RIDER_DETAILS
-    );
+    const riderOtherDetails = await getSpecificUserDetailsUsingId({
+      userId: user_id,
+      columns: RIDER_DETAILS,
+    });
     if (riderOtherDetails.error) {
       return { error: riderOtherDetails.error };
     }
