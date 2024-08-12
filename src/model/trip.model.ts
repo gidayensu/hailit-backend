@@ -1,6 +1,8 @@
-import { LOCATION_TABLE_NAME, TRIP_ID_COLUMN, TRIP_TABLE_NAME } from '../constants/tripConstants.js';
-import { GetAllFromDB } from '../types/getAll.types.js';
-import { handleError } from "../utils/handleError.js";
+import { LOCATION_TABLE_NAME, TRIP_ID_COLUMN, TRIP_TABLE_NAME } from '../constants/tripConstants';
+import { GetAllFromDB } from '../types/getAll.types';
+import { Trip } from '../types/trips.types';
+import { ErrorResponse, handleError } from "../utils/handleError";
+import { isErrorResponse } from '../utils/util';
 import { addOne } from "./DB/addDbFunctions";
 import { deleteOne } from "./DB/deleteDbFunctions";
 import { getOne, getSpecificDetailsUsingId, selectOnCondition } from "./DB/getDbFunctions";
@@ -81,10 +83,10 @@ export const getTripCount = async(search:string)=> {
     )
   }  
 }  
-export const searchTrips = async(searchQuery, limit, offset)=> {
+export const searchTrips = async({searchQuery, limit, offset}: {searchQuery: string, limit: number, offset: number}) : Promise<Trip[] | ErrorResponse>=> {
   try {
     
-    const searchResults = await selectOnCondition(TRIP_TABLE_NAME, 'trip_id', searchQuery, limit, offset, true);
+    const searchResults: Trip[] = await selectOnCondition(TRIP_TABLE_NAME, 'trip_id', searchQuery, limit, offset, true);
 
     return searchResults;
     
@@ -133,14 +135,14 @@ export const getIDsAndMediumFromDb = async (tripId:string)=> {
 }  
 
 
-export const getOneTripFromDB = async (trip_id:string) => {
+export const getOneTripFromDB = async (trip_id:string): Promise<Trip | ErrorResponse> => {
   try {
-    const oneTrip = await getOneTrip( trip_id);
+    const tripData = await getOneTrip( trip_id);
 
-    if (oneTrip.error) {
-      return oneTrip //Error details returned 
+    if (isErrorResponse(tripData)) {
+      return tripData;
     }
-    return oneTrip[0];
+    return tripData[0];
   } catch (err) {
     return handleError(
       {

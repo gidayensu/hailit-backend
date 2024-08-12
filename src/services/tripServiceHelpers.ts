@@ -238,25 +238,30 @@ export const updateDispatcherRating = async (
     dispatcherId: string,
     averageDispatcherRating: number
   }
-): Promise<{success: boolean}> => {
-  if (tripMedium === "Motor") {
-    const riderUpdate = await updateRiderOnDB({
-      cumulative_rating: averageDispatcherRating,
-      rider_id: dispatcherId,
-    });
-    if (riderUpdate.error) {
-      return riderUpdate; //Error details returned
+): Promise<boolean | ErrorResponse> => {
+  try {
+
+    if (tripMedium === "Motor") {
+      const riderUpdate = await updateRiderOnDB({
+        cumulative_rating: averageDispatcherRating,
+        rider_id: dispatcherId,
+      });
+      if (riderUpdate.error) {
+        return riderUpdate; //Error details returned
+      }
+    } else if (tripMedium === "Car" || tripMedium === "Truck") {
+      const driverUpdate = await updateDriverOnDB({
+        cumulative_rating: averageDispatcherRating,
+        driver_id: dispatcherId,
+      });
+      if (driverUpdate.error) {
+        return driverUpdate; //Error details returned
+      }
     }
-  } else if (tripMedium === "Car" || tripMedium === "Truck") {
-    const driverUpdate = await updateDriverOnDB({
-      cumulative_rating: averageDispatcherRating,
-      driver_id: dispatcherId,
-    });
-    if (driverUpdate.error) {
-      return driverUpdate; //Error details returned
-    }
+    return true;
+  } catch(err) {
+    return handleError({error: "Error updating dispatcher rating", errorCode: 500, errorMessage: `${err}`, errorSource: 'Trip Servicer Helper: Update Disptcher Rating'})
   }
-  return { success: true };
 };
 
 //CUSTOMER TRIPS (HELPER FUNCTION)
@@ -396,6 +401,10 @@ export const sortByCalendarMonths= (monthCountData: MonthsData[]) => {
   return monthCountData;
 }
  
+
+export const isTrip = (trip: Trip | ErrorResponse): trip is Trip=> {
+  return 'trip_id' in trip;
+}
 const monthOrder = [
   "January",
   "February",

@@ -6,7 +6,7 @@ export interface TripMonth {
 }
 
 export interface MonthsData {
-  trip_count: number,
+  [key: string]: any,
   month: MonthName
 }
 export interface Trip {

@@ -1,15 +1,19 @@
 
 import crypto from "crypto";
 import { config } from "dotenv";
+import { Server } from "socket.io";
+
+//constants
 import { DEFAULT_LIMIT } from "../constants/sharedConstants";
 import {
   ALLOWED_RATE_TRIP_PROPS,
   ALLOWED_UPDATE_PROPERTIES,
   ANONYMOUS_USER_PROPS,
   MONTH_ORDER,
-  NO_LOCATION_PROPS,
-  TRIP_ID_COLUMN,
+  NO_LOCATION_PROPS
 } from "../constants/tripConstants";
+
+//DB functions
 import {
   addTripToDB,
   deleteTripFromDB,
@@ -27,7 +31,8 @@ import {
   updateTripOnDB
 } from "../model/trip.model";
 import { getOneUserFromDB } from "../model/user.model";
-import { handleError } from "../utils/handleError";
+
+//helpers
 import {
   allowedPropertiesOnly,
   currencyFormatter,
@@ -43,17 +48,21 @@ import {
   getDispatcherDetails,
   getDispatcherId,
   increaseRatingCount,
+  isTrip,
   percentageDifference,
   sortByCalendarMonths,
   tripsRealTimeUpdate,
 
   updateDispatcherRating
 } from "./tripServiceHelpers";
-import { getOneUserService } from "./user.service";
-import { GetAll } from "../types/getAll.types";
-import { Server } from "socket.io";
-import { MonthName, MonthsData, Trip, TripMonth } from "../types/trips.types";
 config({ path: "../../../.env" });
+
+//types
+import { GetAll } from "../types/getAll.types";
+import { MonthName, MonthsData, Trip, TripMonth } from "../types/trips.types";
+import { UserRole } from "../types/user.types";
+import { ErrorResponse, handleError } from "../utils/handleError";
+import { getOneUserService } from "./user.service";
 
 //GET ALL TRIPS
 export const getAllTripsService = async (
@@ -91,23 +100,30 @@ export const getAllTripsService = async (
 };
 
 //SEARCH TRIPS
-export const searchTripService = async (search, page, limit = DEFAULT_LIMIT) => {
+export const searchTripService = async ({
+  search,
+  page,
+  limit = DEFAULT_LIMIT,
+}: {
+  search: string;
+  page: number;
+  limit?: number;
+}) => {
   try {
-    
     let offset = 0;
 
     page > 1 ? (offset = limit * page - limit) : page;
     const searchLowerCase = search.toLowerCase();
-    const searchResults = await searchTrips(searchLowerCase, limit, offset);
+    const searchResults = await searchTrips({searchQuery:searchLowerCase, limit, offset});
 
     return searchResults;
   } catch (err) {
-    return handleError(
-      "Error Occurred in getting Trips Detail",
-      `${err}`,
-      500,
-      "Get All Trips Service"
-    );
+    return handleError({
+      error: "Error Occurred in getting Trips Detail",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Get All Trips Service",
+    });
   }
 };
 
@@ -119,15 +135,19 @@ export const getOneTripService = async ({tripId, requesterUserId}: {tripId: stri
     const isAdmin = await userIsUserRole({userId: requesterUserId, userRole:"Admin"});
 
     let oneTrip =  await getOneTripFromDB(tripId);
-    if (oneTrip.error) {
-      return { error: oneTrip.error };
+    if (isErrorResponse(oneTrip)) {
+      return oneTrip;
     }
 
     //exclude sender and recipient phone numbers from data sent
     if (!requesterUserId ||  (requesterUserId !== oneTrip.customer_id && !isAdmin) ) {
       oneTrip = allowedPropertiesOnly({data:oneTrip, allowedProperties:ANONYMOUS_USER_PROPS});
     }
-    const { dispatcher_id, trip_medium } = oneTrip;
+    
+    if (!isTrip(oneTrip)) {
+      throw new Error('Expected Trip type');
+    }
+    const { dispatcher_id, trip_medium } = oneTrip 
     const dispatcherDetails = await getDispatcherDetails({dispatcherId: dispatcher_id, tripMedium:trip_medium})
       
     if (dispatcherDetails.error) {
@@ -151,33 +171,33 @@ export const getOneTripService = async ({tripId, requesterUserId}: {tripId: stri
 
 // GET USER TRIPS
 
-export const getUserTripsService = async (user_id:string) => {
+export const getUserTripsService = async (userId:string) => {
   try {
-    const userData = await getOneUserFromDB(user_id);
+    const userData = await getOneUserFromDB(userId);
 
     if (userData.error) {
       return userData;
     }
 
-    const { user_role } = userData;
+    const { user_role:userRole }: {user_role: UserRole} = userData;
 
-    if (user_role === "Customer" || user_role === "Admin") {
-      const customerTrips = await getCustomerTrips(user_id);
+    if (userRole === "Customer" || userRole === "Admin") {
+      const customerTrips = await getCustomerTrips(userId);
 
       return customerTrips;
     }
 
-    if (user_role === "Driver" || user_role === "Rider") {
-      const tripsOfDispatcher = await dispatcherTrips(user_role, user_id);
+    if (userRole === "Driver" || userRole === "Rider") {
+      const tripsOfDispatcher = await dispatcherTrips({userRole, userId});
 
       return tripsOfDispatcher;
     }
   } catch (err) {
-    return handleError(
-      "Error occurred getting user trips details",
-      `${err}`,
-      500,
-      "Trip Service: Get User Trips"
+    return handleError({
+      error: "Error occurred getting user trips details",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Trip Service: Get User Trips"}
     );
   }
 };
@@ -252,7 +272,7 @@ export const addTripService = async ({userId, tripDetails, io}: {userId:string; 
 };
 
 //UPDATE TRIP
-export const updateTripService = async ({ tripDetails, requesterUserId, io }: {tripDetails: Trip; requesterUserId: string, io:Server}) => {
+export const updateTripService = async ({ tripDetails, io }: {tripDetails: Trip; io:Server}) => {
   try {
     const validTripDetails = allowedPropertiesOnly({
       data: tripDetails,
@@ -299,13 +319,12 @@ export const updateTripService = async ({ tripDetails, requesterUserId, io }: {t
 
 //RATE TRIP
 export const rateTripService = async ({
-  ratingDetails, 
-  io, 
-  requesterUserId
+  ratingDetails,
+  io,
 }: {
-  ratingDetails: Trip, 
-  io: Server; 
-  requesterUserId: string}) => {
+  ratingDetails: Trip;
+  io: Server;
+}): Promise<Trip | ErrorResponse> => {
   try {
     const ratingDetailsWithRatingStatus = { ...ratingDetails, rated: true };
 
@@ -324,13 +343,14 @@ export const rateTripService = async ({
       tripId: trip_id,
       columns: "trip_medium",
     });
-    
-    const cumulativeDispatcherRating =
-      await getSpecificTripDetailsUsingId({
+
+    const cumulativeDispatcherRating = await getSpecificTripDetailsUsingId(
+      {
         tripId: dispatcher_id,
         idColumn: "dispatcher_id",
-        columns: "AVG(dispatcher_rating)"}  //TODO: make getSpecificTripDetail generic
-      );
+        columns: "AVG(dispatcher_rating)",
+      } //TODO: make getSpecificTripDetail generic
+    );
     const averageDispatcherRating = cumulativeDispatcherRating[0].avg;
     const { trip_medium } = tripMedium[0];
 
@@ -339,48 +359,44 @@ export const rateTripService = async ({
       dispatcherId: dispatcher_id,
       averageDispatcherRating,
     });
-    if (ratedTrip.error) {
+    if (isErrorResponse(ratedTrip)) {
       return ratedTrip; //error details returned
     }
 
-    const ratingCountUpdate = await increaseRatingCount(
-      {tripMedium: trip_medium,
-      dispatcherId: dispatcher_id}
-    );
+    const ratingCountUpdate = await increaseRatingCount({
+      tripMedium: trip_medium,
+      dispatcherId: dispatcher_id,
+    });
     if (isErrorResponse(ratingCountUpdate)) {
       return ratingCountUpdate; //error details included
     }
 
-    const { customer_id: customerUserId, } = ratedTrip;
+    const { customer_id: customerUserId } = updateTrip;
     const dispatcherDetails =
       dispatcher_id &&
       (await getDispatcherDetails({
         dispatcherId: dispatcher_id,
         tripMedium: trip_medium,
       }));
-    const {user_id: dispatcherUserId} = dispatcherDetails;
+    const { user_id: dispatcherUserId } = dispatcherDetails;
     //check for user role and emit based on the user role
-    io && await tripsRealTimeUpdate({
-      io,
-      dispatcherUserId,
-      customerUserId,
-      tripType: "tripRated",
-      trip: ratedTrip
-    });
+    io &&
+      (await tripsRealTimeUpdate({
+        io,
+        dispatcherUserId,
+        customerUserId,
+        tripType: "tripRated",
+        trip: updateTrip,
+      }));
 
-
-
-    return ratedTrip;
+    return updateTrip;
   } catch (err) {
-    return handleError(
-      {
-        error: `Server error occurred adding rating: ${err}`,
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "Trip Service: Rate Trip"
-      }
-      
-    );
+    return handleError({
+      error: `Server error occurred adding rating: ${err}`,
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Trip Service: Rate Trip",
+    });
   }
 };
 

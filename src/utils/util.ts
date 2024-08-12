@@ -4,9 +4,10 @@ import { getOneDriverFromDB } from "../model/driver.model";
 import { getOneRiderFromDB } from "../model/rider.model";
 import { associatedWithTrip } from "../model/trip.model";
 import { isUserRole } from "../model/user.model";
-import { ErrorResponse } from "./handleError";
+import { ErrorResponse, handleError } from "./handleError";
 
 import { UserRole } from "../types/user.types";
+import { Trip } from "../types/trips.types";
 const EMAIL_REGEX =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -28,10 +29,15 @@ export const phoneValidator = (phone_number:string) => {
 
 
 
-export const allowedPropertiesOnly = ({data, allowedProperties}:{data:any, allowedProperties:string[]}) => {
+export const allowedPropertiesOnly = ({data, allowedProperties}:{data:any, allowedProperties:string[]}):any => {
   try {
     if (!allowedProperties) {
-      return {};
+      return handleError({
+        error: "No properties provided",
+        errorCode: 404,
+        errorMessage: "Provide properties",
+        errorSource: "Helper functions: allowed properties only"
+      });
     }
     return Object.keys(data)
       .filter((key) => allowedProperties.includes(key))
@@ -41,7 +47,12 @@ export const allowedPropertiesOnly = ({data, allowedProperties}:{data:any, allow
       }, {});
   } catch (err) {
     console.error("An error occurred:", err);
-    return {};
+    return handleError({
+      error: "Error occurred getting properties only",
+      errorCode: 500,
+      errorMessage: `${err}`,
+      errorSource: "Helper functions: allowed properties only"
+    });
   }
 };
 
@@ -103,7 +114,10 @@ export const isRightValue = ({value, data}:{value:string, data:string[]}) => {
   return data.includes(value);
 };
 
-//for functions that return boolean or error
-export const isErrorResponse = (response: boolean | ErrorResponse): response is ErrorResponse => {
+
+
+export const isErrorResponse = <T>(response: GenericResponse<T>): response is ErrorResponse => {
   return typeof response === 'object' && response !== null && 'error' in response;
-}
+};
+
+type GenericResponse<T> = ErrorResponse | T;

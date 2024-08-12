@@ -74,7 +74,7 @@ export const getOneTrip : Middleware = async (req, res) => {
     const userId = req.user?.sub;
 
     const oneTrip = await getOneTripService({tripId:trip_id, requesterUserId:userId});
-    if (oneTrip.error) {
+    if (isErrorResponse(oneTrip)) {
       return res
       .status(400)
       .json({
@@ -163,7 +163,7 @@ export const updateTrip : Middleware = async (req, res) => {
     const { trip_id } = req.params;
     const tripDetails = { trip_id, ...req.body,  };
 
-    const tripUpdate = await updateTripService(tripDetails, reqUserId, io, );
+    const tripUpdate = await updateTripService({ tripDetails, io,} );
     if (tripUpdate?.error) {
       return res
         .status(403)
@@ -198,7 +198,7 @@ export const rateTrip : Middleware = async (req, res) => {
     const detailsWithId = { trip_id, ...ratingDetails };
 
     const ratedTrip = await rateTripService(detailsWithId);
-    if (ratedTrip.error) {
+    if (isErrorResponse(ratedTrip)) {
       return res
         .status(400)
         .json({
@@ -222,10 +222,10 @@ export const rateTrip : Middleware = async (req, res) => {
 
 export const deleteTrip : Middleware = async (req, res) => {
   try {
-    const user_id = req.user.sub;
+    
     const { trip_id } = req.params;
     const io = req.io;
-    const tripDelete = await deleteTripService(trip_id, user_id, io);
+    const tripDelete = await deleteTripService({tripId: trip_id, io});
 
     if (isErrorResponse(tripDelete)) {
       return res
@@ -254,8 +254,8 @@ export const searchTrips : Middleware = async (req, res) => {
     const search = req.query.search;
 
     const page = req.query.page || 1;
-    const searchResults = await searchTripService(search, page);
-    if (searchResults.error) {
+    const searchResults = await searchTripService({search, page});
+    if (isErrorResponse(searchResults)) {
       return res
         .status(searchResults.errorCode)
         .json({
@@ -330,7 +330,7 @@ export const currentWeekTripCount : Middleware = async (req, res) => {
 export const getCurrentMonthTripCounts : Middleware = async (req, res) => {
   try {
     const tripCounts = await currentMonthTripsCountService();
-    if (tripCounts.error) {
+    if (isErrorResponse(tripCounts)) {
       return res
         .status(tripCounts.errorCode)
         .json({
@@ -367,7 +367,7 @@ export const getTripsCountByMonth : Middleware = async (req, res) => {
     const tripProp =
       package_type || trip_area || trip_medium || trip_type || trip_status;
     const tripDataColumn = trip_column;
-    const tripCounts = await tripsCountByMonth(tripDataColumn, tripProp, month);
+    const tripCounts = await tripsCountByMonth({tripDataColumn, condition: tripProp, month});
     if (tripCounts.error) {
       return res
         .status(tripCounts.errorCode)

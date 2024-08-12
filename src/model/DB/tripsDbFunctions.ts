@@ -1,10 +1,11 @@
 import { USERS_TABLE } from "../../constants/riderConstants";
 import { FIRST_NAME, LAST_NAME, LOCATION_TABLE_NAME, PAYMENT_STATUS, TRIP_ID_COLUMN, TRIP_TABLE_NAME, USER_ID_TRIP, USER_ID_USER } from "../../constants/tripConstants";
 import { GetAllFromDB } from "../../types/getAll.types";
-import { handleError } from "../../utils/handleError";
+import { Trip } from "../../types/trips.types";
+import { ErrorResponse, handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 
-export const getOneTrip = async (condition: string) => {
+export const getOneTrip = async (condition: string): Promise<Trip[] | ErrorResponse> => {
   try {
     const value = [condition];
     const queryText = `SELECT 
