@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "outDir": "./built",
+        "allowJs": true,
+        "module": "CommonJS",
+        "esModuleInterop": true
+    },
+
+
+    "include": ["./src/**/*"]
+}
+

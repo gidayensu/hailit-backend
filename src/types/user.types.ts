@@ -1,0 +1,1 @@
+export type UserRole = "Rider" | "Driver" | "Admin" | "Customer" | "Dispatcher"
