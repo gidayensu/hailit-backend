@@ -48,6 +48,7 @@ import {
   getDispatcherDetails,
   getDispatcherId,
   increaseRatingCount,
+  isIDsAndMedium,
   isTrip,
   percentageDifference,
   sortByCalendarMonths,
@@ -73,7 +74,7 @@ export const getAllTripsService = async (
   search}:GetAll
 ) => {
   try {
-    const trips = await getAllEntitiesService(
+    const trips: Trip[] | ErrorResponse = await getAllEntitiesService(
       {page,
       limit,
       sortColumn,
@@ -404,10 +405,14 @@ export const rateTripService = async ({
 export const deleteTripService = async ({tripId, io}: {tripId: string, io: Server}) => {
   try {
     
-    const IDsANdMedium = await getIDsAndMediumFromDb (tripId);
+    const IDsAndMedium = await getIDsAndMediumFromDb (tripId);
     
+    //ensure that the type of IDsAndMedium is not ErrorResponse
+    if(!(isIDsAndMedium(IDsAndMedium))){
+      throw new Error('Expected IDsAndMediums Type')
+    }
     
-    const {dispatcher_id: dispatcherId, customer_id: customerUserId, trip_medium: tripMedium} = IDsANdMedium;
+    const {dispatcher_id: dispatcherId, customer_id: customerUserId, trip_medium: tripMedium} = IDsAndMedium;
     const dispatcherDetails = dispatcherId && await getDispatcherDetails({dispatcherId, tripMedium})
     const {user_id: dispatcherUserId} = dispatcherDetails;
     

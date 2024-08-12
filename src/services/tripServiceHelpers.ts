@@ -55,7 +55,7 @@ import { currencyFormatter, isErrorResponse } from "../utils/util";
 
 //types
 import { Server } from "socket.io";
-import { CustomerTrips, MonthsData, Trip, TripMedium, TripsCount, TripsRealTimeUpdate } from "../types/trips.types";
+import { CustomerTrips, IDsAndMedium, MonthsData, Trip, TripMedium, TripsCount, TripsRealTimeUpdate } from "../types/trips.types";
 import { UserRole } from "../types/user.types";
 ;
 
@@ -406,6 +406,10 @@ export const sortByCalendarMonths= (monthCountData: MonthsData[]) => {
 
 export const isTrip = (trip: Trip | ErrorResponse): trip is Trip=> {
   return 'trip_id' in trip;
+}
+
+export const isIDsAndMedium = (IDsAndMedium: IDsAndMedium | ErrorResponse): IDsAndMedium is Trip=> {
+  return 'customer_id' in IDsAndMedium;
 }
 const monthOrder = [
   "January",

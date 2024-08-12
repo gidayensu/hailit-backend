@@ -140,3 +140,5 @@ export interface CustomerTrips {
         current_trips: number,
         total_payment: number,
 }
+
+export interface IDsAndMedium {customer_id: string, dispatcher_id:string, trip_medium: TripMedium}

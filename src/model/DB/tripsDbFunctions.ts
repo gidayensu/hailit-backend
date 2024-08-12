@@ -1,7 +1,7 @@
 import { USERS_TABLE } from "../../constants/riderConstants";
 import { FIRST_NAME, LAST_NAME, LOCATION_TABLE_NAME, PAYMENT_STATUS, TRIP_ID_COLUMN, TRIP_TABLE_NAME, USER_ID_TRIP, USER_ID_USER } from "../../constants/tripConstants";
 import { GetAllFromDB } from "../../types/getAll.types";
-import { Trip } from "../../types/trips.types";
+import { IDsAndMedium, Trip, TripMedium } from "../../types/trips.types";
 import { ErrorResponse, handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 
@@ -308,7 +308,7 @@ export const getTripsCustomersJoin = async (
   sortColumn,
   sortDirection = "ASC",
   search}: GetAllFromDB
-) => {
+): Promise<Trip[] | ErrorResponse> => {
   try {
     const values = [];
     let queryText = `SELECT ${TRIP_TABLE_NAME}.*, ${FIRST_NAME}, 
@@ -359,7 +359,7 @@ LIMIT ${limit} OFFSET ${offset};`;
   }
 };
 
-export const getIDsAndMedium = async (tripId:string)=> {
+export const getIDsAndMedium = async (tripId:string): Promise<IDsAndMedium | ErrorResponse>=> {
   const value = [tripId]
   try {
     const queryText = 'SELECT dispatcher_id as dispatcher_id, customer_id as customer_id, trip_medium as trip_medium FROM trips WHERE trip_id = $1';
@@ -376,6 +376,15 @@ export const getIDsAndMedium = async (tripId:string)=> {
     if(IDsAndMedium.rowCount > 0) {
       
       return IDsAndMedium.rows[0];
+    }
+    else {
+      return handleError( 
+        {
+          error: "Error occurred getting dispatcherId",
+          errorMessage: null,
+          errorCode: 500,
+          errorSource: "Trips DB Functions"
+        })
     }
   } catch (err) {
     return handleError( 

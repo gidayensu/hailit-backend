@@ -45,7 +45,7 @@ export const getAllTrips : Middleware = async (req, res) => {
       search,
     });
 
-    if (allTrips.error) {
+    if (isErrorResponse(allTrips)) {
       return res
         .status(allTrips.errorCode)
         .json({
