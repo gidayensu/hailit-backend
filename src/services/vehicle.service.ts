@@ -12,9 +12,10 @@ import {
   updateVehicleOnDB,
 } from "../model/vehicle.model";
 import { allowedPropertiesOnly } from "../utils/util";
-import { handleError } from "../utils/handleError";
+import { ErrorResponse, handleError } from "../utils/handleError";
 import { getAllEntitiesService } from "./helpers.service";
 import { GetAll } from "../types/getAll.types";
+import { Vehicle } from "../types/vehicle.types";
 
 export const getAllVehiclesService = async (
  { page,
@@ -26,7 +27,7 @@ export const getAllVehiclesService = async (
   try {
     
     
-    const allVehicles = await getAllEntitiesService(
+    const allVehicles: Vehicle | ErrorResponse = await getAllEntitiesService(
       {page,
       limit,
       sortColumn,
@@ -37,9 +38,6 @@ export const getAllVehiclesService = async (
       entityName: "vehicles"}
     );
 
-    if (allVehicles.error) {
-      return allVehicles;
-    }
 
     return allVehicles;
 

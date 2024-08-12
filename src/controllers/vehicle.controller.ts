@@ -6,6 +6,7 @@ import {
   updateVehicleService,
 } from "../services/vehicle.service";
 import { Middleware } from "../types/middleware.types";
+import { isErrorResponse } from "../utils/util";
 
 
 export const getAllVehicles : Middleware = async (req, res) => {
@@ -25,7 +26,7 @@ export const getAllVehicles : Middleware = async (req, res) => {
       search,
     });
       
-    if (allVehicles.error) {
+    if (isErrorResponse(allVehicles)) {
       return res.status(allVehicles.errorCode).json( {
         error: allVehicles.error,
         errorMessage: allVehicles.errorMessage,
@@ -93,7 +94,7 @@ export const updateVehicle : Middleware = async (req, res) => {
 
     if (!vehicle_name && !vehicle_model && !plate_number && !vehicle_type) {
       return res.status(403).json({ error: "Require at least one input" });
-    }
+    } //TODO: Move to Validation
 
     const updatedVehicle = await updateVehicleService(vehicle_id, req.body);
 
@@ -121,7 +122,7 @@ export const deleteVehicle : Middleware = async (req, res) => {
 
     const deletedVehicle = await deleteVehicleService(vehicle_id);
 
-    if (deletedVehicle.error) {
+    if (isErrorResponse(deletedVehicle)) {
       return res.status(400).json({
         
         error: "Error occurred deleting vehicle",
