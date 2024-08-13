@@ -7,7 +7,7 @@ import {
   getUserIdUsingEmailService,
   updateUserService,
 } from "../services/user.service";
-import { emailValidator, phoneValidator } from "../utils/util";
+import { emailValidator, isErrorResponse, phoneValidator } from "../utils/util";
 import { config } from "dotenv";
 import { Middleware } from "../types/middleware.types";
 config({ path: "../../../.env" });
@@ -70,7 +70,7 @@ export const getOneUser : Middleware = async (req, res) => {
 
     if (res && res.status) {
       const oneUser = await getOneUserService(userId);
-      if (oneUser.error) {
+      if (isErrorResponse(oneUser)) {
         return res
           .status(403)
           .json({
@@ -99,7 +99,7 @@ export const getUserIdUsingEmail : Middleware = async (req, res) => {
     const { email } = req.query;
 
     const userDetails = await getUserIdUsingEmailService(email);
-    if (userDetails.error) {
+    if (isErrorResponse(userDetails)) {
       return res
         .status(userDetails.errorCode)
         .json({
@@ -232,7 +232,7 @@ export const deleteUser : Middleware = async (req, res) => {
     const { userId } = req.params;
     const userDelete = await deleteUserService(userId);
 
-    if (userDelete.error) {
+    if (isErrorResponse(userDelete)) {
       return res
         .status(userDelete.errorCode)
         .json({

@@ -1,14 +1,22 @@
+//constants
 import {
-  USER_COLUMNS_FOR_ADDING,
   USER_EMAIL_COLUMN,
   USER_ID_COLUMN,
+  USER_PHONE_NUMBER_COLUMN,
   USER_ROLE,
   USER_ROLE_COLUMN,
   USER_TABLE_NAME
 } from "../constants/usersConstants";
+
+//types
 import { GetAllFromDB } from "../types/getAll.types";
-import { handleError } from "../utils/handleError";
+import { User, UserRole } from "../types/user.types";
+import { ErrorResponse, handleError } from "../utils/handleError";
+
+//helpers
 import { isErrorResponse } from "../utils/util";
+
+//DB functions
 import { addOne } from "./DB/addDbFunctions";
 import { deleteOne } from "./DB/deleteDbFunctions";
 import {
@@ -18,8 +26,7 @@ import {
 } from "./DB/getDbFunctions";
 import { detailExists } from "./DB/helperDbFunctions";
 import { updateOne } from "./DB/updateDbFunctions";
-import { getAllCustomers } from "./DB/usersDbFunctions";
-import { customersCount } from "./DB/usersDbFunctions";
+import { customersCount, getAllCustomers } from "./DB/usersDbFunctions";
 
 export const getAllUsersFromDB = async ({
   limit,
@@ -36,16 +43,6 @@ export const getAllUsersFromDB = async ({
       sortDirection,
       search}
     );
-
-    if (!allUsers) {
-      return handleError({
-        error: "No user found",
-        errorMessage: null,
-        errorCode: 404,
-        errorSource: "User Model"
-      }
-      );
-    }
 
     return allUsers;
   } catch (err) {
@@ -88,16 +85,18 @@ export const getCustomerCount = async (search:string) => {
 export const getOneUserFromDB = async (userId:string) => {
   try {
     
-    const user = await getOne({
+    const userData: User[] | ErrorResponse = await getOne({
       tableName: USER_TABLE_NAME,
       columnName: USER_ID_COLUMN,
       condition: userId,
     });
 
-    if (user.error) {
-      return user //returns error message and code
+    if (isErrorResponse(userData)) {
+      return userData //returns error message and code
     }
-    return user[0];
+    
+    const user =  userData[0];
+    return user;
   } catch (err) {
     return handleError(
       {
@@ -113,7 +112,7 @@ export const getOneUserFromDB = async (userId:string) => {
 
 
 
-export const addUserToDB = async (userDetails) => {
+export const addUserToDB = async (userDetails: User) => {
   const { email } = userDetails;
   const columnsForAdding = Object.keys(userDetails);
   const userDetailsArray = Object.values(userDetails);
@@ -123,13 +122,13 @@ export const addUserToDB = async (userDetails) => {
 
     if (!emailExist) {
       const insertUserDetails = await addOne(
-        USER_TABLE_NAME,
-        columnsForAdding,
-        userDetailsArray
+        { tableName: USER_TABLE_NAME,
+        columns: columnsForAdding,
+        values: userDetailsArray}
       );
 
       if (insertUserDetails) {
-        const insertedDetails = insertUserDetails[0];
+        const insertedDetails: User = insertUserDetails[0];
         return insertedDetails;
       }
     } else {
@@ -158,20 +157,19 @@ export const addUserToDB = async (userDetails) => {
 
 
 
-export const updateUserOnDB = async (userId, userDetails) => {
+export const updateUserOnDB = async ({userId, userDetails}: {userId:string, userDetails: User}) => {
   try {
     const validColumnsForUpdate = Object.keys(userDetails);
     const userDetailsArray = Object.values(userDetails);
-    
 
-    const update = await updateOne(
-      USER_TABLE_NAME,
-      validColumnsForUpdate,
-      userId,
-      USER_ID_COLUMN,
-      ...userDetailsArray
-    );
-    const updatedDetails = update.rows[0];
+    const update = await updateOne({
+      tableName: USER_TABLE_NAME,
+      columns: validColumnsForUpdate,
+      id: userId,
+      idColumn: USER_ID_COLUMN,
+      details: userDetailsArray,
+    });
+    const updatedDetails: User = (!isErrorResponse(update)) && update.rows[0];
 
     return updatedDetails;
     
@@ -188,7 +186,8 @@ export const updateUserOnDB = async (userId, userDetails) => {
   }
 };
 
-export const getSpecificUserDetailsUsingId = async ({userId, columns}: {userId:string, columns: string[] | string}) => {
+
+export const getSpecificUserDetailsUsingId = async ({userId, columns}: {userId:string, columns: string[] | string}): Promise<User[] | ErrorResponse> => {
   
   const specificDetails = await getSpecificDetailsUsingId({
     tableName: USER_TABLE_NAME,
@@ -196,7 +195,7 @@ export const getSpecificUserDetailsUsingId = async ({userId, columns}: {userId:s
     idColumn: USER_ID_COLUMN,
     columns: columns,
   });
-  if (specificDetails.error) {
+  if (isErrorResponse(specificDetails)) {
     return handleError(
       {
         error: `Error occurred: ${specificDetails.error}`,
@@ -211,7 +210,7 @@ export const getSpecificUserDetailsUsingId = async ({userId, columns}: {userId:s
   return specificDetails;
 };
 
-export const deleteUserFromDB = async (userId) => {
+export const deleteUserFromDB = async (userId:string) => {
   try {
   
     //check if user exists
@@ -224,8 +223,8 @@ export const deleteUserFromDB = async (userId) => {
 
     //delete if user exists
     if (userExist) {
-      await deleteOne(USER_TABLE_NAME, USER_ID_COLUMN, userId);
-      return { success: "user deleted" };
+      const deleteUser = await deleteOne(USER_TABLE_NAME, USER_ID_COLUMN, userId);
+      return deleteUser;
     } 
   } catch (err) {
     return handleError({
@@ -242,11 +241,11 @@ export const deleteUserFromDB = async (userId) => {
 //STATS
 export const getCustomersCount = async () => {
   try {
-    const customersCount = await getCountOnOneCondition(
-      USER_TABLE_NAME,
-      USER_ROLE,
-      USER_ROLE_COLUMN
-    );
+    const customersCount = await getCountOnOneCondition({
+      tableName: USER_TABLE_NAME,
+      condition: USER_ROLE,
+      conditionColumn: USER_ROLE_COLUMN,
+    });
 
     return customersCount;
   } catch (err) {
@@ -265,10 +264,14 @@ export const getCustomersCount = async () => {
 //HELPERS
 
 //check if email exists
-export const emailExists = async (email) => {
+export const emailExists = async (email:string) => {
   try {
-    const columnName = USER_COLUMNS_FOR_ADDING[3];
-    return await detailExists(USER_TABLE_NAME, columnName, email);
+    
+    return await detailExists({
+      tableName: USER_TABLE_NAME,
+      columnName: USER_EMAIL_COLUMN,
+      detail: email,
+    });
   } catch (err) {
     return handleError({
       error: "Error checking if email exists",
@@ -281,10 +284,10 @@ export const emailExists = async (email) => {
 };
 
 //check if phone number exists
-export const phoneNumberExists = async (phoneNumber) => {
+export const phoneNumberExists = async (phoneNumber:string) => {
   try {
-    const phoneNumberColumn = USER_COLUMNS_FOR_ADDING[4];
-    return await detailExists(USER_TABLE_NAME, phoneNumberColumn, phoneNumber);
+    
+    return await detailExists({tableName: USER_TABLE_NAME, columnName: USER_PHONE_NUMBER_COLUMN, detail: phoneNumber});
   } catch (err) {
     return handleError({
       error: "Error checking if phone number exists",
@@ -297,23 +300,24 @@ export const phoneNumberExists = async (phoneNumber) => {
 };
 
 
-export const userExists = async (userId)=> {
+export const userExists = async (userId: string)=> {
   try {
+    const exists = await detailExists({
+      tableName: USER_TABLE_NAME,
+      columnName: USER_ID_COLUMN,
+      detail: userId,
+    }); //returns true/false or error
 
-    const exists = await detailExists(USER_TABLE_NAME, USER_ID_COLUMN, userId)//returns true/false or error
-   
-    
-    if(!exists) {
+    if (!exists) {
       return handleError({
         error: "User does not exist",
         errorMessage: null,
         errorCode: 404,
-        errorSource: "User Model: Update User"
-      }
-      )
+        errorSource: "User Model: Update User",
+      });
     }
-    
-    return exists //will return error or true;
+
+    return exists; //will return error or true;
   } catch (err) {
     return handleError(
       {
@@ -327,29 +331,29 @@ export const userExists = async (userId)=> {
     }; 
 
 
-    export const isUserRole = async (userId, userRole) => {
+    export const isUserRole = async ({userId, userRole}: {userId:string, userRole: UserRole}) => {
       const data = await getOneUserFromDB(userId);
-    
-      if (data.user_role === userRole) {
+      
+      if (!isErrorResponse(data) && data.user_role === userRole) {
         return true;
       } else {
         return false;
       }
     };
     
-    export const getUserIdUsingEmail = async (userEmail) => {
+    export const getUserIdUsingEmail = async (userEmail:string) => {
       try {
         
-        const userDetails = await getOne({
+        const userDetails: User[] | ErrorResponse = await getOne({
           tableName: USER_TABLE_NAME,
           columnName: USER_EMAIL_COLUMN,
           condition: userEmail,
         });
     
-        if (userDetails.error) {
+        if (isErrorResponse(userDetails)) {
           return userDetails; //error message included
         } else {
-          const userId = { user_id: userDetails[0].user_id };
+          const userId: {user_id: string} = { user_id: userDetails[0].user_id };
           return userId;
         }
       } catch (err) {

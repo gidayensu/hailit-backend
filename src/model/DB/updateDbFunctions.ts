@@ -1,13 +1,21 @@
-import { handleError } from "../../utils/handleError";
+import { QueryResult } from 'pg'
+import { TableNames } from "../../types/shared.types";
+import { ErrorResponse, handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 
-export const updateOne = async (
-  tableName,
+export const updateOne = async <T>(
+  {tableName,
   columns,
   id,
   idColumn,
-  ...details
-) => {
+  details} : {
+    tableName: TableNames;
+    columns: string[];
+    id: string;
+    idColumn: string;
+    details: string[] | number []
+  }
+): Promise<QueryResult | ErrorResponse> => {
   try {
     await DB.query("BEGIN");
     for (let i = 0; i < details.length; i++) {

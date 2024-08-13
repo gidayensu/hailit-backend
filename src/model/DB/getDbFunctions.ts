@@ -1,8 +1,10 @@
 import { VEHICLE_TABLE_NAME } from "../../constants/vehicleConstants";
 import { GetAllFromDB } from "../../types/getAll.types";
-import { handleError } from "../../utils/handleError";
+import { ErrorResponse, handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 import { TableNames } from "../../types/shared.types";
+import { Vehicle } from "../../types/vehicle.types";
+import { QueryResult } from "pg";
 
 
 export const getAll = async (
@@ -89,7 +91,7 @@ export const getAllVehicles = async (
     }
     
     const allItems = await DB.query(queryText, values);
-    const data = allItems.rows;
+    const data: Vehicle[] = allItems.rows;
 
     return data;
   } catch (err) {
@@ -123,9 +125,9 @@ export const vehiclesCount = async (search: string) => {
     }
 
     const vehiclesCount = await DB.query(queryText, values);
-    const data = vehiclesCount.rows;
+    const count: number = vehiclesCount.rows[0];
 
-    return data[0];
+    return count;
   } catch (err) {
     return handleError({
       error: "Error occurred getting vehicle count",
@@ -137,11 +139,15 @@ export const vehiclesCount = async (search: string) => {
 };
 
 
-export const getCountOnOneCondition = async (
+export const getCountOnOneCondition = async ({
   tableName,
   condition,
-  conditionColumn
-) => {
+  conditionColumn,
+}: {
+  tableName:TableNames,
+  condition: string,
+  conditionColumn: string
+}): Promise<number | ErrorResponse> => {
   try {
     let queryText = `SELECT COUNT(*) AS total_count FROM ${tableName}`;
     const values = [];
@@ -155,15 +161,12 @@ export const getCountOnOneCondition = async (
 
     return data.rows[0];
   } catch (err) {
-    return handleError(
-      {
-        error: "Error occurred getting count on one condition",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "Database Functions: One Condition Count"
-      }
-      
-    );
+    return handleError({
+      error: "Error occurred getting count on one condition",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Database Functions: One Condition Count",
+    });
   }
 };
 
@@ -229,7 +232,7 @@ export const selectOnCondition = async (
   }
 };
 
-export const getOne = async ({
+export const getOne = async <T>({
   tableName,
   columnName,
   condition,
@@ -241,7 +244,7 @@ export const getOne = async ({
   condition: string;
   secondConditionColumn?:string,
   secondCondition?: string
-}) => {
+}):Promise<T[] | ErrorResponse> => {
   try {
     const values = [condition];
     let queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1`;
@@ -249,10 +252,11 @@ export const getOne = async ({
       values.push(secondCondition);
       queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1 AND ${secondConditionColumn} = $2`;
     }
-    const result = await DB.query(queryText, values);
+    const result: QueryResult<T> = await DB.query(queryText, values);
 
     if (result.rowCount > 0) {
-      return result.rows;
+      const oneDetail = result.rows;
+      return oneDetail
     } else {
       return handleError({
         error: "Detail does not exist",

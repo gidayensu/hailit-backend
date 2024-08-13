@@ -1,4 +1,4 @@
-import { handleError } from "../../utils/handleError";
+import { ErrorResponse, handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 import { USERS_TABLE } from "../../constants/riderConstants";
 import { GetAllFromDB } from "../../types/getAll.types";
@@ -21,6 +21,7 @@ import {
 import { DRIVER_ID_COLUMN, DRIVER_TABLE_NAME, DRIVER_VEHICLE_ID, USER_ID_DRIVER } from "../../constants/driverConstants";
 import { VEHICLE_TABLE_NAME } from "../../constants/vehicleConstants";
 import { FIRST_NAME, LAST_NAME } from "../../constants/tripConstants";
+import { User } from "../../types/user.types";
 
 interface DispatcherVehicleJoin extends GetAllFromDB {
   dispatcherRole: "Rider" | "Driver"
@@ -32,7 +33,7 @@ interface DispatcherVehicleJoin extends GetAllFromDB {
 export const customersCount = async (
   
   search:string
-) => {
+): Promise<number | ErrorResponse> => {
   
   try {
     let queryText = `SELECT COUNT(*) AS total_count FROM ${USERS_TABLE} WHERE user_role = 'Customer'`;
@@ -73,7 +74,7 @@ export const getAllCustomers = async (
   sortColumn,
   sortDirection = "ASC",
   search}: GetAllFromDB
-) => {
+): Promise<User[] | ErrorResponse> => {
   
   try {
     let queryText = `SELECT * FROM ${USERS_TABLE}`;
