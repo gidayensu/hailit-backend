@@ -12,8 +12,7 @@ import { addOne } from "./DB/addDbFunctions";
 import { deleteOne } from "./DB/deleteDbFunctions";
 import {
   getOne,
-  getSpecificDetails,
-  getSpecificDetailsUsingId,
+  getSpecificDetails
 } from "./DB/getDbFunctions";
 import { updateOne } from "./DB/updateDbFunctions";
 import {
@@ -23,11 +22,14 @@ import {
 
 //helpers
 import { v4 as uuid } from "uuid";
-import { handleError } from "../utils/handleError";
+import { ErrorResponse, handleError } from "../utils/handleError";
 
 //types
 import { DriverDetails } from "../services/driver.service";
 import { GetAllFromDB } from "../types/getAll.types";
+import { isErrorResponse } from "../utils/util";
+import { detailExists } from "./DB/helperDbFunctions";
+import { TotalCount } from "../types/shared.types";
 
 export const getAllDriversFromDB = async ({
   limit,
@@ -59,7 +61,7 @@ export const getAllDriversFromDB = async ({
 
 export const getDriversCount = async (search: string) => {
   try {
-    const driversCount = await getDispatcherCount({
+    const driversCount: TotalCount | ErrorResponse = await getDispatcherCount({
       search,
       dispatcherRole: "Driver",
     });
@@ -77,16 +79,17 @@ export const getDriversCount = async (search: string) => {
 
 export const getOneDriverFromDB = async (driver_id: string) => {
   try {
-    const driver = await getOne({
+    const driverData: DriverDetails[] | ErrorResponse = await getOne({
       tableName: DRIVER_TABLE_NAME,
       columnName: DRIVER_ID_COLUMN,
       condition: driver_id,
     });
-    if (driver.error) {
-      return driver; //error details returned
+    if (isErrorResponse(driverData)) {
+      return driverData; //error details returned
     }
 
-    return driver[0];
+  const driver: DriverDetails = driverData[0];
+  return driver;
   } catch (err) {
     return handleError({
       error: "Error occurred. Driver not fetched",
@@ -139,14 +142,18 @@ export const addDriverToDB = async ({
 }: {
   userId: string;
   vehicleId: string;
-}) => {
-  const userIsDriver = await getSpecificDetailsUsingId({
+}): Promise<DriverDetails | ErrorResponse> => {
+  const userIsDriver = await detailExists({
     tableName: DRIVER_TABLE_NAME,
-    id: userId,
-    idColumn: USER_ID_COLUMN,
-    columns: DRIVER_ID_COLUMN,
+    detail: userId,
+    columnName: USER_ID_COLUMN,
+    
   });
-  if (userIsDriver.length >= 1) {
+  
+    if (isErrorResponse(userIsDriver)) {
+      return userIsDriver
+    }
+  if (userIsDriver) {
     return handleError({
       error: "User is driver",
       errorMessage: "User already exists as driver",
@@ -162,13 +169,13 @@ export const addDriverToDB = async ({
     : (DRIVER_VEHICLE_ID = DEFAULT_VEHICLE_ID);
   const driverDetails = [driver_id, userId, DRIVER_VEHICLE_ID];
   try {
-    const addedDriver = await addOne(
-      DRIVER_TABLE_NAME,
-      DRIVER_TABLE_COLUMNS,
-      driverDetails
-    );
+    const addedDriver = await addOne({
+     tableName: DRIVER_TABLE_NAME,
+      columns: DRIVER_TABLE_COLUMNS,
+      values: driverDetails,
+    });
 
-    return addedDriver;
+    return addedDriver[0]; //CHECK FOR ERRORS
   } catch (err) {
     return handleError({
       error: "Error occurred adding driver",
@@ -186,15 +193,15 @@ export const updateDriverOnDB = async (driverDetails: DriverDetails) => {
   const driverDetailsArray = Object.values(driverDetails);
 
   try {
-    const driverUpdate = await updateOne(
-      DRIVER_TABLE_NAME,
-      tableColumns,
-      driver_id,
-      DRIVER_ID_COLUMN,
-      ...driverDetailsArray
-    );
+    const driverUpdate = await updateOne({
+      tableName: DRIVER_TABLE_NAME,
+      columns: tableColumns,
+      id: driver_id,
+      idColumn: DRIVER_ID_COLUMN,
+      details: driverDetailsArray,
+    });
 
-    if (driverUpdate.error) {
+    if (isErrorResponse(driverUpdate)) {
       return driverUpdate; //Error details returned
     }
     if (driverUpdate.rowCount === 0) {
@@ -218,11 +225,11 @@ export const updateDriverOnDB = async (driverDetails: DriverDetails) => {
 
 export const deleteDriverFromDB = async (driver_id: string) => {
   try {
-    const driverDelete = await deleteOne(
-      DRIVER_TABLE_NAME,
-      DRIVER_ID_COLUMN,
-      driver_id
-    );
+    const driverDelete = await deleteOne({
+      tableName: DRIVER_TABLE_NAME,
+      columnName: DRIVER_ID_COLUMN,
+      id: driver_id,
+    });
 
     return driverDelete;
   } catch (err) {

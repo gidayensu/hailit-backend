@@ -412,7 +412,11 @@ export const deleteTripService = async ({tripId, io}: {tripId: string, io: Serve
       throw new Error('Expected IDsAndMediums Type')
     }
     
-    const {dispatcher_id: dispatcherId, customer_id: customerUserId, trip_medium: tripMedium} = IDsAndMedium;
+    const {
+      dispatcher_id: dispatcherId,
+      customer_id: customerUserId,
+      trip_medium: tripMedium,
+    } = IDsAndMedium;
     const dispatcherDetails = dispatcherId && await getDispatcherDetails({dispatcherId, tripMedium})
     const {user_id: dispatcherUserId} = dispatcherDetails;
     
@@ -450,7 +454,7 @@ export const deleteTripService = async ({tripId, io}: {tripId: string, io: Serve
 export const getTripMonthsService = async () => {
   try {
     const tripMonthsData = await tripsMonths();
-    if (tripMonthsData.error) {
+    if (isErrorResponse(tripMonthsData)) {
       return tripMonthsData; //error message returned
     }
     const monthsArray = tripMonthsData.map((tripsMonth: TripMonth) => tripsMonth.month);
@@ -574,7 +578,7 @@ export const tripsCountByMonth = async ({tripDataColumn, condition, month} : {tr
       return monthTripCount; //with error details
     }
 
-    const tripMonths: TripMonth[]  = await getTripMonthsService();
+    const tripMonths = await getTripMonthsService();
     const tripCounts: number[] = [];
 
 

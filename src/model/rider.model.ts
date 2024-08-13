@@ -27,6 +27,7 @@ import { getDispatcherCount, getDispatchersVehicleJoin } from "./DB/usersDbFunct
 import { GetAllFromDB } from "../types/getAll.types";
 import { RiderDetails } from "../services/rider.service";
 import { isErrorResponse } from "../utils/util";
+import { detailExists } from "./DB/helperDbFunctions";
 
 export const getAllRiders = async ({
   limit,
@@ -44,7 +45,7 @@ export const getAllRiders = async ({
       search,
       dispatcherRole: "Rider"
     });
-    if (allRiders.error) {
+    if (isErrorResponse(allRiders)) {
       return handleError({
         error: allRiders.error,
         errorMessage: null,
@@ -91,7 +92,7 @@ export const getOneRiderFromDB = async (rider_id:string) => {
       columnName: RIDER_ID_COLUMN,
       condition: rider_id,
     });
-    if (rider.error) {
+    if (isErrorResponse(rider)) {
       return rider;
     }
     return rider[0];
@@ -146,14 +147,16 @@ export const getSpecificRidersFromDB = async (specificColumn, condition) => {
 
 export const addRiderToDB = async (user_id:string) => {
   try {
-    const userIsRider = await getSpecificDetailsUsingId({
+    const userIsRider = await detailExists({
       tableName: RIDER_TABLE_NAME,
-      id: user_id,
-      idColumn: USER_ID_COLUMN,
-      columns: RIDER_ID_COLUMN,
+      detail: user_id,
+      columnName: USER_ID_COLUMN,
+      
     });
-    
-    if (userIsRider.length >= 1) {
+    if(isErrorResponse(userIsRider)) {
+      return userIsRider;
+    }
+    if (userIsRider) {
       return handleError({
         error: "User is rider",
         errorMessage: "User already exists",
@@ -164,11 +167,11 @@ export const addRiderToDB = async (user_id:string) => {
     }
     const rider_id = uuid();
     const riderDetails = [rider_id, DEFAULT_VEHICLE_ID, user_id];
-    const addingRider = await addOne(
-      RIDER_TABLE_NAME,
-      RIDER_COLUMNS_FOR_ADDING,
-      riderDetails
-    );
+    const addingRider = await addOne({
+      tableName: RIDER_TABLE_NAME,
+      columns: RIDER_COLUMNS_FOR_ADDING,
+      values: riderDetails,
+    });
     
       return addingRider;
     
@@ -186,17 +189,17 @@ export const addRiderToDB = async (user_id:string) => {
 export const updateRiderOnDB = async (riderDetails:RiderDetails) => {
   const { rider_id } = riderDetails;
   
-  const tableColumns = Object.keys(riderDetails);
+  const riderColumns = Object.keys(riderDetails);
   const riderDetailsArray = Object.values(riderDetails);
 
   try {
-    const riderUpdate = await updateOne(
-      RIDER_TABLE_NAME,
-      tableColumns,
-      rider_id,
-      RIDER_ID_COLUMN,
-      ...riderDetailsArray
-    );
+    const riderUpdate = await updateOne({
+      tableName: RIDER_TABLE_NAME,
+      columns: riderColumns,
+      id: rider_id,
+      idColumn: RIDER_ID_COLUMN,
+      details: riderDetailsArray,
+    });
 
     if (isErrorResponse (riderUpdate)) {
       return riderUpdate //error details returned
@@ -225,11 +228,11 @@ export const updateRiderOnDB = async (riderDetails:RiderDetails) => {
 
 export const deleteRiderFromDB = async (rider_id:string) => {
   try {
-    const riderDelete = await deleteOne(
-      RIDER_TABLE_NAME,
-      RIDER_ID_COLUMN,
-      rider_id
-    );
+    const riderDelete = await deleteOne({
+      tableName: RIDER_TABLE_NAME,
+      columnName: RIDER_ID_COLUMN,
+      id: rider_id,
+    });
 
     
       return riderDelete;

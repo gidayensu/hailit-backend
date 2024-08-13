@@ -280,7 +280,7 @@ export const searchTrips : Middleware = async (req, res) => {
 export const getTripMonths : Middleware = async (req, res) => {
   try {
     const tripMonths = await getTripMonthsService();
-    if (tripMonths.error) {
+    if (isErrorResponse(tripMonths)) {
       return res
         .status(tripMonths.errorCode)
         .json({

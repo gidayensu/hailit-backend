@@ -1,7 +1,7 @@
 import { USERS_TABLE } from "../../constants/riderConstants";
 import { FIRST_NAME, LAST_NAME, LOCATION_TABLE_NAME, PAYMENT_STATUS, TRIP_ID_COLUMN, TRIP_TABLE_NAME, USER_ID_TRIP, USER_ID_USER } from "../../constants/tripConstants";
 import { GetAllFromDB } from "../../types/getAll.types";
-import { IDsAndMedium, Trip, TripMedium } from "../../types/trips.types";
+import { IDsAndMedium, Trip } from "../../types/trips.types";
 import { ErrorResponse, handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 

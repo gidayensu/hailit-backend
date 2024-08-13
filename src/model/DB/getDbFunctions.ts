@@ -2,7 +2,7 @@ import { VEHICLE_TABLE_NAME } from "../../constants/vehicleConstants";
 import { GetAllFromDB } from "../../types/getAll.types";
 import { ErrorResponse, handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
-import { TableNames } from "../../types/shared.types";
+import { TableNames, TotalCount } from "../../types/shared.types";
 import { Vehicle } from "../../types/vehicle.types";
 import { QueryResult } from "pg";
 
@@ -125,7 +125,7 @@ export const vehiclesCount = async (search: string) => {
     }
 
     const vehiclesCount = await DB.query(queryText, values);
-    const count: number = vehiclesCount.rows[0];
+    const count: TotalCount = vehiclesCount.rows[0];
 
     return count;
   } catch (err) {

@@ -14,12 +14,12 @@ import {
 import { getSpecificUserDetailsUsingId } from "../model/user.model";
 import { getOneVehicleFromDB } from "../model/vehicle.model";
 import { handleError } from "../utils/handleError";
-import { allowedPropertiesOnly, userIsUserRole } from "../utils/util";
+import { allowedPropertiesOnly, isErrorResponse, userIsUserRole } from "../utils/util";
 import { getAllEntitiesService } from "./helpers.service";
 
 //types
 import { GetAll } from "../types/getAll.types";
-import { DispatcherDetails } from "../types/shared.types";
+import { DispatcherDetails, EntityName } from "../types/shared.types";
 
 export const getAllDriversService = async ({
   page,
@@ -38,8 +38,9 @@ export const getAllDriversService = async ({
       search,
       getAllEntitiesFromDB: getAllDriversFromDB,
       getCount:getDriversCount,
-      entityName:"drivers"}
+      entityName:EntityName.Drivers}
     );
+  
     return drivers;
   } catch (err) {
     
@@ -58,8 +59,8 @@ export const getAllDriversService = async ({
 export const getOneDriverService = async ({driverId, requesterUserId}:{driverId:string, requesterUserId?:string}) => {
   try {
     const driver = await getOneDriverFromDB(driverId);
-    if (driver.error) {
-      return { error: driver.error };
+    if (isErrorResponse( driver)) {
+      return driver;
     }
 
     let driverDetails = { ...driver };
@@ -73,15 +74,15 @@ export const getOneDriverService = async ({driverId, requesterUserId}:{driverId:
       {userId: user_id,
       columns: GET_DRIVER_COLUMNS}
     );
-    if (driverNamePhone.error) {
-      return { error: driverNamePhone.error };
+    if (isErrorResponse(driverNamePhone)) {
+      return driverNamePhone;
     }
     driverDetails = { ...driver, ...driverNamePhone[0] };
 
     const vehicle_id = driver.vehicle_id;
 
     const vehicleDetails = await getOneVehicleFromDB(vehicle_id);
-    if (vehicleDetails.error) {
+    if (isErrorResponse(vehicleDetails)) {
       return { ...driver, vehicle: "No vehicle assigned" };
     }
     return { ...driverDetails, vehicle: vehicleDetails };
@@ -100,7 +101,7 @@ export const getOneDriverService = async ({driverId, requesterUserId}:{driverId:
 
 export const addDriverService = async ({userId, vehicleId}: {userId:string, vehicleId:string}) => {
   const driverAdd = await addDriverToDB({userId, vehicleId});
-  if (driverAdd.error) {
+  if (isErrorResponse(driverAdd)) {
     return driverAdd.error; 
   }
   return driverAdd;

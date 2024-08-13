@@ -1,7 +1,16 @@
+import { TableNames } from "../../types/shared.types";
 import { handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 
-export const detailExists = async (tableName, columnName, detail) => {
+export const detailExists = async ({
+  tableName,
+  columnName,
+  detail,
+}: {
+  tableName: TableNames;
+  columnName: string;
+  detail: string;
+}) => {
   try {
     const queryText = `SELECT * FROM ${tableName} WHERE ${columnName} = $1`;
 
@@ -10,15 +19,12 @@ export const detailExists = async (tableName, columnName, detail) => {
 
     return results.rowCount > 0 ? true : false;
   } catch (err) {
-    return handleError(
-      {
-        error: "Error occurred checking if detail exists",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "Database Functions: Detail Exists"
-      }
-      
-    );
+    return handleError({
+      error: "Error occurred checking if detail exists",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Database Functions: Detail Exists",
+    });
   }
 };
 

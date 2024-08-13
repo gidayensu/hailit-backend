@@ -1,6 +1,9 @@
 import { PLATE_NUMBER_COLUMN, VEHICLE_ID_COLUMN, VEHICLE_TABLE_NAME } from "../constants/vehicleConstants";
 import { GetAllFromDB } from "../types/getAll.types";
-import { handleError } from "../utils/handleError";
+import { TotalCount } from "../types/shared.types";
+import { Vehicle } from "../types/vehicle.types";
+import { ErrorResponse, handleError } from "../utils/handleError";
+import { isErrorResponse } from "../utils/util";
 import { addOne } from "./DB/addDbFunctions";
 import { deleteOne } from "./DB/deleteDbFunctions";
 import { getAllVehicles, getOne, vehiclesCount } from "./DB/getDbFunctions";
@@ -56,7 +59,7 @@ export const getVehiclesCount = async(search:string)=> {
   }
 }
 
-export const getOneVehicleFromDB = async (vehicle_id) => {
+export const getOneVehicleFromDB = async (vehicle_id: string) => {
   try {
     
     const getVehicle = await getOne({
@@ -64,12 +67,12 @@ export const getOneVehicleFromDB = async (vehicle_id) => {
       columnName: VEHICLE_ID_COLUMN,
       condition: vehicle_id,
     });
-    if (getVehicle.error) {
+    if (isErrorResponse(getVehicle)) {
       
       return getVehicle
     }
-
-    return getVehicle[0];
+    const vehicle: Vehicle = getVehicle[0]
+    return vehicle;
   } catch (err) {
     return handleError({
       error: "Error occurred",
@@ -81,16 +84,16 @@ export const getOneVehicleFromDB = async (vehicle_id) => {
   }
 };
 
-export const addVehicleToDB = async (completeVehicleDetails) => {
-  const COLUMNS_FOR_ADDING = Object.keys(completeVehicleDetails);
-  const vehicleDetailsArray = Object.values(completeVehicleDetails);
+export const addVehicleToDB = async (completeVehicleDetails: Vehicle) => {
+  const COLUMNS_FOR_ADDING: string[] = Object.keys(completeVehicleDetails);
+  const vehicleDetailsArray: string[] = Object.values(completeVehicleDetails);
   
   const { plate_number } = completeVehicleDetails;
   try {
     const vehicleExists = await detailExists(
-      VEHICLE_TABLE_NAME,
-      PLATE_NUMBER_COLUMN,
-      plate_number
+      {tableName: VEHICLE_TABLE_NAME,
+      columnName: PLATE_NUMBER_COLUMN,
+      detail: plate_number}
     );
 
     if (vehicleExists) {
@@ -104,17 +107,17 @@ export const addVehicleToDB = async (completeVehicleDetails) => {
         
       );
     }
-    const addVehicleResult = await addOne(
-      VEHICLE_TABLE_NAME,
-      COLUMNS_FOR_ADDING,
-      vehicleDetailsArray
-    );
+    const addVehicleResult = await addOne({
+      tableName: VEHICLE_TABLE_NAME,
+      columns: COLUMNS_FOR_ADDING,
+      values: vehicleDetailsArray,
+    });
 
-    if (addVehicleResult.error) {
+    if (isErrorResponse(addVehicleResult)) {
       return addVehicleResult //error details returned
     }
-
-    return addVehicleResult[0];
+    const vehicle: Vehicle = addVehicleResult[0] 
+    return vehicle;
   } catch (err) {
     return handleError({
       error: "Error occurred",
@@ -126,36 +129,40 @@ export const addVehicleToDB = async (completeVehicleDetails) => {
   }
 };
 
-export const updateVehicleOnDB = async (vehicle_id, vehicleUpdateDetails) => {
-  const validColumnsForUpdate = Object.keys(vehicleUpdateDetails);
-  const vehicleDetails = Object.values(vehicleUpdateDetails);
-  
+export const updateVehicleOnDB = async ({
+  vehicle_id,
+  vehicleUpdateDetails,
+}: {
+  vehicle_id: string;
+  vehicleUpdateDetails: Vehicle;
+}) => {
+  const validColumnsForUpdate: string[] = Object.keys(vehicleUpdateDetails);
+  const vehicleDetails: string[] = Object.values(vehicleUpdateDetails);
 
   try {
-    const vehicleUpdate = await updateOne(
-      VEHICLE_TABLE_NAME,
-      validColumnsForUpdate,
-      vehicle_id,
-      VEHICLE_ID_COLUMN,
-      ...vehicleDetails
-    );
-    if (vehicleUpdate.error) {
-      return vehicleUpdate //Error details returned
+    const vehicleUpdate = await updateOne({
+      tableName: VEHICLE_TABLE_NAME,
+      columns: validColumnsForUpdate,
+      id: vehicle_id,
+      idColumn: VEHICLE_ID_COLUMN,
+      details: vehicleDetails,
+    });
+    if (isErrorResponse(vehicleUpdate)) {
+      return vehicleUpdate; //Error details returned
     }
-
-    return vehicleUpdate.rows[0];
+    const vehicle: Vehicle = vehicleUpdate.rows[0] 
+    return vehicle;
   } catch (err) {
     return handleError({
       error: "Error occurred",
       errorMessage: `${err}`,
       errorCode: 500,
-      errorSource: "Vehicle Model"
-    }
-    );
+      errorSource: "Vehicle Model",
+    });
   }
 };
 
-export const deleteVehicleFromDB = async (vehicle_id) => {
+export const deleteVehicleFromDB = async (vehicle_id:string) => {
   try {
     const vehicleDeletion = await deleteOne(
       VEHICLE_TABLE_NAME,

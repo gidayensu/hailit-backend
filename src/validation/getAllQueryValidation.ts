@@ -12,7 +12,7 @@ export const getAllQueryValidation = <T extends Record<string, string>>(
     
     const errors = [];
 
-    const errorReturner = (errorMessage) => {
+    const errorReturner = (errorMessage: string) => {
       !errorMessage ? null : errors.push({ error: errorMessage });
     };
 

@@ -22,6 +22,7 @@ import { DRIVER_ID_COLUMN, DRIVER_TABLE_NAME, DRIVER_VEHICLE_ID, USER_ID_DRIVER 
 import { VEHICLE_TABLE_NAME } from "../../constants/vehicleConstants";
 import { FIRST_NAME, LAST_NAME } from "../../constants/tripConstants";
 import { User } from "../../types/user.types";
+import { Dispatcher } from "../../types/dispatcher.types";
 
 interface DispatcherVehicleJoin extends GetAllFromDB {
   dispatcherRole: "Rider" | "Driver"
@@ -160,7 +161,7 @@ export const getDispatchersVehicleJoin = async (
     
   const allDispatchers = await DB.query(queryText, values)
     
-    const dispatchers = allDispatchers.rows;
+    const dispatchers: Dispatcher[] = allDispatchers.rows;
     return dispatchers;
   } catch (err) {
     

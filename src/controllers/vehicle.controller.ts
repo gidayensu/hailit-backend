@@ -49,7 +49,7 @@ export const getOneVehicle : Middleware = async (req, res) => {
   
 
   const getVehicle = await getOneVehicleService(vehicle_id);
-  if (getVehicle.error) {
+  if (isErrorResponse(getVehicle)) {
     return res
       .status(400)
       .json({
@@ -75,7 +75,7 @@ export const addVehicle : Middleware = async (req, res) => {
   }
 
   const addedVehicle = await addVehicleService(req.body);
-  if (addedVehicle.error) {
+  if (isErrorResponse(addedVehicle)) {
     return res.status(403).json({
       error: addedVehicle.error,
       errorMessage: addedVehicle.errorMessage,
@@ -96,16 +96,16 @@ export const updateVehicle : Middleware = async (req, res) => {
       return res.status(403).json({ error: "Require at least one input" });
     } //TODO: Move to Validation
 
-    const updatedVehicle = await updateVehicleService(vehicle_id, req.body);
+    const updatedVehicle = await updateVehicleService({vehicle_id: vehicle_id, vehicleUpdateDetails: req.body});
 
-    if (updatedVehicle.error) {
+    if (isErrorResponse(updatedVehicle)) {
       return res.status(403).json({
         error: updatedVehicle.error,
         errorMessage: updatedVehicle.errorMessage,
         errorSource: "updateVehicle Controller",
       });
     }
-    req.io.emit('updatedVehicle', updatedVehicle)
+    
     res.status(200).json({ vehicle: updatedVehicle });
   } catch (err) {
     return res.status(500).json({
@@ -130,7 +130,7 @@ export const deleteVehicle : Middleware = async (req, res) => {
         errorSource: "deleteVehicle Controller",
       });
     }
-    req.io.emit('deletedVehicle', deletedVehicle)
+   
     res.status(200).json({ success: true, vehicle_id }); 
   } catch (err) {
     return res.status(500).json({

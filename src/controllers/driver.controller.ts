@@ -27,7 +27,7 @@ export const getAllDrivers:Middleware = async (req, res) => {
       search,
     });
     if (res && res.status) {
-      if (allDrivers.error) {
+      if (isErrorResponse(allDrivers)) {
         
         return res
           .status(allDrivers.errorCode)
@@ -59,7 +59,7 @@ export const getOneDriver: Middleware  = async (req, res) => {
   const requesterUserId = req.user.sub;
   try {
     const driver = await getOneDriverService({driverId:driver_id, requesterUserId});
-    if (driver.error) {
+    if (isErrorResponse(driver)) {
       return res
         .status(driver.errorCode)
         .json({

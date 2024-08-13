@@ -1,8 +1,12 @@
 import { v4 as uuid } from "uuid";
+
+//constants
 import { DEFAULT_LIMIT } from "../constants/sharedConstants";
 import {
   ALLOWED_VEHICLE_PROPERTIES
 } from "../constants/vehicleConstants";
+
+//DB functions
 import {
   addVehicleToDB,
   deleteVehicleFromDB,
@@ -11,11 +15,16 @@ import {
   getVehiclesCount,
   updateVehicleOnDB,
 } from "../model/vehicle.model";
+
+//helpers
 import { allowedPropertiesOnly } from "../utils/util";
 import { ErrorResponse, handleError } from "../utils/handleError";
 import { getAllEntitiesService } from "./helpers.service";
+
+//types
 import { GetAll } from "../types/getAll.types";
 import { Vehicle } from "../types/vehicle.types";
+import { EntityName } from "../types/shared.types";
 
 export const getAllVehiclesService = async (
  { page,
@@ -26,8 +35,7 @@ export const getAllVehiclesService = async (
 ) => {
   try {
     
-    
-    const allVehicles: Vehicle | ErrorResponse = await getAllEntitiesService(
+    const allVehicles = await getAllEntitiesService(
       {page,
       limit,
       sortColumn,
@@ -35,7 +43,7 @@ export const getAllVehiclesService = async (
       search,
       getAllEntitiesFromDB: getAllVehiclesFromDB,
       getCount: getVehiclesCount,
-      entityName: "vehicles"}
+      entityName: EntityName.Vehicles}
     );
 
 
@@ -52,7 +60,7 @@ export const getAllVehiclesService = async (
   }
 };
 
-export const getOneVehicleService = async (vehicle_id) => {
+export const getOneVehicleService = async (vehicle_id:string) => {
   try {
     const getVehicle = await getOneVehicleFromDB(vehicle_id);
     return getVehicle;
@@ -66,7 +74,7 @@ export const getOneVehicleService = async (vehicle_id) => {
   }
 };
 
-export const addVehicleService = async (vehicleDetails) => {
+export const addVehicleService = async (vehicleDetails: Vehicle) => {
   const vehicle_id = uuid();
 
   const completeVehicleDetails = {
@@ -92,31 +100,31 @@ export const addVehicleService = async (vehicleDetails) => {
   }
 };
 
-export const updateVehicleService = async (
+export const updateVehicleService = async ({
   vehicle_id,
-  vehicleUpdateDetails
-) => {
+  vehicleUpdateDetails,
+}: {
+  vehicle_id: string;
+  vehicleUpdateDetails: Vehicle;
+}) => {
   try {
-    const updateVehicle = await updateVehicleOnDB(
-      vehicle_id,
-      vehicleUpdateDetails
-    );
-    if (updateVehicle.error) {
-      return { error: updateVehicle.error };
-    }
+    const updateVehicle = await updateVehicleOnDB({
+      vehicle_id: vehicle_id,
+      vehicleUpdateDetails,
+    });
 
     return updateVehicle;
   } catch (err) {
     return handleError({
-      error:"Server Error. Vehicle not updated",
-      errorMessage:`${err}`,
-      errorCode:500,
-      errorSource:"Vehicle Service"}
-    );
+      error: "Server Error. Vehicle not updated",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Vehicle Service",
+    });
   }
 };
 
-export const deleteVehicleService = async (vehicle_id) => {
+export const deleteVehicleService = async (vehicle_id:string) => {
   try {
     const deleteVehicle = await deleteVehicleFromDB(vehicle_id);
     return deleteVehicle;

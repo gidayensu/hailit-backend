@@ -1,16 +1,16 @@
-import { paginatedRequest } from "../utils/paginatedRequest";
-import { handleError } from "../utils/handleError";
 import { GetAll, GetAllFromDB } from "../types/getAll.types";
+import { EntityName, TotalCount } from "../types/shared.types";
+import { ErrorResponse, handleError } from "../utils/handleError";
+import { paginatedRequest } from "../utils/paginatedRequest";
+import { isErrorResponse } from "../utils/util";
 
-
-type EntityName = "trips" | "riders" | "drivers" | "users" | "vehicles"
 interface GetAllEntities extends GetAll {
   getAllEntitiesFromDB: ({...args}:GetAllFromDB)=>any,
-  getCount: (search:string)=>any,
+  getCount:  (search:string)=> Promise<ErrorResponse | TotalCount>,
   entityName: EntityName
 }
 
-export const getAllEntitiesService = async (
+export const getAllEntitiesService = async <T>(
     {page,
     limit,
     sortColumn,
@@ -25,7 +25,7 @@ export const getAllEntitiesService = async (
   
       page > 1 ? (offset = limit * page - limit) : page;
   
-      const entities = await getAllEntitiesFromDB(
+      const entities: T[] | ErrorResponse = await getAllEntitiesFromDB(
         {limit,
         offset,
         sortColumn,
@@ -33,7 +33,7 @@ export const getAllEntitiesService = async (
         search}
       );
       
-      if (entities.error) {
+      if (isErrorResponse(entities)) {
       
         return entities; // with error details
 
@@ -41,12 +41,12 @@ export const getAllEntitiesService = async (
       const totalCount = await getCount(search);
   
       
-      if (totalCount.error) {
+      if (isErrorResponse(totalCount)) {
         
         return totalCount; // with error details
       }
   
-      return await paginatedRequest(totalCount, entities, offset, limit, entityName);
+      return await paginatedRequest({totalCount, data: entities, offset, limit, source: entityName});
     } catch (err) {
       
       return handleError(

@@ -169,7 +169,7 @@ export const updateUserOnDB = async ({userId, userDetails}: {userId:string, user
       idColumn: USER_ID_COLUMN,
       details: userDetailsArray,
     });
-    const updatedDetails: User = (!isErrorResponse(update)) && update.rows[0];
+    const updatedDetails: User = !isErrorResponse(update) && update.rows[0];
 
     return updatedDetails;
     
@@ -223,7 +223,7 @@ export const deleteUserFromDB = async (userId:string) => {
 
     //delete if user exists
     if (userExist) {
-      const deleteUser = await deleteOne(USER_TABLE_NAME, USER_ID_COLUMN, userId);
+      const deleteUser = await deleteOne({tableName: USER_TABLE_NAME, columnName: USER_ID_COLUMN, id: userId});
       return deleteUser;
     } 
   } catch (err) {
@@ -332,9 +332,11 @@ export const userExists = async (userId: string)=> {
 
 
     export const isUserRole = async ({userId, userRole}: {userId:string, userRole: UserRole}) => {
-      const data = await getOneUserFromDB(userId);
-      
-      if (!isErrorResponse(data) && data.user_role === userRole) {
+      const data  = await getOneUserFromDB(userId);
+      if(isErrorResponse(data)) {
+        return data;
+      }
+      if (data.user_role === userRole) {
         return true;
       } else {
         return false;

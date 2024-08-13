@@ -11,7 +11,7 @@ export const addOne = async <T>({
   tableName: TableNames;
   columns: string[] | string;
   values: string[];
-}): Promise<T | ErrorResponse> => {
+}): Promise<T[] | ErrorResponse> => {
   
   let valuesArray = values;
   if (typeof values === "string") {
