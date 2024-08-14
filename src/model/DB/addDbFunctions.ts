@@ -9,12 +9,12 @@ export const addOne = async <T>({
   values,
 }: {
   tableName: TableNames;
-  columns: string[] | string;
+  columns: string[] | string ;
   values: string[];
 }): Promise<T[] | ErrorResponse> => {
   
   let valuesArray = values;
-  if (typeof values === "string") {
+  if (typeof values === "string" || typeof values === "boolean" ) {
     valuesArray = [values];
   }
 
@@ -30,7 +30,7 @@ export const addOne = async <T>({
       await DB.query("ROLLBACK");
       return handleError({
         error: "Error occurred adding detail",
-        errorMessage: null,
+        errorMessage: "",
         errorCode: 500,
         errorSource: "Database Functions: Add One",
       });

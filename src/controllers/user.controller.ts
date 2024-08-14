@@ -10,6 +10,7 @@ import {
 import { emailValidator, isErrorResponse, phoneValidator } from "../utils/util";
 import { config } from "dotenv";
 import { Middleware } from "../types/middleware.types";
+import { User } from "../types/user.types";
 config({ path: "../../../.env" });
 
 export const getAllUsers : Middleware = async (req, res) => {
@@ -29,7 +30,7 @@ export const getAllUsers : Middleware = async (req, res) => {
       sortDirection,
       search,
     });
-    if (allUsers.error) {
+    if (isErrorResponse(allUsers)) {
       return res
         .status(allUsers.errorCode)
         .json({
@@ -201,9 +202,9 @@ export const updateUser : Middleware = async (req, res) => {
 
     const { userId } = req.params;
 
-    const userDetails = req.body;
+    const userDetails: User = req.body;
 
-    const updateUser = await updateUserService(userId, userDetails);
+    const updateUser = await updateUserService({userId, userDetails});
     
     if (updateUser.error) {
       return res

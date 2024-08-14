@@ -28,7 +28,7 @@ WHERE
     } else {
       return handleError({
         error: "Detail does not exist",
-        errorMessage: null,
+        errorMessage: "",
         errorCode: 404,
         errorSource: "Database Functions",
       });
@@ -367,7 +367,7 @@ export const getIDsAndMedium = async (tripId:string): Promise<IDsAndMedium | Err
     if(IDsAndMedium.rowCount < 1) {
       return handleError({
         error: "dispatcherId not found",
-        errorMessage: null,
+        errorMessage: "",
         errorCode: 404,
         errorSource: "Trips DB Functions: Get Dispatcher Id"
       }
@@ -381,7 +381,7 @@ export const getIDsAndMedium = async (tripId:string): Promise<IDsAndMedium | Err
       return handleError( 
         {
           error: "Error occurred getting dispatcherId",
-          errorMessage: null,
+          errorMessage: "",
           errorCode: 500,
           errorSource: "Trips DB Functions"
         })

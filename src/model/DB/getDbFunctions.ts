@@ -260,7 +260,7 @@ export const getOne = async <T>({
     } else {
       return handleError({
         error: "Detail does not exist",
-        errorMessage: null,
+        errorMessage: "",
         errorCode: 404,
         errorSource: "Database Functions",
       });
@@ -327,7 +327,7 @@ export const getSpecificDetailsUsingId = async (
     if (!rows) {
       return handleError({
         error: "Detail not found",
-        errorMessage: null,
+        errorMessage: "",
         errorCode: 404,
         errorSource: "Database Functions"
       }

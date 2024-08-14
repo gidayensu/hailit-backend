@@ -64,6 +64,8 @@ import { MonthName, MonthsData, Trip, TripMonth } from "../types/trips.types";
 import { UserRole } from "../types/user.types";
 import { ErrorResponse, handleError } from "../utils/handleError";
 import { getOneUserService } from "./user.service";
+import { EntityName } from "../types/shared.types";
+import { getOneRiderService } from "./rider.service";
 
 //GET ALL TRIPS
 export const getAllTripsService = async (
@@ -74,7 +76,7 @@ export const getAllTripsService = async (
   search}:GetAll
 ) => {
   try {
-    const trips: Trip[] | ErrorResponse = await getAllEntitiesService(
+    const trips = await getAllEntitiesService(
       {page,
       limit,
       sortColumn,
@@ -82,7 +84,7 @@ export const getAllTripsService = async (
       search,
       getAllEntitiesFromDB: getAllTripsFromDB,
       getCount: getTripCount,
-      entityName: "trips"}
+      entityName: EntityName.Trips}
     );
 
     return trips;
@@ -149,9 +151,9 @@ export const getOneTripService = async ({tripId, requesterUserId}: {tripId: stri
       throw new Error('Expected Trip type');
     }
     const { dispatcher_id, trip_medium } = oneTrip 
-    const dispatcherDetails = await getDispatcherDetails({dispatcherId: dispatcher_id, tripMedium:trip_medium})
+    const dispatcherDetails = await ({dispatcherId: dispatcher_id, tripMedium:trip_medium})
       
-    if (dispatcherDetails.error) {
+    if (isErrorResponse(dispatcherDetails)) {
       return { ...oneTrip, dispatcher: "Not assigned" };
     }
 
@@ -176,7 +178,7 @@ export const getUserTripsService = async (userId:string) => {
   try {
     const userData = await getOneUserFromDB(userId);
 
-    if (userData.error) {
+    if (isErrorResponse(userData)) {
       return userData;
     }
 
@@ -238,14 +240,21 @@ export const addTripService = async ({userId, tripDetails, io}: {userId:string; 
     };
 
     let newTrip = await addTripToDB(finalTripDetails, locationDetails);
-    if(newTrip.error) {
+    if(isErrorResponse(newTrip)) {
       return newTrip; //with error details
     }
     //adds name of user to trips details for dashboard
-    const {first_name, last_name} = await getOneUserService(userId)
-    newTrip.first_name = first_name;
-    newTrip.last_name = last_name;
+    const userData = await getOneUserService(userId);
+    
+    if(isErrorResponse(userData)) {
+    
+      newTrip.first_name = "Error occurred";
+      newTrip.last_name = "Error occurred";
+    }
 
+    const {first_name, last_name} = !isErrorResponse(userData) && userData;
+    newTrip.first_name = first_name;
+      newTrip.last_name = last_name;
     // real time update
     
     io && await tripsRealTimeUpdate({
@@ -280,22 +289,30 @@ export const updateTripService = async ({ tripDetails, io }: {tripDetails: Trip;
       allowedProperties: ALLOWED_UPDATE_PROPERTIES,
     });
 
-    let updatedTrip = await updateTripOnDB(validTripDetails);
-    if (updatedTrip.error) {
+    const updatedTrip = await updateTripOnDB(validTripDetails);
+    if (isErrorResponse(updatedTrip)) {
       return updatedTrip; //with error details
     }
 
     let dispatcherUserId = ""; //for fetching data for real time update
     const customerUserId = updatedTrip?.customer_id; //for fetching data for real time update
-    const { dispatcher_id, trip_medium } = updatedTrip;
+    const { dispatcher_id: dispatcherId, trip_medium } = updatedTrip;
 
-    if (dispatcher_id) {
-      const dispatcherDetails = await getDispatcherDetails({
-        dispatcherId:dispatcher_id,
-        tripMedium:trip_medium,
-      });
-      dispatcherUserId = dispatcherDetails?.user_id;
-      updatedTrip = { ...updatedTrip, dispatcher: dispatcherDetails };
+    if (dispatcherId) {
+      const dispatcherDetails = trip_medium === "Motor" ?  await getDispatcherDetails ({
+        dispatcherId,
+        getDispatcher: getOneRiderService
+      }) : await getDispatcherDetails ({
+        dispatcherId,
+        getDispatcher: getOneRiderService
+      }) 
+      
+      
+      if(!isErrorResponse(dispatcherDetails)) {
+
+        dispatcherUserId =  dispatcherDetails?.user_id;
+        updatedTrip.dispatcher =  dispatcherDetails 
+      }
     }
     //emit reall time update
     io &&
@@ -329,14 +346,14 @@ export const rateTripService = async ({
   try {
     const ratingDetailsWithRatingStatus = { ...ratingDetails, rated: true };
 
-    const validTripDetails = allowedPropertiesOnly({
+    const validTripDetails: Trip = allowedPropertiesOnly({
       data: ratingDetailsWithRatingStatus,
       allowedProperties: ALLOWED_RATE_TRIP_PROPS,
     });
 
-    const { trip_id, dispatcher_id } = validTripDetails as any; //TODO: Fix type
+    const { trip_id, dispatcher_id } = validTripDetails; 
     const updateTrip = await updateTripOnDB(validTripDetails);
-    if (updateTrip.error) {
+    if (isErrorResponse(updateTrip)) {
       return updateTrip; //Error details returned
     }
 
@@ -372,14 +389,27 @@ export const rateTripService = async ({
       return ratingCountUpdate; //error details included
     }
 
-    const { customer_id: customerUserId } = updateTrip;
-    const dispatcherDetails =
-      dispatcher_id &&
-      (await getDispatcherDetails({
-        dispatcherId: dispatcher_id,
-        tripMedium: trip_medium,
-      }));
-    const { user_id: dispatcherUserId } = dispatcherDetails;
+    
+    const { customer_id: customerUserId, dispatcher_id: dispatcherId } = updateTrip;
+    
+    
+
+    if (dispatcherId) {
+      const dispatcherDetails = trip_medium === "Motor" ?  await getDispatcherDetails ({
+        dispatcherId,
+        getDispatcher: getOneRiderService
+      }) : await getDispatcherDetails ({
+        dispatcherId,
+        getDispatcher: getOneRiderService
+      }) 
+      
+
+      let dispatcherUserId = ''
+      if(!isErrorResponse(dispatcherDetails)) {
+        dispatcherUserId = dispatcherDetails.dispatcher_id
+      } 
+
+    
     //check for user role and emit based on the user role
     io &&
       (await tripsRealTimeUpdate({
@@ -389,8 +419,9 @@ export const rateTripService = async ({
         tripType: "tripRated",
         trip: updateTrip,
       }));
-
+    }
     return updateTrip;
+    
   } catch (err) {
     return handleError({
       error: `Server error occurred adding rating: ${err}`,
@@ -417,8 +448,19 @@ export const deleteTripService = async ({tripId, io}: {tripId: string, io: Serve
       customer_id: customerUserId,
       trip_medium: tripMedium,
     } = IDsAndMedium;
-    const dispatcherDetails = dispatcherId && await getDispatcherDetails({dispatcherId, tripMedium})
-    const {user_id: dispatcherUserId} = dispatcherDetails;
+  
+    
+    
+      const dispatcherDetails = tripMedium === "Motor" ?  await getDispatcherDetails ({
+        dispatcherId,
+        getDispatcher: getOneRiderService
+      }) : await getDispatcherDetails ({
+        dispatcherId,
+        getDispatcher: getOneRiderService
+      }) 
+      
+   
+    const dispatcherUserId = !isErrorResponse(dispatcherDetails) ? dispatcherDetails.user_id :  ''
     
     
     const deletedTrip = dispatcherUserId && await deleteTripFromDB(tripId);
@@ -437,6 +479,7 @@ export const deleteTripService = async ({tripId, io}: {tripId: string, io: Serve
     
         
     return deletedTrip;
+  
   } catch (err) {
     return handleError(
       {
@@ -574,7 +617,7 @@ export const tripsCountByMonth = async ({tripDataColumn, condition, month} : {tr
       month
     );
 
-    if (monthTripCount.error) {
+    if (isErrorResponse(monthTripCount)) {
       return monthTripCount; //with error details
     }
 
@@ -607,7 +650,7 @@ export const getRevenueByMonth = async () => {
   try {
     const monthsRevenue = await revenueByMonth();
 
-    if (monthsRevenue.error) {
+    if (isErrorResponse(monthsRevenue)) {
       return monthsRevenue; //with error details
     }
 
@@ -637,7 +680,7 @@ export const getRevenueByMonth = async () => {
 export const currentWeekTrip = async () => {
   try {
     const weekTripsCount = await oneWeekTripsCount();
-    if (weekTripsCount.error) {
+    if (isErrorResponse(weekTripsCount)) {
       return weekTripsCount; //with error details
     }
 

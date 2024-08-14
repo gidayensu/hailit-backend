@@ -179,7 +179,7 @@ export const getUserTripsFromDB = async ({
   sortingColumn?: string;
 }) => {
   try {
-    const userTrips = await getSpecificDetailsUsingId({
+    const userTrips: Trip[] | ErrorResponse = await getSpecificDetailsUsingId({
       tableName: TRIP_TABLE_NAME,
       id: id,
       idColumn: idColumn,
@@ -194,7 +194,7 @@ export const getUserTripsFromDB = async ({
     if (userTrips.length === 0) {
       return handleError({
         error: "No user trip found",
-        errorMessage: null,
+        errorMessage: "",
         errorCode: 404,
         errorSource: "Trip Model: Get User Trips",
       });

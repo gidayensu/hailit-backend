@@ -27,7 +27,7 @@ export const getAllRiders: Middleware = async (req, res) => {
       sortDirection,
       search,
     });
-    if (allRiders.error) {
+    if (isErrorResponse(allRiders)) {
       return res && res
         .status(allRiders.errorCode)
         .json({
@@ -58,8 +58,8 @@ export const getOneRider: Middleware = async (req, res) => {
   const requesterUserId = req.user.sub;
 
   try {
-    const rider = await getOneRiderService({riderId:rider_id, requesterUserId});
-    if (rider.error) {
+    const rider = await getOneRiderService({id:rider_id, requesterUserId});
+    if (isErrorResponse(rider)) {
       return res
         .status(rider.errorCode)
         .json({
@@ -89,7 +89,7 @@ export const updateRider: Middleware = async (req, res) => {
       .status(401)
       .json({
         error: "rider id or vehicle id missing",
-        errorMessage: null,
+        errorMessage: "",
         errorSource: "Rider Controller",
       });
   }

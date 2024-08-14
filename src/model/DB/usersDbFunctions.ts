@@ -23,6 +23,7 @@ import { VEHICLE_TABLE_NAME } from "../../constants/vehicleConstants";
 import { FIRST_NAME, LAST_NAME } from "../../constants/tripConstants";
 import { User } from "../../types/user.types";
 import { Dispatcher } from "../../types/dispatcher.types";
+import { TotalCount } from "../../types/shared.types";
 
 interface DispatcherVehicleJoin extends GetAllFromDB {
   dispatcherRole: "Rider" | "Driver"
@@ -34,7 +35,7 @@ interface DispatcherVehicleJoin extends GetAllFromDB {
 export const customersCount = async (
   
   search:string
-): Promise<number | ErrorResponse> => {
+): Promise<TotalCount | ErrorResponse> => {
   
   try {
     let queryText = `SELECT COUNT(*) AS total_count FROM ${USERS_TABLE} WHERE user_role = 'Customer'`;

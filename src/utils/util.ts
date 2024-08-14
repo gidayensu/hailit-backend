@@ -7,7 +7,6 @@ import { isUserRole } from "../model/user.model";
 import { ErrorResponse, handleError } from "./handleError";
 
 import { UserRole } from "../types/user.types";
-import { Trip } from "../types/trips.types";
 const EMAIL_REGEX =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -40,8 +39,8 @@ export const allowedPropertiesOnly = ({data, allowedProperties}:{data:any, allow
       });
     }
     return Object.keys(data)
-      .filter((key) => allowedProperties.includes(key))
-      .reduce((obj, key) => {
+      .filter((key:any) => allowedProperties.includes(key))
+      .reduce((obj:any, key:any) => {
         obj[key] = data[key];
         return obj;
       }, {});
@@ -58,7 +57,7 @@ export const allowedPropertiesOnly = ({data, allowedProperties}:{data:any, allow
 
 
 export const userIsUserRole = async ({userId, userRole}:{userId:string, userRole:UserRole}) => {
-  return await isUserRole(userId, userRole);
+  return await isUserRole({userId, userRole});
 };
 
 
@@ -69,9 +68,9 @@ export const userAssociatedWithTrip = async ({tripId, requesterId, requesterRole
     requesterIdColumn = "dispatcher_id";
   }
   
-  const tripData = await associatedWithTrip(tripId, requesterId, requesterIdColumn);
+  const tripData = await associatedWithTrip({trip_id: tripId, condition: requesterId, conditionColumn: requesterIdColumn});
   
-  if (!tripData || tripData.error) {
+  if (!tripData || isErrorResponse(tripData)) {
     return false;
   }
 
@@ -84,11 +83,18 @@ export const userAssociatedWithTrip = async ({tripId, requesterId, requesterRole
 
 export const riderUserId = async (rider_id:string) => {
   const riderData = await getOneRiderFromDB(rider_id);
+  
+  if(isErrorResponse(riderData)) {
+    return riderData;
+  }
   return riderData.user_id;
 };
 
 export const driverUserId = async (driver_id:string) => {
   const driverData = await getOneDriverFromDB(driver_id);
+  if(isErrorResponse(driverData)) {
+    return driverData;
+  }
   return driverData.user_id;
 };
 

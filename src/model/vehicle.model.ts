@@ -62,7 +62,7 @@ export const getVehiclesCount = async(search:string)=> {
 export const getOneVehicleFromDB = async (vehicle_id: string) => {
   try {
     
-    const getVehicle = await getOne({
+    const getVehicle: ErrorResponse | Vehicle[] = await getOne({
       tableName: VEHICLE_TABLE_NAME,
       columnName: VEHICLE_ID_COLUMN,
       condition: vehicle_id,
@@ -100,7 +100,7 @@ export const addVehicleToDB = async (completeVehicleDetails: Vehicle) => {
       return handleError(
         {
           error: "Vehicle exists. It has already been added",
-          errorMessage: null,
+          errorMessage: "",
           errorCode: 400,
           errorSource: "Vehicle Model"
         }
@@ -116,7 +116,7 @@ export const addVehicleToDB = async (completeVehicleDetails: Vehicle) => {
     if (isErrorResponse(addVehicleResult)) {
       return addVehicleResult //error details returned
     }
-    const vehicle: Vehicle = addVehicleResult[0] 
+    const vehicle = addVehicleResult[0] 
     return vehicle;
   } catch (err) {
     return handleError({
@@ -165,9 +165,9 @@ export const updateVehicleOnDB = async ({
 export const deleteVehicleFromDB = async (vehicle_id:string) => {
   try {
     const vehicleDeletion = await deleteOne(
-      VEHICLE_TABLE_NAME,
-      VEHICLE_ID_COLUMN,
-      vehicle_id
+      {tableName: VEHICLE_TABLE_NAME,
+      columnName: VEHICLE_ID_COLUMN,
+      id: vehicle_id}
     );
     return vehicleDeletion;
   } catch (err) {

@@ -103,7 +103,7 @@ export const getUserTrips : Middleware = async (req, res) => {
 
     const userTrips = await getUserTripsService(user_id);
 
-    if (userTrips.error) {
+    if (isErrorResponse(userTrips)) {
       return res
         .status(userTrips.errorCode)
         .json({
@@ -133,7 +133,7 @@ export const addTrip : Middleware = async (req, res) => {
     const io = req.io;
     
     const tripAdded = await addTripService({userId, tripDetails, io});
-    if (tripAdded.error) {
+    if (isErrorResponse(tripAdded)) {
       return res
         .status(400)
         .json({
@@ -164,7 +164,7 @@ export const updateTrip : Middleware = async (req, res) => {
     const tripDetails = { trip_id, ...req.body,  };
 
     const tripUpdate = await updateTripService({ tripDetails, io,} );
-    if (tripUpdate?.error) {
+    if (isErrorResponse(tripUpdate)) {
       return res
         .status(403)
         .json({
@@ -305,7 +305,7 @@ export const getTripMonths : Middleware = async (req, res) => {
 export const currentWeekTripCount : Middleware = async (req, res) => {
   try {
     const currentWeekTrips = await currentWeekTrip();
-    if (currentWeekTrips.error) {
+    if (isErrorResponse(currentWeekTrips)) {
       return res
         .status(currentWeekTrips.errorCode)
         .json({
@@ -368,7 +368,7 @@ export const getTripsCountByMonth : Middleware = async (req, res) => {
       package_type || trip_area || trip_medium || trip_type || trip_status;
     const tripDataColumn = trip_column;
     const tripCounts = await tripsCountByMonth({tripDataColumn, condition: tripProp, month});
-    if (tripCounts.error) {
+    if (isErrorResponse(tripCounts)) {
       return res
         .status(tripCounts.errorCode)
         .json({
@@ -392,7 +392,7 @@ export const getTripsCountByMonth : Middleware = async (req, res) => {
 export const getTripRevenueByMonth : Middleware = async (req, res) => {
   try {
     const tripRevenue = await getRevenueByMonth();
-    if (tripRevenue.error) {
+    if (isErrorResponse(tripRevenue)) {
       return res
         .status(tripRevenue.errorCode)
         .json({

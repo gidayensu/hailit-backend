@@ -19,7 +19,8 @@ import { getAllEntitiesService } from "./helpers.service";
 
 //types
 import { GetAll } from "../types/getAll.types";
-import { DispatcherDetails, EntityName } from "../types/shared.types";
+import { EntityName } from "../types/shared.types";
+import { DispatcherDetails } from "../types/dispatcher.types";
 
 export const getAllDriversService = async ({
   page,
@@ -62,9 +63,9 @@ export const getOneDriverService = async ({driverId, requesterUserId}:{driverId:
     if (isErrorResponse( driver)) {
       return driver;
     }
+    const { user_id } = driver;
 
     let driverDetails = { ...driver };
-    const { user_id } = driver;
 
     //fetching driver name and related details
     const isAdmin = requesterUserId && await userIsUserRole({userId: requesterUserId, userRole: "Admin"});
@@ -101,21 +102,18 @@ export const getOneDriverService = async ({driverId, requesterUserId}:{driverId:
 
 export const addDriverService = async ({userId, vehicleId}: {userId:string, vehicleId:string}) => {
   const driverAdd = await addDriverToDB({userId, vehicleId});
-  if (isErrorResponse(driverAdd)) {
-    return driverAdd.error; 
-  }
   return driverAdd;
 };
 
 
 
-export const updateDriverService = async (driverDetails:DriverDetails) => {
+export const updateDriverService = async (driverDetails:DispatcherDetails) => {
   try {
-    const validDriverDetails = allowedPropertiesOnly(
+    const validDispatcherDetails = allowedPropertiesOnly(
       {data:driverDetails,
       allowedProperties:ALLOWED_DRIVER_UPDATE_PROPERTIES}
     );
-    const driverUpdate = await updateDriverOnDB(validDriverDetails);
+    const driverUpdate = await updateDriverOnDB(validDispatcherDetails);
     if (driverUpdate.error) {
       return { error: driverUpdate.error };
     }
@@ -151,6 +149,3 @@ export const deleteDriverService = async (driver_id:string) => {
   }
 };
 
-export interface DriverDetails extends DispatcherDetails {
-  driver_id?: string,
-}

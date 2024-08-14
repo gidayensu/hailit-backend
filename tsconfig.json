@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "outDir": "./built",
-        "allowJs": true,
+        "allowJs": false,
         "module": "CommonJS",
         "esModuleInterop": true
     },

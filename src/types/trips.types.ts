@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 export type MonthName = typeof monthOrder[number];
-
+import { Dispatcher } from "./dispatcher.types";
 export interface TripMonth {
   month: MonthName
 }
@@ -40,6 +40,8 @@ export interface Trip {
     trip_cost: number;
     payment_status: boolean;
     payment_method: PaymentMethod | '';
+    first_name?: string
+    last_name?: string
 }
 
 
@@ -70,33 +72,19 @@ export type TripStatus =
   | "Cancelled";
 
 
-  export interface Dispatcher {
-    rating_count: number;
-    cumulative_rating: number;
-    user_id: string;
-    user_role: DispatcherRole;
-    dispatcher_id: string;
-    license_number?: string;
-    available?: boolean;
-    vehicle_id: string;
-    first_name: string;
-    last_name: string;
-    email?: string;
-    phone_number?: string;
-    vehicle?: Vehicle
-  }
+  
  
   type DispatcherRole = "Rider" | "Driver"
 
   export interface Vehicle {
-    vehicle_id?: string,
-    vehicle_name?: string, 
-    vehicle_model?: string, 
-    plate_number?: string,
-    vehicle_type?: string,
-    insurance_details?: string,
-    road_worthy?: string,
-    available?: boolean
+    vehicle_id: string,
+    vehicle_name: string, 
+    vehicle_model: string, 
+    plate_number: string,
+    vehicle_type: string,
+    insurance_details: string,
+    road_worthy: string,
+    available: boolean
 }
 
 const monthOrder = [
@@ -117,8 +105,8 @@ const monthOrder = [
 export interface TripsRealTimeUpdate {
   io: Server,
   trip?: Trip,
-  dispatcherUserId?: string,
-  customerUserId?: string,
+  dispatcherUserId: string,
+  customerUserId: string,
   tripType: "tripAdded" | "tripUpdated" | "tripDeleted" | "tripRated",
   tripId?: string
 }

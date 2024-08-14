@@ -9,17 +9,19 @@ import {
   deleteRiderFromDB,
   getRiderOnConditionFromDB,
 } from "../model/rider.model";
+import { DispatcherDetails } from "../types/dispatcher.types";
 import { handleError } from "../utils/handleError";
+import { isErrorResponse } from "../utils/util";
 
-export const riderOrDriverDetails = async (user_role, userId) => {
+export const riderOrDispatcherDetails = async (user_role, userId) => {
   if (user_role === "Driver") {
-    const driverDetails = await getDriverDetailOnCondition(
-      USER_ID_COLUMN,
-      userId
-    );
+    const driverDetails = await getDriverDetailOnCondition({
+      columnName: USER_ID_COLUMN,
+      condition: userId,
+    });
 
     //if user is driver  but no details in database add driver to driver table
-    if (driverDetails.error) {
+    if (isErrorResponse(driverDetails)) {
       const addDriver = await addDriverToDB(userId);
 
       return { driver: addDriver };
@@ -30,12 +32,12 @@ export const riderOrDriverDetails = async (user_role, userId) => {
 
   if (user_role === "Rider") {
     const riderDetails = await getRiderOnConditionFromDB(
-      USER_ID_COLUMN,
-      userId
+      {columnName: USER_ID_COLUMN,
+      condition: userId}
     );
 
     //if user is rider but no details in database add rider to rider table
-    if (riderDetails.length < 1) {
+    if (!isErrorResponse(riderDetails)) {
       const addRider = await addRiderToDB(userId);
       return { rider: addRider };
     }
@@ -47,85 +49,95 @@ export const riderOrDriverDetails = async (user_role, userId) => {
 export const addRiderIfApplicable = async (user_id, addedUser) => {
   try {
     const addRider = await addRiderToDB(user_id);
-    if (addRider.error) return addRider;
+    if (isErrorResponse(addRider)) {
+      return addRider;
+    }
     return { ...addedUser, rider: addRider[0] };
   } catch (err) {
     return handleError({
       error: "Error adding rider",
       errorMessage: `${err}`,
       errorCode: 500,
-      errorSource: "User Service: Add Rider if Applicable"
-    }
-    );
+      errorSource: "User Service: Add Rider if Applicable",
+    });
   }
 };
 
 export const addDriverIfApplicable = async (user_id, addedUser) => {
   try {
     const addDriver = await addDriverToDB(user_id);
-    if (addDriver.error) return addDriver;
+    if (isErrorResponse(addDriver)) {
+      return addDriver;
+    } 
+      
     return { ...addedUser, driver: addDriver[0] };
   } catch (err) {
-    return handleError(
-      {
-        error: "Error. User not updated",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "User Service"
-      }
-      
-    );
+    return handleError({
+      error: "Error. User not updated",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "User Service",
+    });
   }
 };
 
 export const updateRiderRole = async (userId, updatedDetails) => {
   try {
-    const isDriver = await getDriverDetailOnCondition(USER_ID_COLUMN, userId);
-    if (!isDriver.error && isDriver.length > 0)
+    const isDriver = await getDriverDetailOnCondition({
+      columnName: USER_ID_COLUMN,
+      condition: userId,
+    });
+    if (!isErrorResponse(isDriver)) {
       await deleteDriverFromDB(isDriver[0].driver_id);
+    }
 
-    const riderExists = await getRiderOnConditionFromDB(USER_ID_COLUMN, userId);
-    if (riderExists.length > 0)
+    const riderExists = await getRiderOnConditionFromDB({
+      columnName: USER_ID_COLUMN,
+      condition: userId,
+    });
+    if (!isErrorResponse(riderExists)) {
       return { ...updatedDetails, rider: riderExists[0] };
+    }
 
     const addRider = await addRiderToDB(userId);
     return { ...updatedDetails, rider: addRider[0] };
   } catch (err) {
-    return handleError(
-      {
-        error: "Error updating rider role",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "User Service: Update Rider Role"
-      }
-      
-    );
+    return handleError({
+      error: "Error updating rider role",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "User Service: Update Rider Role",
+    });
   }
 };
 
 export const updateDriverRole = async (userId, updatedDetails) => {
   try {
-    const isRider = await getRiderOnConditionFromDB(USER_ID_COLUMN, userId);
-    if (isRider.length > 0) await deleteRiderFromDB(isRider[0].rider_id);
+    const isRider = await getRiderOnConditionFromDB({columnName: USER_ID_COLUMN, condition: userId});
+    if (!isErrorResponse(isRider)) {
+      await deleteRiderFromDB(isRider[0].rider_id);
+    } 
 
     const driverExists = await getDriverDetailOnCondition(
-      USER_ID_COLUMN,
-      userId
+      {columnName: USER_ID_COLUMN,
+      condition: userId}
     );
-    if (!driverExists.error && driverExists.length > 0)
-      return { ...updatedDetails, driver: driverExists[0] };
+    if (!isErrorResponse(driverExists)) {
 
+      return { ...updatedDetails, driver: driverExists[0] };
+    }
     const addDriver = await addDriverToDB(userId);
+    if(isErrorResponse(addDriver)) {
+      return {...updatedDetails, driver: ''}
+    }
+    const driver: DispatcherDetails =  addDriver[0]
     return { ...updatedDetails, driver: addDriver[0] };
   } catch (err) {
-    return handleError(
-      {
-        error: "Error updating driver role",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "User Service: Update Rider Role"
-      }
-      
-    );
+    return handleError({
+      error: "Error updating driver role",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "User Service: Update Rider Role",
+    });
   }
 };

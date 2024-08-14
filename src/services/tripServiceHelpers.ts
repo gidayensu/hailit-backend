@@ -46,15 +46,13 @@ import {
   getUserTripsService
 } from "./trip.service";
 
-import { getOneDriverService } from "./driver.service";
-import { getOneRiderService } from "./rider.service";
 
 //helpers
 import { ErrorResponse, handleError } from "../utils/handleError";
 import { currencyFormatter, isErrorResponse } from "../utils/util";
 
 //types
-import { Server } from "socket.io";
+import { Dispatcher } from "../types/dispatcher.types";
 import { CustomerTrips, IDsAndMedium, MonthsData, Trip, TripMedium, TripsCount, TripsRealTimeUpdate } from "../types/trips.types";
 import { UserRole } from "../types/user.types";
 ;
@@ -114,36 +112,41 @@ export const tripsRealTimeUpdate = async ({io,  trip, dispatcherUserId, customer
     }
   }
 
-export const getDispatcherDetails = async ({tripMedium, dispatcherId}: {tripMedium: TripMedium, dispatcherId: string})=> {
-  try {
+export const getDispatcherDetails = async ({
+  dispatcherId,
+  getDispatcher,
+}: {
+  getDispatcher: ({
+    id,
+    requesterUserId,
+  }: {
+    id: string;
+    requesterUserId?: string;
+  }) => Promise<ErrorResponse | Dispatcher>;
+  dispatcherId: string;
+}) => {
 
-  
-  
-      let dispatcherDetails = tripMedium === "Motor" ? await getOneRiderService({riderId: dispatcherId}) : await getOneDriverService({driverId: dispatcherId})
-  
-      if (dispatcherDetails.error) {
-        dispatcherDetails = "Not assigned";
-      }
-      const {
-        rider_id = "",
-        driver_id = "",
-        
-      } = dispatcherDetails;
-  
-      dispatcherDetails = {
-        ...dispatcherDetails,
-        dispatcher_id: rider_id || driver_id,
-        
-      };
+  try {
+    const dispatcherDetails = await getDispatcher({ id: dispatcherId });
+
+    if (isErrorResponse(dispatcherDetails)) {
       return dispatcherDetails;
-    } catch (err) {
-      return handleError({        
-        error: "Error occurred getting Dispatcher details",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "Trip Service Helper: Dispatcher Details"})
     }
-}
+
+    const { rider_id = "", driver_id = "" } = dispatcherDetails;
+
+    dispatcherDetails.dispatcher_id = rider_id || driver_id;
+
+    return dispatcherDetails;
+  } catch (err) {
+    return handleError({
+      error: "Error occurred getting Dispatcher details",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Trip Service Helper: Dispatcher Details",
+    });
+  }
+};
 
 //FETCH DISPATCHER DETAILS FOR UPDATED TRIP;
 
@@ -269,32 +272,34 @@ export const updateDispatcherRating = async (
 //CUSTOMER TRIPS (HELPER FUNCTION)
 export const getCustomerTrips = async (userId:string): Promise<Trip[] | ErrorResponse | CustomerTrips> => {
   try {
-    const trips:Trip[] = await getUserTripsFromDB({
+    const trips:Trip[] | ErrorResponse = await getUserTripsFromDB({
       id: userId,
       idColumn: CUSTOMER_ID_COLUMN,
       tripFieldsToSelect: CUSTOMER_TRIP_FIELDS,
       sortingColumn: TRIP_REQUEST_DATE_COLUMN,
     });
-
-    if (trips.length > 0) {
-      const {
-        total_trip_count,
-        delivered_trips,
-        cancelled_trips,
-        current_trips,
-        total_payment,
-      } = tripsCount(trips);
-      return {
-        customer_trips: trips,
-        total_trip_count,
-        delivered_trips,
-        cancelled_trips,
-        current_trips,
-        total_payment,
-      };
+    
+    if(isErrorResponse(trips)) {
+      return trips;
     }
 
-    return trips;
+    const {
+      total_trip_count,
+      delivered_trips,
+      cancelled_trips,
+      current_trips,
+      total_payment,
+    } = tripsCount(trips);
+
+    return {
+      customer_trips: trips,
+      total_trip_count,
+      delivered_trips,
+      cancelled_trips,
+      current_trips,
+      total_payment,
+    };
+    
   } catch (err) {
     return handleError(
       {
@@ -314,11 +319,11 @@ export const dispatcherTrips = async ({userRole, userId}: {userRole: UserRole, u
 
     const dispatcherData =
       userRole === "Rider"
-        ? await getRiderOnConditionFromDB(USER_ID_COLUMN, userId)
-        : await getDriverDetailOnCondition(USER_ID_COLUMN, userId); ;
+        ? await getRiderOnConditionFromDB({columnName: USER_ID_COLUMN, condition: userId})
+        : await getDriverDetailOnCondition({columnName: USER_ID_COLUMN, condition:  userId}); ;
         
-        if (dispatcherData.error) {
-          return { error: dispatcherData.error };
+        if (isErrorResponse(dispatcherData)) {
+          return dispatcherData;
         }
 
     const dispatcherId = userRole === "Rider"
@@ -332,23 +337,26 @@ export const dispatcherTrips = async ({userRole, userId}: {userRole: UserRole, u
         tripFieldsToSelect: DISPATCHER_TRIP_FIELDS}
       );
   
-      if (dispatcherTrips.length > 0) {
-        const {
-          total_trip_count,
-          delivered_trips,
-          cancelled_trips,
-          current_trips,
-          total_earnings,
-        } = tripsCount(dispatcherTrips);
-        return {
-          dispatcher_trips: dispatcherTrips,
-          total_trip_count,
-          delivered_trips,
-          cancelled_trips,
-          current_trips,
-          total_earnings,
-        };
+      if(isErrorResponse(dispatcherTrips)) {
+        return dispatcherTrips;
       }
+
+      const {
+        total_trip_count,
+        delivered_trips,
+        cancelled_trips,
+        current_trips,
+        total_earnings,
+      } = tripsCount(dispatcherTrips);
+      return {
+        dispatcher_trips: dispatcherTrips,
+        total_trip_count,
+        delivered_trips,
+        cancelled_trips,
+        current_trips,
+        total_earnings,
+      };
+      
       //DISPATCHER_ID_COLUMN: this is because dispatcher is used to represent rider and driver in the trips table
       return dispatcherTrips;
     }
@@ -371,20 +379,20 @@ export const getDispatcherId = async (tripMedium: TripMedium) => {
 
   if (tripMedium === "Car" || tripMedium === "Truck") {
     const availableDrivers = await getSpecificDriversFromDB(
-      DISPATCHER_AVAILABLE_COLUMN,
-      true
+      {specificColumn: DISPATCHER_AVAILABLE_COLUMN,
+      condition: true}
     );
-    if (availableDrivers && availableDrivers.length > 0) {
+    if (!isErrorResponse(availableDrivers)) {
       dispatcherId = availableDrivers[0].driver_id;
     }
   }
 
   if (tripMedium === "Motor") {
-    const availableRiders = await getSpecificRidersFromDB(
-      DISPATCHER_AVAILABLE_COLUMN,
-      true
-    );
-    if (availableRiders && availableRiders.length > 0) {
+    const availableRiders = await getSpecificRidersFromDB({
+      specificColumn: DISPATCHER_AVAILABLE_COLUMN,
+      condition: true,
+    });
+    if (!isErrorResponse(availableRiders)) {
       dispatcherId = availableRiders[0].rider_id;
     }
   }

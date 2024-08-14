@@ -10,6 +10,7 @@ import {
 
 //types
 import { GetAllFromDB } from "../types/getAll.types";
+import { TotalCount } from "../types/shared.types";
 import { User, UserRole } from "../types/user.types";
 import { ErrorResponse, handleError } from "../utils/handleError";
 
@@ -49,7 +50,7 @@ export const getAllUsersFromDB = async ({
     return handleError(
       {
         error: "Server error occurred getting all users",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorCode: 500,
         errorSource: "User Model: Get All Users"
       }
@@ -58,7 +59,7 @@ export const getAllUsersFromDB = async ({
   }
 };
 
-export const getCustomerCount = async (search:string) => {
+export const getCustomerCount = async (search:string): Promise<ErrorResponse | TotalCount> => {
   try {
     const customerCount = await customersCount(
       search
@@ -71,7 +72,7 @@ export const getCustomerCount = async (search:string) => {
     return handleError(
       {
         error: "Server error occurred getting customer count",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorCode: 500,
         errorSource: "User Model: Customer Count"
       }
@@ -101,7 +102,7 @@ export const getOneUserFromDB = async (userId:string) => {
     return handleError(
       {
         error: "Error occurred getting user details",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorCode: 500,
         errorSource: "User Model"
       }
@@ -115,27 +116,18 @@ export const getOneUserFromDB = async (userId:string) => {
 export const addUserToDB = async (userDetails: User) => {
   const { email } = userDetails;
   const columnsForAdding = Object.keys(userDetails);
-  const userDetailsArray = Object.values(userDetails);
+  const userDetailsArray: string[] = Object.values(userDetails);
 
   try {
     const emailExist = await emailExists(email);
 
     if (!emailExist) {
-      const insertUserDetails = await addOne(
-        { tableName: USER_TABLE_NAME,
-        columns: columnsForAdding,
-        values: userDetailsArray}
-      );
-
-      if (insertUserDetails) {
-        const insertedDetails: User = insertUserDetails[0];
-        return insertedDetails;
-      }
+      return await insertUserDetails({columns: columnsForAdding, userDetails: userDetailsArray})
     } else {
       return handleError(
         {
           error: "User email or number exists",
-          errorMessage: null,
+          errorMessage: "",
           errorCode: 400,
           errorSource: "User Model"
         }
@@ -156,7 +148,32 @@ export const addUserToDB = async (userDetails: User) => {
 };
 
 
-
+export const insertUserDetails = async ({userDetails, columns}: {userDetails: string[], columns: string[]})=> {
+  try {
+    const insertUserDetails: User[] | ErrorResponse = await addOne(
+      { tableName: USER_TABLE_NAME,
+      columns: columns,
+      values: userDetails}
+    );
+    
+    if (isErrorResponse(insertUserDetails)) {
+      
+      return insertUserDetails;
+    }
+    const newUser: User = insertUserDetails[0];
+  } catch (err) {
+    return handleError(
+      {
+        error: "Error occurred: inserting user details",
+        errorMessage: `${err}`,
+        errorCode: 500,
+        errorSource: "User Model: Add User"
+      }
+      
+    );
+  
+  }
+}
 export const updateUserOnDB = async ({userId, userDetails}: {userId:string, userDetails: User}) => {
   try {
     const validColumnsForUpdate = Object.keys(userDetails);
@@ -199,7 +216,7 @@ export const getSpecificUserDetailsUsingId = async ({userId, columns}: {userId:s
     return handleError(
       {
         error: `Error occurred: ${specificDetails.error}`,
-        errorMessage: null,
+        errorMessage: "",
         errorCode: 500,
         errorSource: "User Model"
       }
@@ -311,7 +328,7 @@ export const userExists = async (userId: string)=> {
     if (!exists) {
       return handleError({
         error: "User does not exist",
-        errorMessage: null,
+        errorMessage: "",
         errorCode: 404,
         errorSource: "User Model: Update User",
       });

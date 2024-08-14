@@ -1,10 +1,11 @@
 import {
   deleteDriverService,
-  DriverDetails,
+  
   getAllDriversService,
   getOneDriverService,
   updateDriverService,
 } from "../services/driver.service";
+import { DispatcherDetails } from "../types/dispatcher.types";
 import { Middleware } from "../types/middleware.types";
 import { isErrorResponse } from "../utils/util";
 
@@ -84,7 +85,7 @@ export const updateDriver : Middleware = async (req, res) => {
   const { driver_id } = req.params;
   const { vehicle_id } = req.body;
 
-  const driverDetails: DriverDetails = { driver_id, ...req.body };
+  const driverDetails: DispatcherDetails = { driver_id, ...req.body };
 
   if (!driver_id && !vehicle_id) {
     return res.status(401).json({ error: "driver id or vehicle id missing" });

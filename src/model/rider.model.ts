@@ -17,15 +17,14 @@ import { addOne } from "./DB/addDbFunctions";
 import { deleteOne } from "./DB/deleteDbFunctions";
 import {
   getOne,
-  getSpecificDetails,
-  getSpecificDetailsUsingId,
+  getSpecificDetails
 } from "./DB/getDbFunctions";
 import { updateOne } from "./DB/updateDbFunctions";
 import { getDispatcherCount, getDispatchersVehicleJoin } from "./DB/usersDbFunctions";
 
 //types
+import { RiderDetails, UpdateRiderDetails } from "../types/dispatcher.types";
 import { GetAllFromDB } from "../types/getAll.types";
-import { RiderDetails } from "../services/rider.service";
 import { isErrorResponse } from "../utils/util";
 import { detailExists } from "./DB/helperDbFunctions";
 
@@ -48,7 +47,7 @@ export const getAllRiders = async ({
     if (isErrorResponse(allRiders)) {
       return handleError({
         error: allRiders.error,
-        errorMessage: null,
+        errorMessage: "",
         errorCode: 500,
         errorSource: "All Riders Model",
       });
@@ -87,15 +86,16 @@ export const getRidersCount = async(search:string)=> {
 export const getOneRiderFromDB = async (rider_id:string) => {
   try {
     
-    const rider = await getOne({
+    const riderData: RiderDetails[] | ErrorResponse = await getOne({
       tableName: RIDER_TABLE_NAME,
       columnName: RIDER_ID_COLUMN,
       condition: rider_id,
     });
-    if (isErrorResponse(rider)) {
-      return rider;
+    if (isErrorResponse(riderData)) {
+      return riderData;
     }
-    return rider[0];
+    const rider:RiderDetails = riderData[0]
+    return rider;
   } catch (err) {
     return handleError({
       error: "Error occurred. Rider not fetched",
@@ -107,9 +107,9 @@ export const getOneRiderFromDB = async (rider_id:string) => {
   }
 };
 
-export const getRiderOnConditionFromDB = async (columnName, condition) => {
+export const getRiderOnConditionFromDB = async ({columnName, condition}: {columnName: string; condition: string}) => {
   try {
-    const riderDetails = await getOne(
+    const riderDetails: RiderDetails[] | ErrorResponse = await getOne(
       {tableName: RIDER_TABLE_NAME,
       columnName,
       condition}
@@ -118,7 +118,7 @@ export const getRiderOnConditionFromDB = async (columnName, condition) => {
   } catch (err) {
     return handleError({
       error: "Error occurred getting rider",
-      errorMessage: null,
+      errorMessage: "",
       errorCode: 404,
       errorSource: "Rider Model: Rider on Condition"
     }
@@ -126,7 +126,7 @@ export const getRiderOnConditionFromDB = async (columnName, condition) => {
   }
 };
 
-export const getSpecificRidersFromDB = async (specificColumn, condition) => {
+export const getSpecificRidersFromDB = async ({specificColumn, condition}: {specificColumn:string, condition:boolean}) => {
   try {
     const specificRiders = await getSpecificDetails(
       RIDER_TABLE_NAME,
@@ -186,11 +186,11 @@ export const addRiderToDB = async (user_id:string) => {
   }
 };
 
-export const updateRiderOnDB = async (riderDetails:RiderDetails) => {
+export const updateRiderOnDB = async (riderDetails:UpdateRiderDetails) => {
   const { rider_id } = riderDetails;
   
   const riderColumns = Object.keys(riderDetails);
-  const riderDetailsArray = Object.values(riderDetails);
+  const riderDetailsArray: string[] = Object.values(riderDetails);
 
   try {
     const riderUpdate = await updateOne({

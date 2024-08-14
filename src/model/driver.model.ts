@@ -25,11 +25,12 @@ import { v4 as uuid } from "uuid";
 import { ErrorResponse, handleError } from "../utils/handleError";
 
 //types
-import { DriverDetails } from "../services/driver.service";
+import { DispatcherDetails, UpdateDriverDetails } from "../types/dispatcher.types";
 import { GetAllFromDB } from "../types/getAll.types";
 import { isErrorResponse } from "../utils/util";
 import { detailExists } from "./DB/helperDbFunctions";
 import { TotalCount } from "../types/shared.types";
+import { Dispatcher, DriverDetails } from "../types/dispatcher.types";
 
 export const getAllDriversFromDB = async ({
   limit,
@@ -79,7 +80,7 @@ export const getDriversCount = async (search: string) => {
 
 export const getOneDriverFromDB = async (driver_id: string) => {
   try {
-    const driverData: DriverDetails[] | ErrorResponse = await getOne({
+    const driverData: DispatcherDetails[] | ErrorResponse = await getOne({
       tableName: DRIVER_TABLE_NAME,
       columnName: DRIVER_ID_COLUMN,
       condition: driver_id,
@@ -88,7 +89,7 @@ export const getOneDriverFromDB = async (driver_id: string) => {
       return driverData; //error details returned
     }
 
-  const driver: DriverDetails = driverData[0];
+  const driver: DispatcherDetails = driverData[0];
   return driver;
   } catch (err) {
     return handleError({
@@ -100,15 +101,18 @@ export const getOneDriverFromDB = async (driver_id: string) => {
   }
 };
 
-export const getDriverDetailOnCondition = async (columnName, condition) => {
+export const getDriverDetailOnCondition = async ({columnName, condition}: {columnName: string, condition: string}): Promise<DriverDetails | ErrorResponse> => {
   try {
-    const driverDetails = await getOne({
+    const driverDetails: DriverDetails[] | ErrorResponse = await getOne({
       tableName: DRIVER_TABLE_NAME,
       columnName: columnName,
       condition: condition,
     });
-
-    return driverDetails;
+    if(isErrorResponse(driverDetails)) {
+      return driverDetails;
+    }
+    
+    return driverDetails[0];
   } catch (err) {
     return handleError({
       error: "Error occurred finding driver details",
@@ -118,9 +122,9 @@ export const getDriverDetailOnCondition = async (columnName, condition) => {
     });
   }
 };
-export const getSpecificDriversFromDB = async (specificColumn, condition) => {
+export const getSpecificDriversFromDB = async ({specificColumn, condition}: {specificColumn: string, condition: boolean}) => {
   try {
-    const specificDrivers = await getSpecificDetails(
+    const specificDrivers: Dispatcher[] | ErrorResponse = await getSpecificDetails(
       DRIVER_TABLE_NAME,
       specificColumn,
       condition
@@ -169,12 +173,14 @@ export const addDriverToDB = async ({
     : (DRIVER_VEHICLE_ID = DEFAULT_VEHICLE_ID);
   const driverDetails = [driver_id, userId, DRIVER_VEHICLE_ID];
   try {
-    const addedDriver = await addOne({
+    const addedDriver: DriverDetails[] | ErrorResponse= await addOne({
      tableName: DRIVER_TABLE_NAME,
       columns: DRIVER_TABLE_COLUMNS,
       values: driverDetails,
     });
-
+    if(isErrorResponse(addedDriver)) {
+      return addedDriver;
+    } 
     return addedDriver[0]; //CHECK FOR ERRORS
   } catch (err) {
     return handleError({
@@ -186,7 +192,7 @@ export const addDriverToDB = async ({
   }
 };
 
-export const updateDriverOnDB = async (driverDetails: DriverDetails) => {
+export const updateDriverOnDB = async (driverDetails: UpdateDriverDetails) => {
   const { driver_id } = driverDetails;
 
   const tableColumns = Object.keys(driverDetails);

@@ -1,7 +1,10 @@
+import { PHONE_NUMBER } from "../constants/driverConstants";
 import { DEFAULT_LIMIT } from "../constants/sharedConstants";
 import {
   ALLOWED_PROPERTIES,
+  USER_EMAIL_COLUMN,
   USER_ID_COLUMN,
+  USER_PHONE_NUMBER_COLUMN,
 } from "../constants/usersConstants";
 import {
   deleteDriverFromDB,
@@ -24,12 +27,14 @@ import {
   userExists
 } from "../model/user.model";
 import { GetAll } from "../types/getAll.types";
-import { handleError } from "../utils/handleError";
+import { EntityName } from "../types/shared.types";
+import { User, UserKeys } from "../types/user.types";
+import { ErrorResponse, handleError } from "../utils/handleError";
 import { allowedPropertiesOnly, isErrorResponse } from "../utils/util";
 import {
   addDriverIfApplicable,
   addRiderIfApplicable,
-  riderOrDriverDetails,
+  riderOrDispatcherDetails,
   updateDriverRole,
   updateRiderRole,
 } from "./dispatcherRole.service";
@@ -52,7 +57,7 @@ export const getAllUsersService = async (
       search,
       getAllEntitiesFromDB: getAllUsersFromDB,
       getCount: getCustomerCount,
-      entityName: "users"}
+      entityName: EntityName.Users}
     );
     return users;
   } catch (err) {
@@ -69,18 +74,21 @@ export const getAllUsersService = async (
 };
 
 //GET USER
-export const getOneUserService = async (userId) => {
+export const getOneUserService = async (userId:string) => {
   try {
     const user = await getOneUserFromDB(userId);
+    if(isErrorResponse(user)) {
+      return user;
+    }
     if (
       (user.user_role && user.user_role === "Driver") ||
       user.user_role === "Rider"
     ) {
-      const getRiderOrDriverDetails = await riderOrDriverDetails(
+      const getRiderOrDispatcherDetails = await riderOrDispatcherDetails(
         user.user_role,
         userId
       );
-      return { ...user, ...getRiderOrDriverDetails };
+      return { ...user, ...getRiderOrDispatcherDetails };
     }
 
     return user;
@@ -99,7 +107,7 @@ export const getOneUserService = async (userId) => {
 
 //GET USER ID WITH EMAIL
 
-export const getUserIdUsingEmailService = async (userEmail) => {
+export const getUserIdUsingEmailService = async (userEmail:string) => {
   try {
     const user = await getUserIdUsingEmail(userEmail);
     return user;
@@ -117,21 +125,21 @@ export const getUserIdUsingEmailService = async (userEmail) => {
 };
 
 //ADD USER
-export const addUserService = async (userDetails) => {
-  const user_id_property = "user_id";
-  ALLOWED_PROPERTIES.unshift(user_id_property);
+export const addUserService = async (userDetails: User) => {
+  
+  ALLOWED_PROPERTIES.unshift(USER_ID_COLUMN);
 
   try {
     const user_id = userDetails.user_id;
-    const userDetailsWithId = { user_id, ...userDetails };
+    
     const validUserDetailsWithId = allowedPropertiesOnly(
-      {data:userDetailsWithId,
+      {data:userDetails,
       allowedProperties:ALLOWED_PROPERTIES}
     );
 
     const addedUser = await addUserToDB(validUserDetailsWithId);
 
-    if (addedUser.error) {
+    if (isErrorResponse(addedUser)) {
       return addedUser; //Error details will be returned
     }
 
@@ -159,7 +167,7 @@ export const addUserService = async (userDetails) => {
 };
 
 //UPDATE USER
-export const updateUserService = async (userId, userDetails) => {
+export const updateUserService = async ({userId, userDetails}: {userId:string, userDetails:User}) => {
   try {
     //VALIDATION - SHOULD BE MOVED TO A SEPARATE MIDDLEWARE
     let validUserDetails = allowedPropertiesOnly(
@@ -170,7 +178,7 @@ export const updateUserService = async (userId, userDetails) => {
       return handleError(
         {
           error: "No valid details added",
-          errorMessage: null,
+          errorMessage: "",
           errorCode: 403,
           errorSource: "User Service: Update User"
         }
@@ -189,32 +197,39 @@ export const updateUserService = async (userId, userDetails) => {
     
     const userData = await getOneUserFromDB(userId);
 
+    if(isErrorResponse(userData)) {
+      return userData //with error message
+    }
+
     const { email = "", phone_number = "" } = validUserDetails;
     
-    const emailExist = await detailExistsUserAssociation(
-      email,
-      "email",
-      emailExists,
-      userData
-    );
+    const emailExist = await detailExistsUserAssociation({
+      detail: email,
+      userProp: USER_EMAIL_COLUMN,
+      existChecker: emailExists,
+      userData,
+    });
 
-    if (emailExist.error) {
+    if (isErrorResponse(emailExist)) {
       return emailExist; //with error message
     }
 
     //check if phone number exists and it belongs to the user being updated
-    const numberExist = await detailExistsUserAssociation(
-      phone_number,
-      "phone_number",
-      phoneNumberExists,
-      userData
-    );
-    if (numberExist.error) {
+    const numberExist = await detailExistsUserAssociation({
+      detail: phone_number,
+      userProp: USER_PHONE_NUMBER_COLUMN,
+      existChecker: phoneNumberExists,
+      userData,
+    });
+    if (isErrorResponse(numberExist)) {
       return numberExist;
     }
 
-    const updatedDetails = await updateUserOnDB(userId, validUserDetails);
+    const updatedDetails = await updateUserOnDB({userId, userDetails: validUserDetails});
 
+    if(isErrorResponse(updatedDetails)) {
+      return updatedDetails;
+    }
     //return data with driver/rider details
     if (userData.user_role === "Rider") {
       return await updateRiderRole(userId, updatedDetails);
@@ -240,32 +255,30 @@ export const updateUserService = async (userId, userDetails) => {
 };
 
 //DELETE USER
-export const deleteUserService = async (userId) => {
+export const deleteUserService = async (userId:string) => {
   try {
     //user is rider, delete rider
-    const isRider = await getRiderOnConditionFromDB(USER_ID_COLUMN, userId);
+    const isRider = await getRiderOnConditionFromDB({columnName: USER_ID_COLUMN, condition: userId});
 
-    if (isRider.error && isRider.errorCode !== 404) {
+    if (isErrorResponse(isRider)) {
       return isRider;
     }
     //delete rider if no error
 
-    if (!isRider.error) {
-      const { rider_id } = isRider.rows[0];
-      await deleteRiderFromDB(rider_id);
-    }
+    const { rider_id } = isRider[0];
+    await deleteRiderFromDB(rider_id);
+    
 
     //user is driver, delete driver
 
-    const isDriver = await getDriverDetailOnCondition(USER_ID_COLUMN, userId);
+    const isDriver = await getDriverDetailOnCondition({columnName: USER_ID_COLUMN, condition: userId});
 
-    if (isDriver.error && isDriver.errorCode !== 404) {
+    if (isErrorResponse(isDriver)) {
       return isDriver;
     }
-    if (!isDriver.error) {
-      const { driver_id } = isDriver[0];
-      await deleteDriverFromDB(driver_id);
-    }
+    const { driver_id } = isDriver;
+    await deleteDriverFromDB(driver_id);
+    
     //delete driver if no error
 
     const deleteUser = await deleteUserFromDB(userId);
@@ -284,37 +297,36 @@ export const deleteUserService = async (userId) => {
   }
 };
 
-export const detailExistsUserAssociation = async (
+export const detailExistsUserAssociation = async ({
   detail,
-  detailProp,
+  userProp,
   existChecker,
-  userData
-) => {
+  userData,
+}: {
+  detail: string;
+  userProp: UserKeys;
+  existChecker: (condition:string)=> Promise<boolean | ErrorResponse>;
+  userData: User;
+}) => {
   try {
     const detailExists = await existChecker(detail);
-
-    const userDetail = userData[detailProp];
+    
+    const userDetail = userData[userProp];
     if (detail && detailExists && detail !== userDetail) {
-      return handleError(
-        {
-          error: `User not updated, use a different ${detailProp}`,
-          errorMessage: null,
-          errorCode: 400,
-          errorSource: "User Service: Detail Exists"
-        }
-        
-      );
+      return handleError({
+        error: `User not updated, use a different ${userProp}`,
+        errorMessage: "",
+        errorCode: 400,
+        errorSource: "User Service: Detail Exists",
+      });
     }
     return detailExists;
   } catch (err) {
-    return handleError(
-      {
-        error: "Error checking ${detailProp} association",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "User Service: Detail Exists"
-      }
-      
-    );
+    return handleError({
+      error: "Error checking ${userProp} association",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "User Service: Detail Exists",
+    });
   }
 };
