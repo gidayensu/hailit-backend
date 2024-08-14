@@ -241,7 +241,7 @@ export const updateDispatcherRating = async (
   averageDispatcherRating} : {
     tripMedium: TripMedium;
     dispatcherId: string,
-    averageDispatcherRating: number
+    averageDispatcherRating?: number
   }
 ): Promise<boolean | ErrorResponse> => {
   try {

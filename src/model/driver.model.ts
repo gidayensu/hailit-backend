@@ -145,7 +145,7 @@ export const addDriverToDB = async ({
   vehicleId,
 }: {
   userId: string;
-  vehicleId: string;
+  vehicleId?: string;
 }): Promise<DriverDetails | ErrorResponse> => {
   const userIsDriver = await detailExists({
     tableName: DRIVER_TABLE_NAME,

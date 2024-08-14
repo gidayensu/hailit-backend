@@ -84,10 +84,10 @@ export const getOneUserService = async (userId:string) => {
       (user.user_role && user.user_role === "Driver") ||
       user.user_role === "Rider"
     ) {
-      const getRiderOrDispatcherDetails = await riderOrDispatcherDetails(
-        user.user_role,
-        userId
-      );
+      const getRiderOrDispatcherDetails = await riderOrDispatcherDetails({
+        user_role: user.user_role,
+        userId,
+      });
       return { ...user, ...getRiderOrDispatcherDetails };
     }
 
@@ -130,7 +130,7 @@ export const addUserService = async (userDetails: User) => {
   ALLOWED_PROPERTIES.unshift(USER_ID_COLUMN);
 
   try {
-    const user_id = userDetails.user_id;
+    const userId = userDetails.user_id;
     
     const validUserDetailsWithId = allowedPropertiesOnly(
       {data:userDetails,
@@ -146,9 +146,9 @@ export const addUserService = async (userDetails: User) => {
     const userRole = validUserDetailsWithId.user_role;
     if (userRole) {
       if (userRole === "rider") {
-        return await addRiderIfApplicable(user_id, addedUser);
+        return await addRiderIfApplicable({  userId, addedUser });
       } else if (userRole === "Driver") {
-        return await addDriverIfApplicable(user_id, addedUser);
+        return await addDriverIfApplicable({ userId, addedUser });
       }
     }
 
@@ -232,11 +232,11 @@ export const updateUserService = async ({userId, userDetails}: {userId:string, u
     }
     //return data with driver/rider details
     if (userData.user_role === "Rider") {
-      return await updateRiderRole(userId, updatedDetails);
+      return await updateRiderRole({userId, updatedDetails});
     }
 
     if (userData.user_role === "Driver") {
-      return await updateDriverRole(userId, updatedDetails);
+      return await updateDriverRole({userId, updatedDetails});
     }
     //return only user details
 

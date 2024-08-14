@@ -10,7 +10,8 @@ import {
   ALLOWED_UPDATE_PROPERTIES,
   ANONYMOUS_USER_PROPS,
   MONTH_ORDER,
-  NO_LOCATION_PROPS
+  NO_LOCATION_PROPS,
+  TRIP_MEDIUM_COLUMN
 } from "../constants/tripConstants";
 
 //DB functions
@@ -61,11 +62,12 @@ config({ path: "../../../.env" });
 //types
 import { GetAll } from "../types/getAll.types";
 import { MonthName, MonthsData, Trip, TripMonth } from "../types/trips.types";
-import { UserRole } from "../types/user.types";
+import { User, UserRole } from "../types/user.types";
 import { ErrorResponse, handleError } from "../utils/handleError";
 import { getOneUserService } from "./user.service";
 import { EntityName } from "../types/shared.types";
 import { getOneRiderService } from "./rider.service";
+import { getOneDriverService } from "./driver.service";
 
 //GET ALL TRIPS
 export const getAllTripsService = async (
@@ -252,7 +254,7 @@ export const addTripService = async ({userId, tripDetails, io}: {userId:string; 
       newTrip.last_name = "Error occurred";
     }
 
-    const {first_name, last_name} = !isErrorResponse(userData) && userData;
+    const {first_name, last_name} = userData as User;
     newTrip.first_name = first_name;
       newTrip.last_name = last_name;
     // real time update
@@ -351,29 +353,29 @@ export const rateTripService = async ({
       allowedProperties: ALLOWED_RATE_TRIP_PROPS,
     });
 
-    const { trip_id, dispatcher_id } = validTripDetails; 
+    const { dispatcher_id } = validTripDetails; 
     const updateTrip = await updateTripOnDB(validTripDetails);
     if (isErrorResponse(updateTrip)) {
       return updateTrip; //Error details returned
     }
 
-    const tripMedium = await getSpecificTripDetailsUsingId({
-      tripId: trip_id,
-      columns: "trip_medium",
-    });
+    
+    const { trip_medium: tripMedium } = updateTrip;
 
-    const cumulativeDispatcherRating = await getSpecificTripDetailsUsingId(
+    const cumulativeDispatcherRating = tripMedium === "Motor" ? await getOneRiderService(
       {
-        tripId: dispatcher_id,
-        idColumn: "dispatcher_id",
-        columns: "AVG(dispatcher_rating)",
-      } //TODO: make getSpecificTripDetail generic
-    );
-    const averageDispatcherRating = cumulativeDispatcherRating[0].avg;
-    const { trip_medium } = tripMedium[0];
+        id: dispatcher_id,
+        
+      } 
+    ): await getOneDriverService({driverId: dispatcher_id})
+
+    if(isErrorResponse(cumulativeDispatcherRating)) {
+      return cumulativeDispatcherRating;
+    }
+    const averageDispatcherRating =  cumulativeDispatcherRating.cumulative_rating;
 
     const ratedTrip = await updateDispatcherRating({
-      tripMedium: trip_medium,
+      tripMedium: tripMedium,
       dispatcherId: dispatcher_id,
       averageDispatcherRating,
     });
@@ -382,7 +384,7 @@ export const rateTripService = async ({
     }
 
     const ratingCountUpdate = await increaseRatingCount({
-      tripMedium: trip_medium,
+      tripMedium: tripMedium,
       dispatcherId: dispatcher_id,
     });
     if (isErrorResponse(ratingCountUpdate)) {
@@ -395,7 +397,7 @@ export const rateTripService = async ({
     
 
     if (dispatcherId) {
-      const dispatcherDetails = trip_medium === "Motor" ?  await getDispatcherDetails ({
+      const dispatcherDetails = tripMedium === "Motor" ?  await getDispatcherDetails ({
         dispatcherId,
         getDispatcher: getOneRiderService
       }) : await getDispatcherDetails ({
@@ -404,7 +406,7 @@ export const rateTripService = async ({
       }) 
       
 
-      let dispatcherUserId = ''
+      let dispatcherUserId: string | undefined = '' 
       if(!isErrorResponse(dispatcherDetails)) {
         dispatcherUserId = dispatcherDetails.dispatcher_id
       } 
@@ -654,7 +656,7 @@ export const getRevenueByMonth = async () => {
       return monthsRevenue; //with error details
     }
 
-    const revenue = [];
+    const revenue: number[] = [];
     const sortedRevenue = sortByCalendarMonths(monthsRevenue);
     const tripMonths = [];
     sortedRevenue.forEach((monthRevenue) => {

@@ -147,7 +147,7 @@ export const addUser : Middleware = async (req, res) => {
     const userDetails = req.body;
     const addedUser = await addUserService(userDetails);
 
-    if (addedUser.error) {
+    if (isErrorResponse(addedUser)) {
       return res
         .status(403)
         .json({
@@ -206,7 +206,7 @@ export const updateUser : Middleware = async (req, res) => {
 
     const updateUser = await updateUserService({userId, userDetails});
     
-    if (updateUser.error) {
+    if (isErrorResponse(updateUser)) {
       return res
         .status(updateUser.errorCode)
         .json({

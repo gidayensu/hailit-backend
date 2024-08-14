@@ -9,11 +9,12 @@ import {
   deleteRiderFromDB,
   getRiderOnConditionFromDB,
 } from "../model/rider.model";
-import { DispatcherDetails } from "../types/dispatcher.types";
+import { UpdateDriverDetails, UpdateRiderDetails } from "../types/dispatcher.types";
+import { User, UserRole } from "../types/user.types";
 import { handleError } from "../utils/handleError";
 import { isErrorResponse } from "../utils/util";
 
-export const riderOrDispatcherDetails = async (user_role, userId) => {
+export const riderOrDispatcherDetails = async ({user_role, userId}: {user_role: UserRole, userId:string}) => {
   if (user_role === "Driver") {
     const driverDetails = await getDriverDetailOnCondition({
       columnName: USER_ID_COLUMN,
@@ -22,12 +23,12 @@ export const riderOrDispatcherDetails = async (user_role, userId) => {
 
     //if user is driver  but no details in database add driver to driver table
     if (isErrorResponse(driverDetails)) {
-      const addDriver = await addDriverToDB(userId);
+      const addDriver = await addDriverToDB({ userId });
 
       return { driver: addDriver };
     }
 
-    return { driver: driverDetails[0] };
+    return { driver: driverDetails };
   }
 
   if (user_role === "Rider") {
@@ -46,9 +47,9 @@ export const riderOrDispatcherDetails = async (user_role, userId) => {
   }
 };
 
-export const addRiderIfApplicable = async (user_id, addedUser) => {
+export const addRiderIfApplicable = async ({userId, addedUser}: {userId:string, addedUser:User}) => {
   try {
-    const addRider = await addRiderToDB(user_id);
+    const addRider = await addRiderToDB(userId);
     if (isErrorResponse(addRider)) {
       return addRider;
     }
@@ -63,14 +64,14 @@ export const addRiderIfApplicable = async (user_id, addedUser) => {
   }
 };
 
-export const addDriverIfApplicable = async (user_id, addedUser) => {
+export const addDriverIfApplicable = async ({userId, addedUser}: {userId:string, addedUser:User}) => {
   try {
-    const addDriver = await addDriverToDB(user_id);
+    const addDriver = await addDriverToDB({ userId });
     if (isErrorResponse(addDriver)) {
       return addDriver;
     } 
       
-    return { ...addedUser, driver: addDriver[0] };
+    return { ...addedUser, driver: addDriver };
   } catch (err) {
     return handleError({
       error: "Error. User not updated",
@@ -81,14 +82,14 @@ export const addDriverIfApplicable = async (user_id, addedUser) => {
   }
 };
 
-export const updateRiderRole = async (userId, updatedDetails) => {
+export const updateRiderRole = async ({userId, updatedDetails}: {userId:string, updatedDetails:User}) => {
   try {
     const isDriver = await getDriverDetailOnCondition({
       columnName: USER_ID_COLUMN,
       condition: userId,
     });
     if (!isErrorResponse(isDriver)) {
-      await deleteDriverFromDB(isDriver[0].driver_id);
+      await deleteDriverFromDB(isDriver.driver_id);
     }
 
     const riderExists = await getRiderOnConditionFromDB({
@@ -100,7 +101,7 @@ export const updateRiderRole = async (userId, updatedDetails) => {
     }
 
     const addRider = await addRiderToDB(userId);
-    return { ...updatedDetails, rider: addRider[0] };
+    return { ...updatedDetails, rider: addRider };
   } catch (err) {
     return handleError({
       error: "Error updating rider role",
@@ -111,7 +112,7 @@ export const updateRiderRole = async (userId, updatedDetails) => {
   }
 };
 
-export const updateDriverRole = async (userId, updatedDetails) => {
+export const updateDriverRole = async ({userId, updatedDetails}: {userId:string, updatedDetails: User}) => {
   try {
     const isRider = await getRiderOnConditionFromDB({columnName: USER_ID_COLUMN, condition: userId});
     if (!isErrorResponse(isRider)) {
@@ -124,14 +125,14 @@ export const updateDriverRole = async (userId, updatedDetails) => {
     );
     if (!isErrorResponse(driverExists)) {
 
-      return { ...updatedDetails, driver: driverExists[0] };
+      return { ...updatedDetails, driver: driverExists };
     }
-    const addDriver = await addDriverToDB(userId);
+    const addDriver = await addDriverToDB({ userId });
     if(isErrorResponse(addDriver)) {
       return {...updatedDetails, driver: ''}
     }
-    const driver: DispatcherDetails =  addDriver[0]
-    return { ...updatedDetails, driver: addDriver[0] };
+    
+    return { ...updatedDetails, driver: addDriver };
   } catch (err) {
     return handleError({
       error: "Error updating driver role",

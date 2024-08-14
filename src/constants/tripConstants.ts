@@ -106,6 +106,7 @@ export const ANONYMOUS_USER_PROPS = [
   export const USER_ID_TRIP = "trips.customer_id";
   export const TRIP_AREA = "trip_area";
   export const TRIP_STATUS = "trip_status";
+  export const TRIP_MEDIUM_COLUMN = "trip_status";
   export const CUSTOMER_ID_COLUMN = 'customer_id'
   export const DISPATCHER_ID_COLUMN = 'dispatcher_id';
   export const PACKAGE_TYPE = "package_type"

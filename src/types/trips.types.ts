@@ -1,5 +1,18 @@
 import { Server } from "socket.io";
-export type MonthName = typeof monthOrder[number];
+export type MonthName =
+  | "January"
+  | "February"
+  | "March"
+  | "April"
+  | "May"
+  | "June"
+  | "July"
+  | "August"
+  | "September"
+  | "October"
+  | "November"
+  | "December";
+
 import { Dispatcher } from "./dispatcher.types";
 export interface TripMonth {
   month: MonthName
