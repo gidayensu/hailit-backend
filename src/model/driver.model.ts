@@ -192,7 +192,7 @@ export const addDriverToDB = async ({
   }
 };
 
-export const updateDriverOnDB = async (driverDetails: UpdateDriverDetails) => {
+export const updateDriverOnDB = async (driverDetails: UpdateDriverDetails): Promise<DriverDetails | ErrorResponse> => {
   const { driver_id } = driverDetails;
 
   const tableColumns = Object.keys(driverDetails);

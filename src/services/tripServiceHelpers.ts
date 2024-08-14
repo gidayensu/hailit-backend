@@ -259,7 +259,7 @@ export const updateDispatcherRating = async (
         cumulative_rating: averageDispatcherRating,
         driver_id: dispatcherId,
       });
-      if (driverUpdate.error) {
+      if (isErrorResponse(driverUpdate)) {
         return driverUpdate; //Error details returned
       }
     }
