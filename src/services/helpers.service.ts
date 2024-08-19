@@ -5,8 +5,9 @@ import { paginatedRequest } from "../utils/paginatedRequest";
 import { isErrorResponse } from "../utils/util";
 
 interface GetAllEntities extends GetAll {
+  
   getAllEntitiesFromDB: ({...args}:GetAllFromDB)=>any,
-  getCount:  (search:string)=> Promise<ErrorResponse | TotalCount>,
+  getCount:  (search?:string)=> Promise<ErrorResponse | TotalCount>,
   entityName: EntityName
 }
 
@@ -21,6 +22,7 @@ export const getAllEntitiesService = async <T>(
     entityName}: GetAllEntities 
   ) => {
     try {
+
       let offset = 0;
   
       page > 1 ? (offset = limit * page - limit) : page;
@@ -32,12 +34,15 @@ export const getAllEntitiesService = async <T>(
         sortDirection,
         search}
       );
+
+      
       
       if (isErrorResponse(entities)) {
       
         return entities; // with error details
 
       }
+      //search is used as it is the only parameter that filters the data 
       const totalCount = await getCount(search);
   
       

@@ -49,10 +49,11 @@ import {
 
 //helpers
 import { ErrorResponse, handleError } from "../utils/handleError";
-import { currencyFormatter, isErrorResponse } from "../utils/util";
+import { currencyFormatter, isErrorResponse, isRiderDetails } from "../utils/util";
 
 //types
 import { Dispatcher } from "../types/dispatcher.types";
+import { TableNames } from "../types/shared.types";
 import { CustomerTrips, IDsAndMedium, MonthsData, Trip, TripMedium, TripsCount, TripsRealTimeUpdate } from "../types/trips.types";
 import { UserRole } from "../types/user.types";
 ;
@@ -153,7 +154,7 @@ export const getDispatcherDetails = async ({
 //CALCULATE TRIPS == breaks away from camel case to match the database case
 
 export const increaseRatingCount = async ({tripMedium, dispatcherId}: {tripMedium: TripMedium, dispatcherId: string}) => {
-  let tableName:string, idColumn:string;
+  let tableName:TableNames, idColumn:string;
   if (tripMedium === "Motor") {
     tableName = RIDER_TABLE_NAME;
     idColumn = RIDER_ID_COLUMN;
@@ -173,10 +174,10 @@ export const increaseRatingCount = async ({tripMedium, dispatcherId}: {tripMediu
   }
 
   const countIncrease = await ratingCountIncrease(
-    tableName,
+    {tableName,
     dispatcherId,
     idColumn,
-    RATING_COUNT_COLUMN
+    columnToBeIncreased: RATING_COUNT_COLUMN}
   );
   if (isErrorResponse( countIncrease)) {
     return countIncrease; //error details returned
@@ -325,10 +326,8 @@ export const dispatcherTrips = async ({userRole, userId}: {userRole: UserRole, u
         if (isErrorResponse(dispatcherData)) {
           return dispatcherData;
         }
-
-    const dispatcherId = userRole === "Rider"
-      ? dispatcherData[0].rider_id
-      : dispatcherData[0].driver_id
+        
+    const dispatcherId = isRiderDetails(dispatcherData) ? dispatcherData.rider_id : dispatcherData.driver_id
     
     
       const dispatcherTrips = await getUserTripsFromDB(
@@ -383,7 +382,9 @@ export const getDispatcherId = async (tripMedium: TripMedium) => {
       condition: true}
     );
     if (!isErrorResponse(availableDrivers)) {
-      dispatcherId = availableDrivers[0].driver_id;
+      typeof availableDrivers[0].driver_id === "string"
+        ? (dispatcherId = availableDrivers[0].driver_id)
+        : "";
     }
   }
 

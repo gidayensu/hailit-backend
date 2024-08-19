@@ -61,7 +61,7 @@ config({ path: "../../../.env" });
 
 //types
 import { GetAll } from "../types/getAll.types";
-import { MonthName, MonthsData, Trip, TripMonth } from "../types/trips.types";
+import { MonthName, MonthsData, Trip, TripLocationDetails, TripMonth } from "../types/trips.types";
 import { User, UserRole } from "../types/user.types";
 import { ErrorResponse, handleError } from "../utils/handleError";
 import { getOneUserService } from "./user.service";
@@ -213,7 +213,7 @@ export const addTripService = async ({userId, tripDetails, io}: {userId:string; 
     const { pick_lat, pick_long, drop_lat, drop_long } = tripDetails;
 
     const trip_id = crypto.randomBytes(4).toString("hex");
-    const locationDetails = {
+    const locationDetails: TripLocationDetails = {
       trip_id,
       pick_lat,
       pick_long,
@@ -241,7 +241,7 @@ export const addTripService = async ({userId, tripDetails, io}: {userId:string; 
       ...tripStatusDetails,
     };
 
-    let newTrip = await addTripToDB(finalTripDetails, locationDetails);
+    let newTrip = await addTripToDB({tripDetailsWithoutLocation: finalTripDetails, locationDetails});
     if(isErrorResponse(newTrip)) {
       return newTrip; //with error details
     }
@@ -406,9 +406,9 @@ export const rateTripService = async ({
       }) 
       
 
-      let dispatcherUserId: string | undefined = '' 
+      let dispatcherUserId: string  = '' 
       if(!isErrorResponse(dispatcherDetails)) {
-        dispatcherUserId = dispatcherDetails.dispatcher_id
+        dispatcherUserId = typeof(dispatcherDetails.dispatcher_id) === 'string' ? dispatcherDetails.dispatcher_id : ''
       } 
 
     
@@ -580,7 +580,7 @@ export const currentMonthTripsCountService = async () => {
     ];
 
     
-    const percentageDifferences = metrics.reduce((acc, { name, current, previous }) => {
+    const percentageDifferences = metrics.reduce(<T>(acc:any, { name, current, previous }: {name: string, current: number, previous: number}):T => {
         acc[`${name}_percentage_difference`] = percentageDifference({ currentMonth: current, previousMonth: previous });
       return acc;
     }, {});
@@ -613,11 +613,11 @@ export const currentMonthTripsCountService = async () => {
 //MONTH +ALLTIME TRIPS COUNT
 export const tripsCountByMonth = async ({tripDataColumn, condition, month} : {tripDataColumn: string; condition:string; month: MonthName}) => {
   try {
-    const monthTripCount = await getTripCountByMonth(
-      tripDataColumn,
+    const monthTripCount = await getTripCountByMonth({
+      dataColumn: tripDataColumn,
       condition,
-      month
-    );
+      month,
+    });
 
     if (isErrorResponse(monthTripCount)) {
       return monthTripCount; //with error details
@@ -658,7 +658,7 @@ export const getRevenueByMonth = async () => {
 
     const revenue: number[] = [];
     const sortedRevenue = sortByCalendarMonths(monthsRevenue);
-    const tripMonths = [];
+    const tripMonths: MonthName[] = [];
     sortedRevenue.forEach((monthRevenue) => {
       revenue.push(+monthRevenue.revenue || 0);
       tripMonths.push(monthRevenue.month);
@@ -686,8 +686,8 @@ export const currentWeekTrip = async () => {
       return weekTripsCount; //with error details
     }
 
-    const tripDates = [];
-    const tripCounts = [];
+    const tripDates: string[] = [];
+    const tripCounts: MonthName[] = [];
 
     weekTripsCount.forEach((weekTripCount) => {
       tripDates.push(weekTripCount.trip_date);

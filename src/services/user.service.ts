@@ -265,7 +265,7 @@ export const deleteUserService = async (userId:string) => {
     }
     //delete rider if no error
 
-    const { rider_id } = isRider[0];
+    const { rider_id } = isRider;
     await deleteRiderFromDB(rider_id);
     
 

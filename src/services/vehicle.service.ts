@@ -73,7 +73,6 @@ export const getOneVehicleService = async (vehicle_id:string) => {
     );
   }
 };
-
 export const addVehicleService = async (vehicleDetails: Vehicle) => {
   const vehicle_id = uuid();
 

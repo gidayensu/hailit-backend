@@ -9,7 +9,6 @@ import {
   deleteRiderFromDB,
   getRiderOnConditionFromDB,
 } from "../model/rider.model";
-import { UpdateDriverDetails, UpdateRiderDetails } from "../types/dispatcher.types";
 import { User, UserRole } from "../types/user.types";
 import { handleError } from "../utils/handleError";
 import { isErrorResponse } from "../utils/util";
@@ -97,7 +96,7 @@ export const updateRiderRole = async ({userId, updatedDetails}: {userId:string, 
       condition: userId,
     });
     if (!isErrorResponse(riderExists)) {
-      return { ...updatedDetails, rider: riderExists[0] };
+      return { ...updatedDetails, rider: riderExists };
     }
 
     const addRider = await addRiderToDB(userId);
@@ -116,7 +115,7 @@ export const updateDriverRole = async ({userId, updatedDetails}: {userId:string,
   try {
     const isRider = await getRiderOnConditionFromDB({columnName: USER_ID_COLUMN, condition: userId});
     if (!isErrorResponse(isRider)) {
-      await deleteRiderFromDB(isRider[0].rider_id);
+      await deleteRiderFromDB(isRider.rider_id);
     } 
 
     const driverExists = await getDriverDetailOnCondition(

@@ -41,7 +41,7 @@ export const getAllDriversService = async ({
       getCount:getDriversCount,
       entityName:EntityName.Drivers}
     );
-  
+    
     return drivers;
   } catch (err) {
     
@@ -114,9 +114,7 @@ export const updateDriverService = async (driverDetails:DispatcherDetails) => {
       allowedProperties:ALLOWED_DRIVER_UPDATE_PROPERTIES}
     );
     const driverUpdate = await updateDriverOnDB(validDispatcherDetails);
-    if (driverUpdate.error) {
-      return { error: driverUpdate.error };
-    }
+    
     return driverUpdate;
   } catch (err) {
     return handleError(
