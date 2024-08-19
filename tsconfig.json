@@ -3,7 +3,8 @@
         "outDir": "./built",
         "allowJs": false,
         "module": "CommonJS",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "strict": true
     },
 
 
