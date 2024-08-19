@@ -1,3 +1,4 @@
+import { DEFAULT_LIMIT } from "../constants/sharedConstants";
 import {
   deleteDriverService,
   
@@ -6,26 +7,28 @@ import {
   updateDriverService,
 } from "../services/driver.service";
 import { DispatcherDetails } from "../types/dispatcher.types";
-import { Middleware } from "../types/middleware.types";
+import { CustomRequest, Middleware } from "../types/middleware.types";
+import { DataString, SortDirection } from "../types/shared.types";
 import { isErrorResponse } from "../utils/util";
 
 
 export const getAllDrivers:Middleware = async (req, res) => {
   const {
     page,
-    itemsPerPage: limit,
+    itemsPerPage,
     sortColumn,
     sortDirection,
     search
   } = req.query;
-
+  
+  const limit: number  = typeof(itemsPerPage) === 'string' ? parseFloat(itemsPerPage) : DEFAULT_LIMIT;
   try {
     const allDrivers = await getAllDriversService({
-      page,
+      page: parseFloat(`${page}`),
       limit,
-      sortColumn,
-      sortDirection,
-      search,
+      sortColumn: `${sortColumn}`,
+      sortDirection: sortDirection as SortDirection,
+      search: search as DataString,
     });
     if (res && res.status) {
       if (isErrorResponse(allDrivers)) {
@@ -48,7 +51,7 @@ export const getAllDrivers:Middleware = async (req, res) => {
         .status(500)
         .json({
           error: "Server Error occurred getting all drivers",
-          errorMessage: err,
+          errorMessage: `${err}`,
           errorSource: "Driver Controller",
         });
     }
@@ -75,7 +78,7 @@ export const getOneDriver: Middleware  = async (req, res) => {
       .status(500)
       .json({
         error: "Error occurred getting driver",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Driver Controller",
       });
   }
@@ -93,8 +96,14 @@ export const updateDriver : Middleware = async (req, res) => {
 
   try {
     const updatedDriver = await updateDriverService(driverDetails);
-    if (updatedDriver.error) {
-      return res.status(updatedDriver.errorCode).json({ error: updatedDriver.error, errorMessage: updatedDriver.errorMessage, errorSource: updatedDriver.errorSource });
+    if (isErrorResponse(updatedDriver)) {
+      return res
+        .status(updatedDriver.errorCode)
+        .json({
+          error: updatedDriver.error,
+          errorMessage: updatedDriver.errorMessage,
+          errorSource: updatedDriver.errorSource,
+        });
     }
     (req as CustomRequest).io.emit('updatedDriver', updatedDriver)
     res.status(200).json({ driver: updatedDriver });
@@ -131,7 +140,7 @@ export const deleteDriver : Middleware = async (req, res) => {
       .status(500)
       .json({
         error: "Error Occurred",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Driver Controller: Delete Driver",
       });
   }

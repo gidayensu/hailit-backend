@@ -14,6 +14,8 @@ export enum EntityName {
   Users = "users"
 }
 
+export type SortDirection = "ASC" | "DESC"
+
 
   export interface TotalCount {
     total_count: number

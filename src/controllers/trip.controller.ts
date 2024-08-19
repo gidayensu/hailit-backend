@@ -24,25 +24,30 @@ import {
 import { isErrorResponse } from "../utils/util";
 
 //types
-import { Middleware } from "../types/middleware.types";
+import { CustomRequest, Middleware } from "../types/middleware.types";
+import { MonthName } from "../types/trips.types";
+import { DataString, SortDirection } from "../types/shared.types";
+import { DEFAULT_LIMIT } from "../constants/sharedConstants";
 
 
 export const getAllTrips : Middleware = async (req, res) => {
   try {
     const {
       page,
-      itemsPerPage: limit,
+      itemsPerPage,
       sortColumn,
       sortDirection,
       search
     } = req.query;
 
+    const limit: number  = typeof(itemsPerPage) === 'string' ? parseFloat(itemsPerPage) : DEFAULT_LIMIT;
+    
     const allTrips = await getAllTripsService({
-      page,
+      page: parseFloat(`${page}`),
       limit,
-      sortColumn,
-      sortDirection,
-      search,
+      sortColumn: `${sortColumn}`,
+      sortDirection: sortDirection as SortDirection,
+      search: search as DataString,
     });
 
     if (isErrorResponse(allTrips)) {
@@ -61,7 +66,7 @@ export const getAllTrips : Middleware = async (req, res) => {
       .status(500)
       .json({
         error: "Server Error occurred",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Get All Trips Controller",
       });
   }
@@ -91,7 +96,7 @@ export const getOneTrip : Middleware = async (req, res) => {
       .status(500)
       .json({
         error: "Server Error occurred getting trip",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Trip Controller",
       });
   }
@@ -118,7 +123,7 @@ export const getUserTrips : Middleware = async (req, res) => {
       .status(500)
       .json({
         error: "Server Error occurred getting user trips",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "User Trips Controller: Get User Trips",
       });
   }
@@ -207,14 +212,14 @@ export const rateTrip : Middleware = async (req, res) => {
           errorSource: ratedTrip.errorSource,
         });
     }
-    // req.io.emit('tripRated', ratedTrip)
+    
     res.status(200).json(ratedTrip);
   } catch (err) {
     return res
       .status(500)
       .json({
         error: "Server Error occurred",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Trip Controller",
       });
   }
@@ -236,14 +241,14 @@ export const deleteTrip : Middleware = async (req, res) => {
           errorSource: tripDelete.errorSource,
         });
     }
-    // req.io.emit('tripDeleted', trip_id)
+    
     res.status(200).json({ success: true, trip_id });
   } catch (err) {
     return res
       .status(500)
       .json({
         error: "Error Occurred; Trip Not Deleted",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Trip Controller",
       });
   }
@@ -254,7 +259,8 @@ export const searchTrips : Middleware = async (req, res) => {
     const search = req.query.search;
 
     const page = req.query.page || 1;
-    const searchResults = await searchTripService({search, page});
+    const searchResults = await searchTripService({page: parseFloat(`${page}`),
+      search: `${search}`,});
     if (isErrorResponse(searchResults)) {
       return res
         .status(searchResults.errorCode)
@@ -295,7 +301,7 @@ export const getTripMonths : Middleware = async (req, res) => {
       .status(500)
       .json({
         error: "Error Occurred; Trip Months Not Retrieved",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Trip Controller. Trip Months",
       });
   }
@@ -320,7 +326,7 @@ export const currentWeekTripCount : Middleware = async (req, res) => {
       .status(500)
       .json({
         error: "Error Occurred; Trip Months Not Retrieved",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Trip Controller. Trip Months",
       });
   }
@@ -345,7 +351,7 @@ export const getCurrentMonthTripCounts : Middleware = async (req, res) => {
       .status(500)
       .json({
         error: "Error Occurred; Trip Months Not Retrieved",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Trip Controller. Trip Months",
       });
   }
@@ -365,9 +371,10 @@ export const getTripsCountByMonth : Middleware = async (req, res) => {
     } = req.query;
 
     const tripProp =
-      package_type || trip_area || trip_medium || trip_type || trip_status;
-    const tripDataColumn = trip_column;
-    const tripCounts = await tripsCountByMonth({tripDataColumn, condition: tripProp, month});
+      `${package_type}` || `${trip_area}` || `${trip_medium}` || `${trip_type}` || `${trip_status}`;
+
+    const tripDataColumn = trip_column as string;
+    const tripCounts = await tripsCountByMonth({tripDataColumn, condition: tripProp, month: month as MonthName});
     if (isErrorResponse(tripCounts)) {
       return res
         .status(tripCounts.errorCode)
@@ -383,7 +390,7 @@ export const getTripsCountByMonth : Middleware = async (req, res) => {
       .status(500)
       .json({
         error: "Error Occurred; Trip Months Not Retrieved",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Trip Controller. Trip Months",
       });
   }
@@ -407,7 +414,7 @@ export const getTripRevenueByMonth : Middleware = async (req, res) => {
       .status(500)
       .json({
         error: "Error Occurred; Trip Revenue Not Retrieved",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Trip Controller: Trip Revenue",
       });
   }

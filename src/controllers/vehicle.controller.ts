@@ -7,23 +7,30 @@ import {
 } from "../services/vehicle.service";
 import { Middleware } from "../types/middleware.types";
 import { isErrorResponse } from "../utils/util";
+import { SortDirection } from "../types/shared.types";
+import { DEFAULT_LIMIT } from "../constants/sharedConstants";
 
+import { DataString } from "../types/shared.types";
 
 export const getAllVehicles : Middleware = async (req, res) => {
   try {
     const {
       page,
-      itemsPerPage: limit,
+      itemsPerPage,
       sortColumn,
       sortDirection,
       search
     } = req.query;
+    
+
+      const limit: number  = typeof(itemsPerPage) === 'string' ? parseFloat(itemsPerPage) : DEFAULT_LIMIT;
+    
     const allVehicles = await getAllVehiclesService({
-      page,
-      limit,
-      sortColumn,
-      sortDirection,
-      search,
+      page: parseFloat(`${page}`),
+      limit: limit ,
+      sortColumn: `${sortColumn}`,
+      sortDirection: sortDirection as SortDirection,
+      search: search as DataString,
     });
       
     if (isErrorResponse(allVehicles)) {
@@ -82,7 +89,7 @@ export const addVehicle : Middleware = async (req, res) => {
       errorSource: "addVehicle Controller",
     });
   }
-  req.io.emit('addedVehicle', addedVehicle)
+  
   res.status(200).json({ vehicle: addedVehicle });
 };
 
@@ -110,7 +117,7 @@ export const updateVehicle : Middleware = async (req, res) => {
   } catch (err) {
     return res.status(500).json({
       error: "Server Error",
-      errorMessage: err,
+      errorMessage: `${err}`,
       errorSource: "updateVehicle Controller",
     });
   }
@@ -135,7 +142,7 @@ export const deleteVehicle : Middleware = async (req, res) => {
   } catch (err) {
     return res.status(500).json({
       error: "Server Error occurred deleting vehicle",
-      errorMessage: err,
+      errorMessage: `${err}`,
       errorSource: "deleteVehicle Controller",
     });
   }

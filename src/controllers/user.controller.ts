@@ -11,24 +11,27 @@ import { emailValidator, isErrorResponse, phoneValidator } from "../utils/util";
 import { config } from "dotenv";
 import { Middleware } from "../types/middleware.types";
 import { User } from "../types/user.types";
+import { DataString, SortDirection } from "../types/shared.types";
+import { DEFAULT_LIMIT } from "../constants/sharedConstants";
 config({ path: "../../../.env" });
 
 export const getAllUsers : Middleware = async (req, res) => {
   
   const {
     page,
-    itemsPerPage: limit,
+    itemsPerPage,
     sortColumn,
     sortDirection,
     search
   } = req.query;
+  const limit: number  = typeof(itemsPerPage) === 'string' ? parseFloat(itemsPerPage) : DEFAULT_LIMIT;
   try {
     const allUsers = await getAllUsersService({
-      page,
+      page: parseFloat(`${page}`),
       limit,
-      sortColumn,
-      sortDirection,
-      search,
+      sortColumn: `${sortColumn}`,
+      sortDirection: sortDirection as SortDirection,
+      search: search as DataString,
     });
     if (isErrorResponse(allUsers)) {
       return res
@@ -53,7 +56,7 @@ export const getAllUsers : Middleware = async (req, res) => {
         .status(500)
         .json({
           error: "Error occurred in getting all users ",
-          errorMessage: err,
+          errorMessage: `${err}`,
           errorSource: "User Controller",
         });
     }
@@ -88,7 +91,7 @@ export const getOneUser : Middleware = async (req, res) => {
         .status(500)
         .json({
           error: "Error occurred in getting user",
-          errorMessage: err,
+          errorMessage: `${err}`,
           errorSource: "User Controller",
         });
     }
@@ -99,7 +102,7 @@ export const getUserIdUsingEmail : Middleware = async (req, res) => {
   try {
     const { email } = req.query;
 
-    const userDetails = await getUserIdUsingEmailService(email);
+    const userDetails = await getUserIdUsingEmailService(`${email}`);
     if (isErrorResponse(userDetails)) {
       return res
         .status(userDetails.errorCode)
@@ -115,7 +118,7 @@ export const getUserIdUsingEmail : Middleware = async (req, res) => {
       .status(500)
       .json({
         error: "Error occurred in getting user ID",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "User Controller",
       });
   }
@@ -163,7 +166,7 @@ export const addUser : Middleware = async (req, res) => {
       .status(500)
       .json({
         error: "Error occurred in adding user",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "User Controller",
       });
   }
@@ -222,7 +225,7 @@ export const updateUser : Middleware = async (req, res) => {
       .status(500)
       .json({
         error: " Server error. user not updated",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "User Controller",
       });
   }
@@ -248,8 +251,8 @@ export const deleteUser : Middleware = async (req, res) => {
     res
       .status(500)
       .json({
-        error: " Server error user not deleted",
-        errorMessage: err,
+        error: " Server error. user not deleted",
+        errorMessage: `${err}`,
         errorSource: "User Controller",
       });
   }

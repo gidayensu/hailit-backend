@@ -1,3 +1,4 @@
+import { DEFAULT_LIMIT } from "../constants/sharedConstants";
 import {
   deleteRiderService,
   getAllRidersService,
@@ -6,7 +7,8 @@ import {
 } from "../services/rider.service";
 
 //types
-import { Middleware } from "../types/middleware.types";
+import { CustomRequest, Middleware } from "../types/middleware.types";
+import { DataString, SortDirection } from "../types/shared.types";
 import { isErrorResponse } from "../utils/util";
 
 
@@ -14,18 +16,19 @@ export const getAllRiders: Middleware = async (req, res) => {
   try {
     const {
       page,
-      itemsPerPage: limit,
+      itemsPerPage,
       sortColumn,
       sortDirection,
       search
     } = req.query;
 
+    const limit: number  = typeof(itemsPerPage) === 'string' ? parseFloat(itemsPerPage) : DEFAULT_LIMIT;
     const allRiders = await getAllRidersService({
-      page,
+      page: parseFloat(`${page}`),
       limit,
-      sortColumn,
-      sortDirection,
-      search,
+      sortColumn: `${sortColumn}`,
+      sortDirection: sortDirection as SortDirection,
+      search: search as DataString,
     });
     if (isErrorResponse(allRiders)) {
       return res && res
@@ -74,7 +77,7 @@ export const getOneRider: Middleware = async (req, res) => {
       .status(500)
       .json({
         error: "Server error occurred getting rider",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Rider Controller",
       });
   }
@@ -114,7 +117,7 @@ export const updateRider: Middleware = async (req, res) => {
       .status(500)
       .json({
         error: "Server error occurred updating rider",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Rider Controller",
       });
   }
@@ -147,7 +150,7 @@ export const deleteRider: Middleware = async (req, res) => {
       .status(500)
       .json({
         error: "Server error occurred deleting rider",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorSource: "Rider Controller",
       });
   }
