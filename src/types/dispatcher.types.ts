@@ -9,7 +9,7 @@ export interface Dispatcher {
     rider_id?: string;
     driver_id?: string;
     user_role?: DispatcherRole;
-    dispatcher_id?: string;
+    dispatcher_id?: string; 
     license_number?: string;
     available?: boolean;
     vehicle_id: string;
@@ -24,11 +24,15 @@ export interface Dispatcher {
   export interface DispatcherDetails {
     user_id:string, //required
     vehicle_id: string,
-    driver_id?: string,
-    rider_id?: string,
     license_number?: string,
     available?: boolean,
     cumulative_rating?:number
+    vehicle?: Vehicle,
+    dispatcher_id?: string,
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    phone_number?: string;
     
   }
   export interface UpdateDispatcherDetails {
@@ -52,6 +56,7 @@ export interface Dispatcher {
 
   export interface RiderDetails extends DispatcherDetails {
     rider_id: string;
+
   }
   
   

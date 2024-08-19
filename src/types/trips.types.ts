@@ -143,3 +143,12 @@ export interface CustomerTrips {
 }
 
 export interface IDsAndMedium {customer_id: string, dispatcher_id:string, trip_medium: TripMedium}
+
+export interface TripLocationDetails {
+  trip_id?: string
+  drop_lat: string,
+  drop_long: string, 
+  pick_lat: string,
+  pick_long: string
+}
+

@@ -1,11 +1,15 @@
 export interface GetAll {
-    page?: number,
+    page: number,
       limit:number,
       sortColumn:string,
       sortDirection: "DESC" | "ASC",
-      search: string
+      search?: string
 }
 
-export interface GetAllFromDB extends GetAll {
+export interface GetAllFromDB  {
+  limit:number,
+      sortColumn:string,
+      sortDirection: "DESC" | "ASC",
+      search?: string
   offset: number
 }
