@@ -41,6 +41,13 @@ export const ANONYMOUS_USER_PROPS = [
     "drop_lat",
     "drop_long"
   ];
+
+  export enum TripLocation {
+    DROP_OFF_LATITUDE = "drop_lat",
+    DROP_OFF_LONGITUDE = "drop_long",
+    PICKUP_LATITUDE = "pick_lat",
+    PICKUP_LONGITUDE = "pick_long"
+  }
   export const NO_LOCATION_PROPS = [
     "trip_medium",
     "package_type",
@@ -113,7 +120,7 @@ export const ANONYMOUS_USER_PROPS = [
   export const PAYMENT_STATUS = "payment_status"
   export const DISPATCHER_AVAILABLE_COLUMN = 'available';
   
-  
+  export const TRIP_COST_COLUMN = "trip_cost"
   export const CLIENT_SORT_COLUMNS = [
     "Trip id",
     "Ordered by",

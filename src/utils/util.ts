@@ -7,6 +7,7 @@ import { isUserRole } from "../model/user.model";
 import { ErrorResponse, handleError } from "./handleError";
 
 import { UserRole } from "../types/user.types";
+import { DriverDetails, RiderDetails } from "../types/dispatcher.types";
 const EMAIL_REGEX =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -125,5 +126,9 @@ export const isRightValue = ({value, data}:{value:string, data:string[]}) => {
 export const isErrorResponse = <T>(response: GenericResponse<T>): response is ErrorResponse => {
   return typeof response === 'object' && response !== null && 'error' in response;
 };
+
+export const isRiderDetails = (data: RiderDetails | DriverDetails ): data is RiderDetails => {
+  return 'rider_id' in data;
+}
 
 type GenericResponse<T> = ErrorResponse | T;

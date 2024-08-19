@@ -1,15 +1,15 @@
-import jwt from "jsonwebtoken";
-import { Middleware } from "../../types/middleware.types";
+import jwt, { Secret } from "jsonwebtoken";
+import { CustomRequest, Middleware } from "../../types/middleware.types";
 
 export const tripSupaAuth: Middleware = (req, res, next) => {
-  const supaSecret = process.env.SUPABASE_JWT_SECRET;
+  const supaSecret = process.env.SUPABASE_JWT_SECRET as Secret;
   
   try {
     const authHeader = req.headers.authorization;
-    let token = authHeader;
+    let token = authHeader ?? ''
 
-    if (authHeader.length > 1) {
-      token = authHeader.split(" ")[1];
+    if (authHeader && authHeader.length > 1) {
+      token =  authHeader.split(" ")[1] ;
     }
     const user = jwt.verify(token, supaSecret);
     if (user) {
