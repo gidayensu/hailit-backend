@@ -41,7 +41,7 @@ export const getAllVehiclesFromDB = async (
   }
 };
 
-export const getVehiclesCount = async(search:string)=> {
+export const getVehiclesCount = async(search?:string)=> {
   try {
     const count = await vehiclesCount(search);
     

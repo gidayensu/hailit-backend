@@ -48,7 +48,7 @@ export const getAllDriversFromDB = async ({
       search,
       dispatcherRole: "Driver",
     });
-
+    
     return allDrivers;
   } catch (err) {
     return handleError({
@@ -60,7 +60,7 @@ export const getAllDriversFromDB = async ({
   }
 };
 
-export const getDriversCount = async (search: string) => {
+export const getDriversCount = async (search?: string) => {
   try {
     const driversCount: TotalCount | ErrorResponse = await getDispatcherCount({
       search,
@@ -124,11 +124,12 @@ export const getDriverDetailOnCondition = async ({columnName, condition}: {colum
 };
 export const getSpecificDriversFromDB = async ({specificColumn, condition}: {specificColumn: string, condition: boolean}) => {
   try {
-    const specificDrivers: Dispatcher[] | ErrorResponse = await getSpecificDetails(
-      DRIVER_TABLE_NAME,
-      specificColumn,
-      condition
-    );
+    const specificDrivers: Dispatcher[] | ErrorResponse =
+      await getSpecificDetails({
+        tableName: DRIVER_TABLE_NAME,
+        specificColumn,
+        condition,
+      });
     return specificDrivers;
   } catch (err) {
     return handleError({

@@ -4,7 +4,8 @@ import {
   TRIP_TABLE_NAME,
 } from "../constants/tripConstants";
 import { GetAllFromDB } from "../types/getAll.types";
-import { Trip, TripMonth } from "../types/trips.types";
+import { TableNames } from "../types/shared.types";
+import { MonthName, Trip, TripLocationDetails, TripMonth } from "../types/trips.types";
 import { ErrorResponse, handleError } from "../utils/handleError";
 import { isErrorResponse } from "../utils/util";
 import { addOne } from "./DB/addDbFunctions";
@@ -70,7 +71,7 @@ export const tripsMonths = async (): Promise<TripMonth[] | ErrorResponse> => {
   }
 };
 
-export const getTripCount = async (search: string) => {
+export const getTripCount = async (search?: string) => {
   try {
     const tripCounts = await tripsCount(search);
 
@@ -95,12 +96,12 @@ export const searchTrips = async ({
 }): Promise<Trip[] | ErrorResponse> => {
   try {
     const searchResults: Trip[] | ErrorResponse = await selectOnCondition(
-      TRIP_TABLE_NAME,
-      TRIP_ID_COLUMN,
-      searchQuery,
+      {tableName: TRIP_TABLE_NAME,
+      columnName: TRIP_ID_COLUMN,
+      search: searchQuery,
       limit,
       offset,
-      true
+      condition: true}
     );
 
     return searchResults;
@@ -160,7 +161,7 @@ export const getOneTripFromDB = async (
   } catch (err) {
     return handleError({
       error: "Server Error Occurred in getting data from Database",
-      errorMessage: err,
+      errorMessage: `${err}`,
       errorCode: 500,
       errorSource: "Trip Model: Get One Trip",
     });
@@ -203,7 +204,7 @@ export const getUserTripsFromDB = async ({
   } catch (err) {
     return handleError({
       error: "Server Error Occurred in getting user trips from DB",
-      errorMessage: err,
+      errorMessage: `${err}`,
       errorCode: 500,
       errorSource: "Trip Model: Get User Trips From DB",
     });
@@ -231,17 +232,20 @@ export const getSpecificTripDetailsUsingIdFromDB = async ({
   } catch (err) {
     return handleError({
       error: "Server Error Occurred in getting specific trip from DB",
-      errorMessage: err,
+      errorMessage: `${err}`,
       errorCode: 500,
       errorSource: "Trip Model: Get Specific Trip Detail Using ID",
     });
   }
 };
 
-export const addTripToDB = async (
+export const addTripToDB = async ({
   tripDetailsWithoutLocation,
-  locationDetails
-) => {
+  locationDetails,
+}: {
+  tripDetailsWithoutLocation: Trip;
+  locationDetails: TripLocationDetails
+}) => {
   try {
     const tripFieldsToSelect = Object.keys(tripDetailsWithoutLocation).join(
       ", "
@@ -264,18 +268,23 @@ export const addTripToDB = async (
     const locationFieldsToSelect = Object.keys(locationDetails).join(", ");
     const locationValues: string[] = Object.values(locationDetails);
 
-    const tripLocation = await addOne({
+    const tripLocation: TripLocationDetails[] | ErrorResponse = await addOne({
       tableName: LOCATION_TABLE_NAME,
       columns: locationFieldsToSelect,
       values: locationValues,
     });
-    const location = tripLocation[0];
+    
+    if(isErrorResponse(tripLocation)) {
+      return {...trip, location: tripLocation}
+    }
+    
+    const location: TripLocationDetails = tripLocation[0];
 
     return { ...trip, location }; //if there is an error adding tripLocation, it will be included
   } catch (err) {
     return handleError({
       error: "Server Error Occurred in adding trip to DB",
-      errorMessage: err,
+      errorMessage: `${err}`,
       errorCode: 500,
       errorSource: "Trip Model: Add Trip",
     });
@@ -306,7 +315,7 @@ export const updateTripOnDB = async (tripDetails: Trip) => {
     } catch (err) {
       return handleError({
         error: "Error occurred in updating rider details",
-        errorMessage: err,
+        errorMessage: `${err}`,
         errorCode: 500,
         errorSource: "Trip Model",
       });
@@ -314,7 +323,7 @@ export const updateTripOnDB = async (tripDetails: Trip) => {
   } catch (err) {
     return handleError({
       error: "Server Error Occurred updating trip details on DB",
-      errorMessage: err,
+      errorMessage: `${err}`,
       errorCode: 500,
       errorSource: "Trip Model: Update Trip",
     });
@@ -332,25 +341,30 @@ export const deleteTripFromDB = async (trip_id: string) => {
   } catch (err) {
     return handleError({
       error: "Error occurred deleting trip",
-      errorMessage: err,
+      errorMessage: `${err}`,
       errorCode: 500,
       errorSource: "Trip Model: delete Trip",
     });
   }
 };
 
-export const ratingCountIncrease = async (
+export const ratingCountIncrease = async ({
   tableName,
-  dispatcher_id,
+  dispatcherId,
   idColumn,
-  columnToBeIncreased
-) => {
-  const increaseDispatcherRateCount = await increaseByValue(
+  columnToBeIncreased,
+}: {
+  tableName: TableNames,
+  dispatcherId: string,
+  idColumn: string,
+  columnToBeIncreased: string
+}) => {
+  const increaseDispatcherRateCount = await increaseByValue({
     tableName,
-    dispatcher_id,
+    id: dispatcherId,
     idColumn,
-    columnToBeIncreased
-  );
+    columnToBeIncreased,
+  });
 
   return increaseDispatcherRateCount;
 };
@@ -380,7 +394,7 @@ export const associatedWithTrip = async ({
   } catch (err) {
     return handleError({
       error: "Error occurred while confirming user's relation to trip",
-      errorMessage: err,
+      errorMessage: `${err}`,
       errorCode: 500,
       errorSource: "Trip Model: Associated With Trip",
     });
@@ -404,13 +418,7 @@ export const oneWeekTripsCount = async () => {
 };
 export const getCurrentMonthTripsCount = async () => {
   try {
-    const currentMonthTripsCount = await getPreviousTwoMonthsCounts(
-      TRIP_TABLE_NAME,
-      "trip_request_date",
-      "trip_status",
-      "trip_cost",
-      "payment_status"
-    );
+    const currentMonthTripsCount = await getPreviousTwoMonthsCounts();
     return currentMonthTripsCount;
   } catch (err) {
     return handleError({
@@ -421,9 +429,9 @@ export const getCurrentMonthTripsCount = async () => {
     });
   }
 };
-export const getTripCountByMonth = async (dataColumn, condition, month) => {
+export const getTripCountByMonth = async ({dataColumn, condition, month}: {dataColumn: string; condition: string; month: MonthName}) => {
   try {
-    const tripCount = await getCountByMonth(dataColumn, condition, month);
+    const tripCount = await getCountByMonth({dataColumn, condition, month});
     return tripCount;
   } catch (err) {
     return handleError({

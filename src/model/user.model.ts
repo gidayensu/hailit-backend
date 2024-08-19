@@ -59,7 +59,7 @@ export const getAllUsersFromDB = async ({
   }
 };
 
-export const getCustomerCount = async (search:string): Promise<ErrorResponse | TotalCount> => {
+export const getCustomerCount = async (search?:string): Promise<ErrorResponse | TotalCount> => {
   try {
     const customerCount = await customersCount(
       search
@@ -122,7 +122,8 @@ export const addUserToDB = async (userDetails: User) => {
     const emailExist = await emailExists(email);
 
     if (!emailExist) {
-      return await insertUserDetails({columns: columnsForAdding, userDetails: userDetailsArray})
+      const user = await insertUserDetails({columns: columnsForAdding, userDetails: userDetailsArray})
+      return user;
     } else {
       return handleError(
         {
@@ -161,6 +162,7 @@ export const insertUserDetails = async ({userDetails, columns}: {userDetails: st
       return insertUserDetails;
     }
     const newUser: User = insertUserDetails[0];
+    return newUser;
   } catch (err) {
     return handleError(
       {

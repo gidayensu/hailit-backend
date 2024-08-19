@@ -63,7 +63,7 @@ export const getAllRiders = async ({
   }
 };
 
-export const getRidersCount = async(search:string)=> {
+export const getRidersCount = async(search?:string)=> {
   try {
     const ridersCount = await getDispatcherCount({
       search,
@@ -114,7 +114,10 @@ export const getRiderOnConditionFromDB = async ({columnName, condition}: {column
       columnName,
       condition}
     );
-    return riderDetails;
+    if(isErrorResponse(riderDetails)) {
+      return riderDetails
+    }
+    return riderDetails[0];
   } catch (err) {
     return handleError({
       error: "Error occurred getting rider",
@@ -128,11 +131,11 @@ export const getRiderOnConditionFromDB = async ({columnName, condition}: {column
 
 export const getSpecificRidersFromDB = async ({specificColumn, condition}: {specificColumn:string, condition:boolean}) => {
   try {
-    const specificRiders = await getSpecificDetails(
-      RIDER_TABLE_NAME,
+    const specificRiders = await getSpecificDetails({
+      tableName: RIDER_TABLE_NAME,
       specificColumn,
-      condition
-    );
+      condition,
+    });
     return specificRiders;
   } catch (err) {
     return handleError({
