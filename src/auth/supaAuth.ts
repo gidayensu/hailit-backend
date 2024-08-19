@@ -1,9 +1,9 @@
-import jwt from 'jsonwebtoken';
-import { Middleware } from '../types/middleware.types';
+import jwt, { Secret } from 'jsonwebtoken';
+import { CustomRequest, Middleware } from '../types/middleware.types';
 
 export const supaAuth:Middleware =  (req, res, next) => {
    
-       const supaSecret = process.env.SUPABASE_JWT_SECRET;
+       const supaSecret = process.env.SUPABASE_JWT_SECRET as Secret;
     const path = req.path;
     try {
         const authHeader = req.headers.authorization;
@@ -29,7 +29,7 @@ export const supaAuth:Middleware =  (req, res, next) => {
             return res.status(401).json({ error: "Unauthorized - token cannot be verified" });
         }
 
-        req.user = user;
+        (req as CustomRequest).user = user;
         
         next();
 

@@ -7,10 +7,11 @@ import {
 } from "../../constants/tripConstants";
 import { allowedPropertiesOnly, isRightValue } from "../../utils/util";
 import { Middleware } from "../../types/middleware.types";
+import { ErrorMessage } from "../../types/shared.types";
 
 export const addTripValidation: Middleware = async(req, res, next) => {
 
-  const errors = [];
+  const errors: ErrorMessage[] = [];
   const {
     trip_medium,
     trip_type,
@@ -26,7 +27,7 @@ export const addTripValidation: Middleware = async(req, res, next) => {
     payment_method,
   } = req.body;
 
-  const errorReturner = (errorMessage) => {
+  const errorReturner = (errorMessage: string) => {
     !errorMessage ? null : errors.push({ error: errorMessage });
   };
 

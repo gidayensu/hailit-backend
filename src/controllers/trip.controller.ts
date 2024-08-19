@@ -71,7 +71,7 @@ export const getOneTrip : Middleware = async (req, res) => {
   try {
     const { trip_id } = req.params;
 
-    const userId = req.user?.sub;
+    const userId = (req as CustomRequest).user?.sub;
 
     const oneTrip = await getOneTripService({tripId:trip_id, requesterUserId:userId});
     if (isErrorResponse(oneTrip)) {
@@ -129,8 +129,8 @@ export const addTrip : Middleware = async (req, res) => {
 
   try {
     const tripDetails = req.body;
-    const userId = req.user?.sub || DEFAULT_USER_ID;
-    const io = req.io;
+    const userId = (req as CustomRequest).user?.sub || DEFAULT_USER_ID;
+    const io = (req as CustomRequest).io;
     
     const tripAdded = await addTripService({userId, tripDetails, io});
     if (isErrorResponse(tripAdded)) {
@@ -157,8 +157,8 @@ export const addTrip : Middleware = async (req, res) => {
 
 export const updateTrip : Middleware = async (req, res) => {
   try {
-    const reqUserId = req.user.sub;
-    const io = req.io;
+    const reqUserId = (req as CustomRequest).user.sub;
+    const io = (req as CustomRequest).io;
     
     const { trip_id } = req.params;
     const tripDetails = { trip_id, ...req.body,  };
@@ -224,7 +224,7 @@ export const deleteTrip : Middleware = async (req, res) => {
   try {
     
     const { trip_id } = req.params;
-    const io = req.io;
+    const io = (req as CustomRequest).io;
     const tripDelete = await deleteTripService({tripId: trip_id, io});
 
     if (isErrorResponse(tripDelete)) {

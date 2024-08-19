@@ -1,5 +1,5 @@
 import { userIsUserRole } from "../../utils/util";
-import { Middleware } from "../../types/middleware.types";
+import { CustomRequest, Middleware } from "../../types/middleware.types";
 
 export const isUser: Middleware = async (req, res, next) => {
   try {
@@ -7,7 +7,7 @@ export const isUser: Middleware = async (req, res, next) => {
 
     const { userId } = req.params;
     
-    const jwtUserId = req.user.sub;
+    const jwtUserId = (req as CustomRequest).user.sub;
 
     const isAdmin = await userIsUserRole({userId:jwtUserId, userRole:"Admin"});
     

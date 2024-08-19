@@ -1,10 +1,10 @@
 
 import { userIsUserRole } from "../utils/util";
-import { Middleware } from "../types/middleware.types";
+import { CustomRequest, Middleware } from "../types/middleware.types";
 
 export const isAdmin: Middleware = async (req, res, next) => {
   
-  const user_id = req.user?.sub;
+  const user_id = (req as CustomRequest).user.sub;
   
   const adminStatus = await userIsUserRole({userId:user_id, userRole:"Admin"});
   

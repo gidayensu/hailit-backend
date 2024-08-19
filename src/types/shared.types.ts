@@ -29,3 +29,9 @@ export enum EntityName {
     current_page: number;
     total_items: number;
 }
+
+export interface ErrorMessage {
+  error: string
+}
+
+export type DataString = string | undefined;

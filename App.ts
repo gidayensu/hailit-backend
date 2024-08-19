@@ -1,10 +1,9 @@
-import express from 'express';
+import express from 'express'
 import morgan from 'morgan';
 // import helmet from 'helmet';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import http from 'http';
-import { Server } from 'socket.io';
 // routes
 import { driverRouter } from './src/v1/routes/driver.routes';
 import { userRouter } from './src/v1/routes/user.routes';
@@ -13,7 +12,11 @@ import { tripRouter } from './src/v1/routes/trip.routes';
 import { vehicleRouter } from './src/v1/routes/vehicle.routes';
 
 //types
+import { Server } from 'socket.io';
 import {Request, Response, NextFunction} from 'express';
+import { CustomRequest } from './src/types/middleware.types';
+
+
 
 const PORT = process.env.PORT || 5000;
 
@@ -39,7 +42,7 @@ const io: Server = new Server(server, {
 
 
 io.engine.use((req: Request, res:Response , next: NextFunction) => {
-  const user_id = req._query.user_id;
+  const user_id = req.query.user_id;
   if (!user_id) {
     io.disconnectSockets(true);
     return next(new Error("Authentication error"));
@@ -60,7 +63,7 @@ io.use((socket, next) => {
 
 app.use((req: Request, res: Response, next: NextFunction)=> {
   
-  req.io = io;
+  (req as CustomRequest).io = io;
   next()
 })
 

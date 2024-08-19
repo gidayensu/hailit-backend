@@ -1,5 +1,5 @@
 import { userIsUserRole } from "../../utils/util";
-import { Middleware } from "../../types/middleware.types";
+import { Middleware, CustomRequest } from "../../types/middleware.types";
 
 export const isUserRole: Middleware = async (req, res, next) => {
   try {
@@ -12,7 +12,7 @@ export const isUserRole: Middleware = async (req, res, next) => {
       //new customer
       userRole = "Customer";
     }
-    const jwtUserId = req.user.sub;
+    const jwtUserId = (req as CustomRequest).user.sub;
 
     const isAdmin = await userIsUserRole({userId:jwtUserId, userRole:"Admin"});
     const isRole = await userIsUserRole({userId:jwtUserId, userRole:userRole});
@@ -33,7 +33,7 @@ export const userIsAdmin: Middleware = async(req, res) => {
     
 
     const { userId } = req.params;
-    const jwtUserId = req.user.sub;
+    const jwtUserId = (req as CustomRequest).user.sub;
     const isAdmin = await userIsUserRole({userId:jwtUserId, userRole:"Admin"});
 
 

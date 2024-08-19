@@ -1,13 +1,13 @@
 import { handleError } from '../../utils/handleError.js';
 import { userIsUserRole, riderUserId } from '../../utils/util.js';
-import { Middleware } from '../../types/middleware.types';
+import { CustomRequest, Middleware } from '../../types/middleware.types';
 
 export const isAdminOrRider: Middleware = async (req, res, next) => {
     
     try {
         const path = req.path;
         const { rider_id } = req.params;
-        const jwtUserId = req.user.user_id;
+        const jwtUserId = (req as CustomRequest).user.user_id;
         const isAdmin = await userIsUserRole({userId:jwtUserId, userRole:'Admin'});
         const rider_user_id = await riderUserId(rider_id);
         

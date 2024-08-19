@@ -13,7 +13,7 @@ export const tripSupaAuth: Middleware = (req, res, next) => {
     }
     const user = jwt.verify(token, supaSecret);
     if (user) {
-      req.user = user;
+      (req as CustomRequest).user = user;
     }
   } catch (err) {
     console.error("Token verification failed:", err);

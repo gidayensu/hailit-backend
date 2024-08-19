@@ -57,7 +57,7 @@ export const getAllDrivers:Middleware = async (req, res) => {
 
 export const getOneDriver: Middleware  = async (req, res) => {
   const { driver_id } = req.params;
-  const requesterUserId = req.user.sub;
+  const requesterUserId = (req as CustomRequest).user.sub;
   try {
     const driver = await getOneDriverService({driverId:driver_id, requesterUserId});
     if (isErrorResponse(driver)) {
@@ -96,7 +96,7 @@ export const updateDriver : Middleware = async (req, res) => {
     if (updatedDriver.error) {
       return res.status(updatedDriver.errorCode).json({ error: updatedDriver.error, errorMessage: updatedDriver.errorMessage, errorSource: updatedDriver.errorSource });
     }
-    req.io.emit('updatedDriver', updatedDriver)
+    (req as CustomRequest).io.emit('updatedDriver', updatedDriver)
     res.status(200).json({ driver: updatedDriver });
   } catch (err) {
     return res

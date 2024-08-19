@@ -1,11 +1,11 @@
 
 import { userIsUserRole } from '../../utils/util.js';
-import { Middleware } from '../../types/middleware.types';
+import { CustomRequest, Middleware } from '../../types/middleware.types';
 
 export const isAdminOrUserAuth: Middleware = async (req, res, next) => {
     try {
         const { userId } = req.params;
-        const jwtUserId = req.user.user_id;
+        const jwtUserId = (req as CustomRequest).user.user_id;
         
         const isAdmin = await userIsUserRole({userId:jwtUserId, userRole:'Admin'});
         const isDriver = await userIsUserRole({userId:jwtUserId, userRole:'Driver'});

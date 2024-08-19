@@ -1,6 +1,6 @@
 import { userIsUserRole } from "../../utils/util";
 import { userAssociatedWithTrip } from "../../utils/util";
-import { Middleware } from "../../types/middleware.types";
+import { Middleware, CustomRequest } from "../../types/middleware.types";
 
 export const isAssociatedWithTrip: Middleware = async (req, res, next) => {
   try {
@@ -9,7 +9,7 @@ export const isAssociatedWithTrip: Middleware = async (req, res, next) => {
     
     const dispatcherId = req.body.dispatcher_id;
     
-    const jwtUserId = req.user.sub;
+    const jwtUserId = (req as CustomRequest).user.sub;
     const requesterId = dispatcherId ? dispatcherId : jwtUserId;
     const requesterRole = dispatcherId ? "Dispatcher" : "Customer";
     const isAdmin = await userIsUserRole({userId:jwtUserId, userRole:"Admin"});
@@ -32,7 +32,7 @@ export const userIsAdmin: Middleware = async(req, res) => {
     
 
     const { userId } = req.params;
-    const jwtUserId = req.user.sub;
+    const jwtUserId = (req as CustomRequest).user.sub;
     const isAdmin = await userIsUserRole({userId:jwtUserId, userRole:"Admin"});
 
     if (userId === jwtUserId && isAdmin) {

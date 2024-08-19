@@ -55,7 +55,7 @@ export const getAllRiders: Middleware = async (req, res) => {
 
 export const getOneRider: Middleware = async (req, res) => {
   const { rider_id } = req.params;
-  const requesterUserId = req.user.sub;
+  const requesterUserId = (req as CustomRequest).user.sub;
 
   try {
     const rider = await getOneRiderService({id:rider_id, requesterUserId});

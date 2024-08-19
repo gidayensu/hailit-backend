@@ -8,6 +8,7 @@ import {
   MONTH_ORDER,
 } from "../../constants/tripConstants";
 import { Middleware } from "../../types/middleware.types";
+import { ErrorMessage } from "../../types/shared.types";
 
 //validated requested property
 
@@ -23,10 +24,15 @@ export const tripStatsColumnValidation: Middleware = async(req, res, next) => {
   } = req.query;
   
   const validateTripStatsRequest = (
-    tripProp,
+    {tripProp,
     allowedValues,
     errorMessage, 
-    errors
+    errors} : {
+      tripProp: string,
+    allowedValues: string[],
+    errorMessage: string, 
+    errors: ErrorMessage[]
+    }
   ) => {
     
   
@@ -40,62 +46,66 @@ export const tripStatsColumnValidation: Middleware = async(req, res, next) => {
     }
   };
   
-  const errors = [];
+  const errors: ErrorMessage[] = [];
   //Column
   validateTripStatsRequest(
-    trip_column,
-    ALLOWED_TRIP_STATS_COLUMNS,
-    `Invalid trip column: ${trip_column} requested: Trip Stats`,
-    errors
+    {tripProp: `${trip_column}`,
+    allowedValues: ALLOWED_TRIP_STATS_COLUMNS,
+    errorMessage: `Invalid trip column: ${trip_column} requested: Trip Stats`,
+    errors}
   );
 
   //Month
-  validateTripStatsRequest(
-    month,
-    MONTH_ORDER,
-    `Invalid month: ${month} requested: Trip Stats`,
+  validateTripStatsRequest({
+    tripProp: `${month}`,
+    allowedValues: MONTH_ORDER,
+    errorMessage: `Invalid month: ${month} requested: Trip Stats`,
     errors
-  );
+});
+
 
   //Package Type
-  validateTripStatsRequest(
-    package_type,
-    ALLOWED_PACKAGE_TYPES,
-    "Invalid package type requested",
+  validateTripStatsRequest({
+    tripProp: `${package_type}`,
+    allowedValues: ALLOWED_PACKAGE_TYPES,
+    errorMessage: "Invalid package type requested",
     errors
-  );
+});
+
 
   //Trip Area
-  validateTripStatsRequest(
-    trip_area,
-    ALLOWED_TRIP_AREAS,
-    "Invalid trip area requested",
+  validateTripStatsRequest({
+    tripProp: `${trip_area}`,
+    allowedValues: ALLOWED_TRIP_AREAS,
+    errorMessage: "Invalid trip area requested",
     errors
-  );
+});
+
 
   //Trip Medium
-  validateTripStatsRequest(
-    trip_medium,
-    ALLOWED_TRIP_MEDIUMS,
-    "Invalid trip medium requested",
+  validateTripStatsRequest({
+    tripProp: `${trip_medium}`,
+    allowedValues: ALLOWED_TRIP_MEDIUMS,
+    errorMessage: "Invalid trip medium requested",
     errors
-  );
+});
+
 
   //Trip Type
-  validateTripStatsRequest(
-    trip_type,
-    ALLOWED_TRIP_TYPES,
-    "Invalid trip type requested",
+  validateTripStatsRequest({
+    tripProp: `${trip_type}`,
+    allowedValues: ALLOWED_TRIP_TYPES,
+    errorMessage: "Invalid trip type requested",
     errors
-  );
+});
 
   //Trip Status
-  validateTripStatsRequest(
-    trip_status,
-    ALLOWED_TRIP_STATUS,
-    "Invalid trip status  requested",
+  validateTripStatsRequest({
+    tripProp: `${trip_status}`,
+    allowedValues: ALLOWED_TRIP_STATUS,
+    errorMessage: "Invalid trip status requested",
     errors
-  );
+});
 
 
 
