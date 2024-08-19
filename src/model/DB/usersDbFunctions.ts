@@ -1,29 +1,21 @@
+import { DRIVER_ID_COLUMN, DRIVER_TABLE_NAME, DRIVER_VEHICLE_ID, USER_ID_DRIVER } from "../../constants/driverConstants";
+import {
+  EMAIL_COLUMN,
+  PHONE_NUMBER, RIDER_ID_COLUMN,
+  RIDER_TABLE_NAME,
+  RIDER_VEHICLE_ID, USER_ID_RIDER,
+  USER_ID_USERS, USERS_TABLE, VEHICLE_ID,
+  VEHICLE_NAME_COLUMN,
+  VEHICLE_PLATE_COLUMN
+} from "../../constants/riderConstants";
+import { FIRST_NAME, LAST_NAME } from "../../constants/tripConstants";
+import { VEHICLE_TABLE_NAME } from "../../constants/vehicleConstants";
+import { Dispatcher } from "../../types/dispatcher.types";
+import { GetAllFromDB } from "../../types/getAll.types";
+import { TotalCount } from "../../types/shared.types";
+import { User } from "../../types/user.types";
 import { ErrorResponse, handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
-import { USERS_TABLE } from "../../constants/riderConstants";
-import { GetAllFromDB } from "../../types/getAll.types";
-import {
-  DEFAULT_VEHICLE_ID,
-  EMAIL_COLUMN,
-  PHONE_NUMBER,
-  RIDER_COLUMNS_FOR_ADDING,
-  RIDER_ID_COLUMN,
-  RIDER_TABLE_NAME,
-  RIDER_VEHICLE_ID,
-  USER_FIRST_NAME,
-  USER_ID_RIDER,
-  USER_ID_USERS,
-  USER_LAST_NAME,
-  VEHICLE_ID,
-  VEHICLE_NAME_COLUMN,
-  VEHICLE_PLATE_COLUMN,
-} from "../../constants/riderConstants";
-import { DRIVER_ID_COLUMN, DRIVER_TABLE_NAME, DRIVER_VEHICLE_ID, USER_ID_DRIVER } from "../../constants/driverConstants";
-import { VEHICLE_TABLE_NAME } from "../../constants/vehicleConstants";
-import { FIRST_NAME, LAST_NAME } from "../../constants/tripConstants";
-import { User } from "../../types/user.types";
-import { Dispatcher } from "../../types/dispatcher.types";
-import { TotalCount } from "../../types/shared.types";
 
 interface DispatcherVehicleJoin extends GetAllFromDB {
   dispatcherRole: "Rider" | "Driver"
@@ -34,7 +26,7 @@ interface DispatcherVehicleJoin extends GetAllFromDB {
 
 export const customersCount = async (
   
-  search:string
+  search?:string
 ): Promise<TotalCount | ErrorResponse> => {
   
   try {
@@ -182,7 +174,7 @@ export const getDispatcherCount = async ({
   search,
   dispatcherRole,
 }: {
-  search: string;
+  search?: string;
   dispatcherRole: "Driver" | "Rider";
 }) => {
 

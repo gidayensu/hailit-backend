@@ -8,13 +8,21 @@ import { QueryResult } from "pg";
 
 
 export const getAll = async (
-  tableName,
+  {tableName,
   columns,
   limit,
   offset,
   sortColumn,
   sortDirection = "ASC",
-  search
+  search} : {
+    tableName: TableNames,
+  columns: string[],
+  limit: number,
+  offset: number,
+  sortColumn: string,
+  sortDirection: "ASC" | "DESC" ,
+  search: string
+  }
 ) => {
   
   try {
@@ -31,7 +39,7 @@ export const getAll = async (
 
     if (search) {
         values.push(`%${search}%`);
-        const searchConditions = columns.map(field => `${field} ILIKE $1`).join(' OR ');
+        const searchConditions = columns.map((field:string) => `${field} ILIKE $1`).join(' OR ');
         queryText = `
             SELECT * FROM ${tableName}
             WHERE ${searchConditions}
@@ -106,7 +114,7 @@ export const getAllVehicles = async (
     );
   }
 };
-export const vehiclesCount = async (search: string) => {
+export const vehiclesCount = async (search?: string) => {
   try {
     let queryText = `SELECT COUNT(*) AS total_count FROM ${VEHICLE_TABLE_NAME}`;
     const values = [];
@@ -170,7 +178,7 @@ export const getCountOnOneCondition = async ({
   }
 };
 
-export const getAllDateSort = async (tableName, dateColumn, limit) => {
+export const getAllDateSort = async ({tableName, dateColumn, limit}: {tableName: TableNames; dateColumn: string; limit: number}) => {
   try {
     let allItems = await DB.query(
       `SELECT * FROM ${tableName} ORDER BY ${dateColumn} DESC`
@@ -196,12 +204,19 @@ export const getAllDateSort = async (tableName, dateColumn, limit) => {
 };
 
 export const selectOnCondition = async (
-  tableName,
+  {tableName,
   columnName,
   condition,
   limit,
   offset,
-  search
+  search} : {
+    tableName: TableNames,
+  columnName: string,
+  condition: string | boolean,
+  limit: number,
+  offset: number,
+  search: string
+  }
 ) => {
   try {
     let queryText = `SELECT * FROM ${tableName}`;
@@ -252,9 +267,9 @@ export const getOne = async <T>({
       values.push(secondCondition);
       queryText = `SELECT * FROM ${tableName} WHERE ${columnName} =$1 AND ${secondConditionColumn} = $2`;
     }
-    const result: QueryResult<T> = await DB.query(queryText, values);
+    const result = await DB.query(queryText, values);
 
-    if (result.rowCount > 0) {
+    if (result.rowCount ?? 0 > 0 ) {
       const oneDetail = result.rows;
       return oneDetail
     } else {
@@ -275,11 +290,15 @@ export const getOne = async <T>({
   }
 };
 
-export const getSpecificDetails = async (
+export const getSpecificDetails = async ({
   tableName,
   specificColumn,
-  condition
-) => {
+  condition,
+}: {
+  tableName: TableNames;
+  specificColumn: string;
+  condition: string | boolean;
+}) => {
   try {
     await DB.query("BEGIN");
     const queryText = `SELECT * FROM ${tableName} WHERE ${specificColumn} = $1`;
@@ -289,15 +308,12 @@ export const getSpecificDetails = async (
     return rows;
   } catch (err) {
     await DB.query("ROLLBACK");
-    return handleError(
-      {
-        error: "Server Error occurred, data not retrieved",
-        errorMessage: `${err}`,
-        errorCode: 500,
-        errorSource: "Database Functions: Get Specific Details"
-      }
-      
-    );
+    return handleError({
+      error: "Server Error occurred, data not retrieved",
+      errorMessage: `${err}`,
+      errorCode: 500,
+      errorSource: "Database Functions: Get Specific Details",
+    });
   }
 };
 

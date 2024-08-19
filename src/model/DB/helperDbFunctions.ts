@@ -17,7 +17,7 @@ export const detailExists = async ({
     const value = [detail];
     const results = await DB.query(queryText, value);
 
-    return results.rowCount > 0 ? true : false;
+    return results.rowCount && results.rowCount > 0 ? true : false;
   } catch (err) {
     return handleError({
       error: "Error occurred checking if detail exists",
@@ -29,10 +29,15 @@ export const detailExists = async ({
 };
 
 export const increaseByValue = async (
-  tableName,
+  {tableName,
   id,
   idColumn,
-  columnToBeIncreased
+  columnToBeIncreased} : {
+    tableName: TableNames,
+  id: string,
+  idColumn: string,
+  columnToBeIncreased: string
+  }
 ) => {
   try {
     DB.query("BEGIN");

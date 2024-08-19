@@ -1,7 +1,7 @@
 import { USERS_TABLE } from "../../constants/riderConstants";
-import { FIRST_NAME, LAST_NAME, LOCATION_TABLE_NAME, PAYMENT_STATUS, TRIP_ID_COLUMN, TRIP_TABLE_NAME, USER_ID_TRIP, USER_ID_USER } from "../../constants/tripConstants";
+import { FIRST_NAME, LAST_NAME, LOCATION_TABLE_NAME, PAYMENT_STATUS, TRIP_COST_COLUMN, TRIP_ID_COLUMN, TRIP_REQUEST_DATE_COLUMN, TRIP_STATUS, TRIP_TABLE_NAME, USER_ID_TRIP, USER_ID_USER } from "../../constants/tripConstants";
 import { GetAllFromDB } from "../../types/getAll.types";
-import { IDsAndMedium, Trip } from "../../types/trips.types";
+import { IDsAndMedium, MonthName, Trip } from "../../types/trips.types";
 import { ErrorResponse, handleError } from "../../utils/handleError";
 import { DB } from "./connectDb";
 
@@ -23,7 +23,7 @@ WHERE
 
     const result = await DB.query(queryText, value);
 
-    if (result.rowCount > 0) {
+    if ((result.rowCount ?? -1) > 0) {
       return result.rows;
     } else {
       return handleError({
@@ -43,7 +43,7 @@ WHERE
   }
 };
 
-export const tripsCount = async (search:string) => {
+export const tripsCount = async (search?:string) => {
   try {
     let queryText = `SELECT COUNT(*) AS total_count
 FROM ${TRIP_TABLE_NAME} 
@@ -181,7 +181,7 @@ export const getRevenueByMonth = async () => {
   }
 };
 
-export const getCountByMonth = async (dataColumn, condition, month) => {
+export const getCountByMonth = async ({dataColumn, condition, month}: {dataColumn: string, condition:string, month: MonthName}) => {
   try {
     const values = [];
     let queryText = `SELECT
@@ -219,44 +219,38 @@ export const getCountByMonth = async (dataColumn, condition, month) => {
   }
 };
 
-export const getPreviousTwoMonthsCounts = async (
-  tripTable,
-  requestDateColumn,
-  tripStatusColumn,
-  tripCostColumn,
-  paymentStatusColumn
-) => {
+export const getPreviousTwoMonthsCounts = async () => {
   try {
     
     const values = ["Delivered", "Cancelled", true];
     const queryText = `
     SELECT
       CAST(COUNT(*) FILTER (
-        WHERE TO_CHAR(${requestDateColumn}, 'Month') = TO_CHAR(CURRENT_DATE, 'Month')
+        WHERE TO_CHAR(${TRIP_REQUEST_DATE_COLUMN}, 'Month') = TO_CHAR(CURRENT_DATE, 'Month')
       ) AS INTEGER) AS "total_trips_current_month",
       CAST(COUNT(*) FILTER (
-        WHERE TO_CHAR(${requestDateColumn}, 'Month') = TO_CHAR(CURRENT_DATE, 'Month') AND ${tripStatusColumn} = $1
+        WHERE TO_CHAR(${TRIP_REQUEST_DATE_COLUMN}, 'Month') = TO_CHAR(CURRENT_DATE, 'Month') AND ${TRIP_STATUS} = $1
       ) AS INTEGER) AS "delivered_current_month",
       CAST(COUNT(*) FILTER (
-        WHERE TO_CHAR(${requestDateColumn}, 'Month') = TO_CHAR(CURRENT_DATE, 'Month') AND ${tripStatusColumn} = $2
+        WHERE TO_CHAR(${TRIP_REQUEST_DATE_COLUMN}, 'Month') = TO_CHAR(CURRENT_DATE, 'Month') AND ${TRIP_STATUS} = $2
       ) AS INTEGER) AS "cancelled_current_month",
-      CAST(SUM(${tripCostColumn}) FILTER (
-        WHERE TO_CHAR(${requestDateColumn}, 'Month') = TO_CHAR(CURRENT_DATE, 'Month') AND ${paymentStatusColumn} = $3
+      CAST(SUM(${TRIP_COST_COLUMN}) FILTER (
+        WHERE TO_CHAR(${TRIP_REQUEST_DATE_COLUMN}, 'Month') = TO_CHAR(CURRENT_DATE, 'Month') AND ${PAYMENT_STATUS} = $3
       ) AS FLOAT) AS "revenue_current_month",
       CAST(COUNT(*) FILTER (
-        WHERE TO_CHAR(${requestDateColumn}, 'Month') = TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'Month')
+        WHERE TO_CHAR(${TRIP_REQUEST_DATE_COLUMN}, 'Month') = TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'Month')
       ) AS INTEGER) AS "total_trips_previous_month",
       CAST(COUNT(*) FILTER (
-        WHERE TO_CHAR(${requestDateColumn}, 'Month') = TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'Month') AND ${tripStatusColumn} = $1
+        WHERE TO_CHAR(${TRIP_REQUEST_DATE_COLUMN}, 'Month') = TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'Month') AND ${TRIP_STATUS} = $1
       ) AS INTEGER) AS "delivered_previous_month",
       CAST(COUNT(*) FILTER (
-        WHERE TO_CHAR(${requestDateColumn}, 'Month') = TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'Month') AND ${tripStatusColumn} = $2
+        WHERE TO_CHAR(${TRIP_REQUEST_DATE_COLUMN}, 'Month') = TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'Month') AND ${TRIP_STATUS} = $2
       ) AS INTEGER) AS "cancelled_previous_month",
-      CAST(SUM(${tripCostColumn}) FILTER (
-        WHERE TO_CHAR(${requestDateColumn}, 'Month') = TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'Month') AND ${paymentStatusColumn} = $3
+      CAST(SUM(${TRIP_COST_COLUMN}) FILTER (
+        WHERE TO_CHAR(${TRIP_REQUEST_DATE_COLUMN}, 'Month') = TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'Month') AND ${PAYMENT_STATUS} = $3
       ) AS FLOAT) AS "revenue_previous_month"
     FROM
-      ${tripTable};
+      ${TRIP_TABLE_NAME};
   `;
     const selectedTrips = await DB.query(queryText, values);
     return selectedTrips.rows[0];
@@ -273,19 +267,19 @@ export const getPreviousTwoMonthsCounts = async (
   }
 };
 
-export const getTwoMonthsTrip = async (tripTable, requestDateColumn) => {
+export const getTwoMonthsTrip = async () => {
   try {
     const queryText = `SELECT
     COUNT(*) FILTER (
       WHERE
-        TO_CHAR(${requestDateColumn}, 'Month') = TO_CHAR(CURRENT_DATE, 'Month')
+        TO_CHAR(${TRIP_REQUEST_DATE_COLUMN}, 'Month') = TO_CHAR(CURRENT_DATE, 'Month')
     ) AS TO_CHAR(CURRENT_DATE, 'Month'),
     COUNT(*) FILTER (
       WHERE
-        TO_CHAR(${requestDateColumn}, 'Month') = TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'Month')
+        TO_CHAR(${TRIP_REQUEST_DATE_COLUMN}, 'Month') = TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'Month')
     ) AS previous_month_count
   FROM
-    ${tripTable};
+    ${TRIP_TABLE_NAME};
   `;
     const selectedTrips = await DB.query(queryText);
     return selectedTrips.rows;
@@ -364,7 +358,7 @@ export const getIDsAndMedium = async (tripId:string): Promise<IDsAndMedium | Err
   try {
     const queryText = 'SELECT dispatcher_id as dispatcher_id, customer_id as customer_id, trip_medium as trip_medium FROM trips WHERE trip_id = $1';
     const IDsAndMedium = await DB.query(queryText, value);
-    if(IDsAndMedium.rowCount < 1) {
+    if(( IDsAndMedium.rowCount ?? -1) < 1) {
       return handleError({
         error: "dispatcherId not found",
         errorMessage: "",
@@ -373,7 +367,7 @@ export const getIDsAndMedium = async (tripId:string): Promise<IDsAndMedium | Err
       }
       )
     }
-    if(IDsAndMedium.rowCount > 0) {
+    if((IDsAndMedium.rowCount ?? -1) > 0) {
       
       return IDsAndMedium.rows[0];
     }
